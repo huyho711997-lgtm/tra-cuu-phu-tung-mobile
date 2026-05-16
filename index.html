@@ -334,6 +334,8 @@
         html.dark .badge-aftermarket { border-color: rgba(217,119,6,0.3); }
         .badge-verified { background: var(--blue-light); color: var(--blue); border-color: #bfdbfe; }
         html.dark .badge-verified { border-color: rgba(37,99,235,0.3); color: #60a5fa; }
+        .badge-pending { background: var(--amber-light); color: var(--amber); border-color: #fde68a; }
+        .badge-rejected { background: var(--red-light); color: var(--red); border-color: #fecaca; cursor: pointer; }
         .badge-unverified { background: var(--bg); color: var(--text-3); border-color: var(--border); cursor: pointer; }
         .badge-unverified:active { background: var(--blue-light); color: var(--blue); }
 
@@ -543,9 +545,9 @@
         .stat-item { flex: 1; text-align: center; }
         .stat-val { font-size: 16px; font-weight: 900; color: var(--blue); }
         .stat-lbl { font-size: 9px; font-weight: 700; color: var(--text-3); text-transform: uppercase; }
-        .user-card-actions { display: flex; gap: 6px; }
+        .user-card-actions { display: flex; gap: 6px; flex-wrap: wrap; }
         .user-action-btn {
-            flex: 1; height: 36px;
+            flex: 1 1 96px; height: 36px;
             background: var(--bg); border: 1px solid var(--border);
             border-radius: 8px; cursor: pointer;
             display: flex; align-items: center; justify-content: center; gap: 5px;
@@ -556,9 +558,25 @@
         .user-action-btn svg { width: 13px; height: 13px; }
         .user-action-btn:active { transform: scale(0.95); }
         .user-action-btn.blue { color: var(--blue); border-color: rgba(37,99,235,0.2); background: var(--blue-light); }
+        .user-action-btn.green { color: var(--green); border-color: rgba(22,163,74,0.2); background: var(--green-light); }
         .user-action-btn.orange { color: #f97316; border-color: rgba(249,115,22,0.2); background: rgba(249,115,22,0.05); }
         .user-action-btn.red { color: var(--red); border-color: rgba(220,38,38,0.2); background: var(--red-light); }
-        .user-action-btn.green { color: var(--green); border-color: rgba(22,163,74,0.2); background: var(--green-light); }
+
+        .admin-block {
+            background: var(--card); border: 1px solid var(--border);
+            border-radius: var(--radius); padding: 12px; margin-bottom: 12px;
+            box-shadow: var(--shadow);
+        }
+        .admin-block-title { font-size: 13px; font-weight: 900; color: var(--text); text-transform: uppercase; margin-bottom: 8px; }
+        .verification-card {
+            background: var(--bg); border: 1px solid var(--border);
+            border-radius: 12px; padding: 12px; margin-bottom: 8px;
+        }
+        .verification-card:last-child { margin-bottom: 0; }
+        .verification-name { font-size: 13px; font-weight: 900; color: var(--text); text-transform: uppercase; line-height: 1.35; }
+        .verification-meta { font-size: 10px; font-weight: 700; color: var(--text-3); margin-top: 3px; line-height: 1.45; }
+        .verification-note { font-size: 12px; font-weight: 600; color: var(--text-2); margin-top: 8px; line-height: 1.45; }
+        .verification-actions { display: flex; gap: 6px; margin-top: 10px; }
 
         /* ---- LOADING ---- */
         .loading-spinner { display: none; align-items: center; justify-content: center; gap: 8px; padding: 20px; color: var(--blue); }
@@ -842,6 +860,15 @@
                     <svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M12 4v16m8-8H4"/></svg>
                     Thêm mới
                 </button>
+            </div>
+            <div class="admin-block">
+                <div class="admin-block-title">Yêu cầu xác thực phụ tùng</div>
+                <div id="verificationQueueContainer">
+                    <div class="empty-state">
+                        <svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
+                        Chưa có yêu cầu chờ duyệt
+                    </div>
+                </div>
             </div>
             <div id="userListContainer">
                 <div class="empty-state">
@@ -1159,12 +1186,31 @@
         let CAY_GIA_PHA = {}; let NAM_ALL = [];
         let MASTER_DATA = []; let CURRENT_PAGE = 1; let ITEMS_PER_PAGE = 10;
 
+        function canApproveVerification() {
+            return !!currentUserProfile && (currentUserProfile.role === 'admin' || currentUserProfile.role === 'verifier' || currentUserProfile.canVerify === true);
+        }
+
+        function getVerificationStatus(item) {
+            if (item.verification_status) return item.verification_status;
+            return item.verified ? 'verified' : 'unverified';
+        }
+
+        function getVerificationLabel(status) {
+            const labels = {
+                unverified: 'Chưa xác thực',
+                pending: 'Đang chờ duyệt',
+                verified: 'Đã xác thực',
+                rejected: 'Từ chối'
+            };
+            return labels[status] || labels.unverified;
+        }
+
         // ---- AUTH ----
         checkLoginStatus();
 
         async function checkLoginStatus() {
             const subUser = JSON.parse(localStorage.getItem('subUserSession'));
-            if (subUser) showApp(subUser.email, 'user', subUser.fullName);
+            if (subUser) showApp(subUser.email, subUser.role || 'user', subUser.fullName, subUser);
         }
 
         onAuthStateChanged(auth, async (user) => {
@@ -1172,20 +1218,25 @@
             else if (!localStorage.getItem('subUserSession')) hideApp();
         });
 
-        function showApp(email, role, fullName = '') {
+        function showApp(email, role, fullName = '', profile = {}) {
             document.getElementById('loginOverlay').style.display = 'none';
             document.getElementById('mainApp').style.display = 'block';
             document.getElementById('userEmail').innerText = fullName || email;
-            currentUserProfile = { email, role, fullName };
-            if (role === 'admin') {
+            currentUserProfile = { email, role, fullName, id: profile.id || null, canVerify: profile.canVerify === true };
+            if (canApproveVerification()) {
                 document.querySelectorAll('.admin-only').forEach(el => el.style.display = 'flex');
             }
+            const adminHeader = document.querySelector('#adminSection .admin-header');
+            const userList = document.getElementById('userListContainer');
+            if (adminHeader) adminHeader.style.display = role === 'admin' ? 'flex' : 'none';
+            if (userList) userList.style.display = role === 'admin' ? 'block' : 'none';
             loadFilters();
         }
 
         function hideApp() {
             document.getElementById('loginOverlay').style.display = 'flex';
             document.getElementById('mainApp').style.display = 'none';
+            document.querySelectorAll('.admin-only').forEach(el => el.style.display = 'none');
             currentUserProfile = null;
         }
 
@@ -1230,9 +1281,9 @@
                 if (uData.status === 'locked') throw new Error("Tài khoản đã bị khóa, liên hệ quản trị!");
                 await updateDoc(userDoc.ref, { lastLogin: serverTimestamp(), loginCount: (uData.loginCount || 0) + 1 });
                 await addDoc(collection(db, "user_logs"), { email, action: "Đăng nhập", timestamp: serverTimestamp() });
-                const userData = { id: userDoc.id, email, role: 'user', fullName: uData.fullName || email };
+                const userData = { id: userDoc.id, email, role: uData.role || 'user', fullName: uData.fullName || email, canVerify: uData.canVerify === true };
                 localStorage.setItem('subUserSession', JSON.stringify(userData));
-                showApp(email, 'user', uData.fullName || email);
+                showApp(email, userData.role, uData.fullName || email, userData);
             } else {
                 throw new Error("Sai tài khoản hoặc mật khẩu!");
             }
@@ -1466,6 +1517,14 @@
             if (e.key === 'Enter') { e.target.blur(); searchData(); }
         });
 
+        function renderVerificationBadge(item) {
+            const status = getVerificationStatus(item);
+            if (status === 'verified') return '<span class="badge badge-verified">✓ Đã xác thực</span>';
+            if (status === 'pending') return '<span class="badge badge-pending">Đang chờ duyệt</span>';
+            if (status === 'rejected') return `<span class="badge badge-rejected" onclick="verifyPart('${item.id}')">Từ chối - gửi lại</span>`;
+            return `<span class="badge badge-unverified" onclick="verifyPart('${item.id}')">Gửi xác thực</span>`;
+        }
+
         function renderCards() {
             const container = document.getElementById('resultsContainer');
             container.innerHTML = '';
@@ -1518,7 +1577,7 @@
                             </div>
                             <div class="card-badges">
                                 ${isGenuine ? '<span class="badge badge-genuine">Chính hãng</span>' : '<span class="badge badge-aftermarket">Thay thế</span>'}
-                                ${item.verified ? '<span class="badge badge-verified">✓ Đã XN</span>' : `<span class="badge badge-unverified" onclick="verifyPart('${item.id}')">Xác thực</span>`}
+                                ${renderVerificationBadge(item)}
                             </div>
                         </div>
                     </div>
@@ -1543,6 +1602,8 @@
             const item = MASTER_DATA.find(i => i.id === id);
             if (!item) return;
             const isGenuine = (item.chinh_hang || '').toLowerCase().includes("chính hãng");
+            const verificationStatus = getVerificationStatus(item);
+            const reviewedAt = item.verification_reviewed_at && item.verification_reviewed_at.seconds ? new Date(item.verification_reviewed_at.seconds * 1000).toLocaleString('vi-VN') : '';
             const content = document.getElementById('detailContent');
             content.innerHTML = `
                 <div class="detail-row"><div class="detail-label">Tên phụ tùng</div><div class="detail-value blue">${item.ten_phu_tung || 'N/A'}</div></div>
@@ -1554,6 +1615,9 @@
                 <div class="detail-row"><div class="detail-label">Đơn giá</div><div class="detail-value highlight">${new Intl.NumberFormat('vi-VN').format(item.gia_duyet || 0)} <span style="font-size:12px;font-weight:700;color:var(--text-3)">VNĐ</span></div></div>
                 <div class="detail-row"><div class="detail-label">Ngày báo giá</div><div class="detail-value">${item.ngay_bao_gia || 'N/A'}</div></div>
                 <div class="detail-row"><div class="detail-label">Garage báo giá</div><div class="detail-value">${item.ten_garage || 'N/A'}</div></div>
+                <div class="detail-row"><div class="detail-label">Trạng thái xác thực</div><div class="detail-value">${getVerificationLabel(verificationStatus)}</div></div>
+                ${item.verification_reviewed_by ? `<div class="detail-row"><div class="detail-label">Người duyệt</div><div class="detail-value">${item.verification_reviewed_by}${reviewedAt ? ' · ' + reviewedAt : ''}</div></div>` : ''}
+                ${item.verification_reject_reason ? `<div class="detail-row"><div class="detail-label">Lý do từ chối</div><div class="detail-value" style="color:var(--red)">${item.verification_reject_reason}</div></div>` : ''}
                 <div class="detail-row"><div class="detail-label">Tỉnh thành / Loại hình</div><div class="detail-value">${item.tinh_thanh || 'N/A'} / ${item.loai_hinh || 'Gara'}</div></div>
                 ${item.verified && item.verification_note ? `<div class="detail-row"><div class="detail-label">Ghi chú xác thực</div><div class="detail-value" style="color:var(--green);font-style:italic">${item.verification_note}</div></div>` : ''}
             `;
@@ -1564,22 +1628,56 @@
         window.verifyPart = function(id) {
             const item = MASTER_DATA.find(i => i.id === id);
             if (!item) return;
+            const status = getVerificationStatus(item);
+            if (status === 'pending') return customAlert("Hồ sơ này đang chờ admin duyệt.");
+            if (status === 'verified') return customAlert("Hồ sơ này đã được xác thực.", "success");
             document.getElementById('verifyHSBT').innerText = item.so_hsbt || 'N/A';
-            document.getElementById('verifyNote').value = '';
+            document.getElementById('verifyNote').value = item.verification_note || '';
             openSheet('sheetVerify');
-            document.getElementById('confirmVerifyBtn').onclick = () => confirmVerifyBulk(item.so_hsbt);
+            document.getElementById('confirmVerifyBtn').innerText = canApproveVerification() ? 'Duyệt xác thực' : 'Gửi yêu cầu';
+            document.getElementById('confirmVerifyBtn').onclick = () => submitVerificationRequest(item.so_hsbt);
         };
 
-        async function confirmVerifyBulk(so_hsbt) {
+        async function submitVerificationRequest(so_hsbt) {
             const note = document.getElementById('verifyNote').value.trim();
             const snap = await getDocs(query(collection(db, "LichSuBaoGia"), where("so_hsbt", "==", so_hsbt)));
             const batch = writeBatch(db);
-            snap.forEach(docSnap => batch.update(docSnap.ref, { verified: true, verification_note: note }));
+            const updateData = canApproveVerification()
+                ? {
+                    verified: true,
+                    verification_status: 'verified',
+                    verification_note: note,
+                    verification_reject_reason: '',
+                    verification_reviewed_by: currentUserProfile.fullName || currentUserProfile.email,
+                    verification_reviewed_email: currentUserProfile.email,
+                    verification_reviewed_at: serverTimestamp()
+                }
+                : {
+                    verified: false,
+                    verification_status: 'pending',
+                    verification_note: note,
+                    verification_reject_reason: '',
+                    verification_requested_by: currentUserProfile.fullName || currentUserProfile.email,
+                    verification_requested_email: currentUserProfile.email,
+                    verification_requested_at: serverTimestamp()
+                };
+            snap.forEach(docSnap => batch.update(docSnap.ref, updateData));
             await batch.commit();
-            MASTER_DATA.forEach(i => { if (i.so_hsbt === so_hsbt) { i.verified = true; i.verification_note = note; } });
+            MASTER_DATA.forEach(i => {
+                if (i.so_hsbt === so_hsbt) {
+                    Object.assign(i, updateData);
+                    i.verification_note = note;
+                    i.verified = updateData.verified;
+                }
+            });
             renderCards();
             closeSheet('sheetVerify');
-            customAlert("Xác thực hồ sơ thành công!", "success");
+            if (canApproveVerification()) {
+                refreshVerificationQueue();
+                customAlert("Đã duyệt xác thực hồ sơ!", "success");
+            } else {
+                customAlert("Đã gửi yêu cầu xác thực, chờ admin duyệt.", "success");
+            }
         }
 
         window.addTag = (tag) => {
@@ -1593,8 +1691,96 @@
             document.getElementById('adminSection').style.display = tab === 'admin' ? 'block' : 'none';
             document.getElementById('navSearch').classList.toggle('active', tab === 'search');
             document.getElementById('navAdmin').classList.toggle('active', tab === 'admin');
-            if (tab === 'admin') refreshUserList();
+            if (tab === 'admin') {
+                refreshVerificationQueue();
+                if (currentUserProfile && currentUserProfile.role === 'admin') refreshUserList();
+            }
         };
+
+        window.refreshVerificationQueue = async function() {
+            const container = document.getElementById('verificationQueueContainer');
+            if (!container) return;
+            if (!canApproveVerification()) {
+                container.innerHTML = '<div class="empty-state">Bạn không có quyền duyệt xác thực</div>';
+                return;
+            }
+            container.innerHTML = '<div class="empty-state"><div class="spinner" style="margin:0 auto 8px"></div>Đang tải yêu cầu...</div>';
+            try {
+                const snap = await getDocs(query(collection(db, "LichSuBaoGia"), where("verification_status", "==", "pending")));
+                const byHsbt = new Map();
+                snap.forEach(docSnap => {
+                    const item = docSnap.data();
+                    item.id = docSnap.id;
+                    if (!byHsbt.has(item.so_hsbt)) byHsbt.set(item.so_hsbt, item);
+                });
+                const items = Array.from(byHsbt.values());
+                if (!items.length) {
+                    container.innerHTML = '<div class="empty-state"><svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>Chưa có yêu cầu chờ duyệt</div>';
+                    return;
+                }
+                container.innerHTML = '';
+                items.forEach(item => {
+                    const requestedAt = item.verification_requested_at && item.verification_requested_at.seconds ? new Date(item.verification_requested_at.seconds * 1000).toLocaleString('vi-VN') : 'N/A';
+                    const encodedHsbt = encodeURIComponent(item.so_hsbt || '');
+                    const card = document.createElement('div');
+                    card.className = 'verification-card';
+                    card.innerHTML = `
+                        <div class="verification-name">${item.ten_phu_tung || 'N/A'}</div>
+                        <div class="verification-meta">HSBT: ${item.so_hsbt || 'N/A'} · ${item.hang_xe || ''} ${item.hieu_xe || ''} · ${item.nam_sx || 'N/A'}</div>
+                        <div class="verification-meta">Người gửi: ${item.verification_requested_by || item.verification_requested_email || 'N/A'} · ${requestedAt}</div>
+                        ${item.verification_note ? `<div class="verification-note">${item.verification_note}</div>` : ''}
+                        <div class="verification-actions">
+                            <button class="user-action-btn green" onclick="approveVerification('${encodedHsbt}')">Duyệt</button>
+                            <button class="user-action-btn red" onclick="rejectVerification('${encodedHsbt}')">Từ chối</button>
+                        </div>
+                    `;
+                    container.appendChild(card);
+                });
+            } catch (e) {
+                container.innerHTML = '<div class="empty-state" style="color:var(--red)">Lỗi khi tải yêu cầu xác thực!</div>';
+            }
+        };
+
+        window.approveVerification = async function(so_hsbt) {
+            so_hsbt = decodeURIComponent(so_hsbt);
+            if (!canApproveVerification()) return customAlert("Bạn không có quyền duyệt xác thực.");
+            customConfirm("Duyệt xác thực hồ sơ này?", async () => {
+                await updateVerificationDecision(so_hsbt, 'verified', '');
+                customAlert("Đã duyệt xác thực!", "success");
+            });
+        };
+
+        window.rejectVerification = async function(so_hsbt) {
+            so_hsbt = decodeURIComponent(so_hsbt);
+            if (!canApproveVerification()) return customAlert("Bạn không có quyền duyệt xác thực.");
+            const reason = prompt("Nhập lý do từ chối:");
+            if (reason === null) return;
+            await updateVerificationDecision(so_hsbt, 'rejected', reason.trim());
+            customAlert("Đã từ chối yêu cầu xác thực.", "success");
+        };
+
+        async function updateVerificationDecision(so_hsbt, status, reason) {
+            const snap = await getDocs(query(collection(db, "LichSuBaoGia"), where("so_hsbt", "==", so_hsbt)));
+            const batch = writeBatch(db);
+            const updateData = {
+                verified: status === 'verified',
+                verification_status: status,
+                verification_reject_reason: status === 'rejected' ? reason : '',
+                verification_reviewed_by: currentUserProfile.fullName || currentUserProfile.email,
+                verification_reviewed_email: currentUserProfile.email,
+                verification_reviewed_at: serverTimestamp()
+            };
+            snap.forEach(docSnap => batch.update(docSnap.ref, updateData));
+            await batch.commit();
+            MASTER_DATA.forEach(i => {
+                if (i.so_hsbt === so_hsbt) {
+                    Object.assign(i, updateData);
+                    i.verified = updateData.verified;
+                }
+            });
+            renderCards();
+            refreshVerificationQueue();
+        }
 
         window.refreshUserList = async function() {
             const container = document.getElementById('userListContainer');
@@ -1616,6 +1802,7 @@
                             <div class="user-info">
                                 <div class="user-fullname">${u.fullName || 'Chưa có tên'}</div>
                                 <div class="user-meta">TK: <span>${u.email}</span> · MK: <span>${u.password}</span></div>
+                                <div class="user-meta" style="margin-top:2px;font-size:10px">Quyền xác thực: <span>${u.canVerify ? 'Có' : 'Không'}</span></div>
                                 <div class="user-meta" style="margin-top:2px;font-size:10px">Đăng nhập gần nhất: ${lastLogin}</div>
                             </div>
                             <span class="user-status ${u.status === 'locked' ? 'status-locked' : 'status-active'}">${u.status === 'locked' ? 'Đã khóa' : 'Hoạt động'}</span>
@@ -1627,6 +1814,9 @@
                         <div class="user-card-actions">
                             <button class="user-action-btn blue" onclick="viewUserHistory('${u.email}')">
                                 <svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>Lịch sử
+                            </button>
+                            <button class="user-action-btn ${u.canVerify ? 'orange' : 'green'}" onclick="toggleVerifyPermission('${uid}', ${u.canVerify ? 'true' : 'false'})">
+                                ${u.canVerify ? 'Gỡ quyền XT' : 'Cấp quyền XT'}
                             </button>
                             <button class="user-action-btn ${u.status === 'locked' ? 'green' : 'orange'}" onclick="toggleUserStatus('${uid}', '${u.status}')">
                                 <svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="${u.status === 'locked' ? 'M8 11V7a4 4 0 118 0m-4 8v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2z' : 'M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z'}"/></svg>${u.status === 'locked' ? 'Mở khóa' : 'Khóa'}
@@ -1651,6 +1841,16 @@
                 await updateDoc(doc(db, "sub_users", uid), { status: newStatus });
                 refreshUserList();
                 customAlert(newStatus === 'locked' ? "Đã khóa tài khoản!" : "Đã mở khóa tài khoản!", "success");
+            });
+        };
+
+        window.toggleVerifyPermission = async (uid, currentValue) => {
+            const nextValue = !currentValue;
+            const msg = nextValue ? "Cấp quyền duyệt xác thực phụ tùng cho tài khoản này?" : "Gỡ quyền duyệt xác thực phụ tùng của tài khoản này?";
+            customConfirm(msg, async () => {
+                await updateDoc(doc(db, "sub_users", uid), { canVerify: nextValue, role: nextValue ? 'verifier' : 'user' });
+                refreshUserList();
+                customAlert(nextValue ? "Đã cấp quyền xác thực!" : "Đã gỡ quyền xác thực!", "success");
             });
         };
 
