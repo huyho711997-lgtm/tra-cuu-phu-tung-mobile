@@ -1205,6 +1205,33 @@
             return labels[status] || labels.unverified;
         }
 
+        function escapeHtml(value) {
+            return String(value ?? '').replace(/[&<>"']/g, ch => ({
+                '&': '&amp;',
+                '<': '&lt;',
+                '>': '&gt;',
+                '"': '&quot;',
+                "'": '&#39;'
+            }[ch]));
+        }
+
+        function encodeActionValue(value) {
+            return encodeURIComponent(String(value ?? ''));
+        }
+
+        function decodeActionValue(value) {
+            return decodeURIComponent(String(value ?? ''));
+        }
+
+        function formatAppTimestamp(value, fallback = 'N/A') {
+            if (!value) return fallback;
+            let date = null;
+            if (typeof value.toDate === 'function') date = value.toDate();
+            else if (value.seconds) date = new Date(value.seconds * 1000);
+            else date = new Date(value);
+            return date && !Number.isNaN(date.getTime()) ? date.toLocaleString('vi-VN') : fallback;
+        }
+
         // ---- AUTH ----
         checkLoginStatus();
 
@@ -1794,37 +1821,47 @@
                 }
                 snap.forEach(docSnap => {
                     const u = docSnap.data(); const uid = docSnap.id;
-                    const lastLogin = u.lastLogin ? new Date(u.lastLogin.seconds * 1000).toLocaleString('vi-VN') : 'Chưa đăng nhập';
+                    const userEmail = String(u.email || '');
+                    const userPassword = String(u.password || '');
+                    const userFullName = String(u.fullName || 'Chưa có tên');
+                    const userStatus = u.status || 'active';
+                    const userCanVerify = u.canVerify === true;
+                    const lastLogin = formatAppTimestamp(u.lastLogin, 'Chưa đăng nhập');
+                    const uidArg = encodeActionValue(uid);
+                    const emailArg = encodeActionValue(userEmail);
+                    const passwordArg = encodeActionValue(userPassword);
+                    const fullNameArg = encodeActionValue(userFullName);
+                    const statusArg = encodeActionValue(userStatus);
                     const card = document.createElement('div');
                     card.className = 'user-card';
                     card.innerHTML = `
                         <div class="user-card-top">
                             <div class="user-info">
-                                <div class="user-fullname">${u.fullName || 'Chưa có tên'}</div>
-                                <div class="user-meta">TK: <span>${u.email}</span> · MK: <span>${u.password}</span></div>
-                                <div class="user-meta" style="margin-top:2px;font-size:10px">Quyền xác thực: <span>${u.canVerify ? 'Có' : 'Không'}</span></div>
-                                <div class="user-meta" style="margin-top:2px;font-size:10px">Đăng nhập gần nhất: ${lastLogin}</div>
+                                <div class="user-fullname">${escapeHtml(userFullName)}</div>
+                                <div class="user-meta">TK: <span>${escapeHtml(userEmail)}</span> · MK: <span>${escapeHtml(userPassword)}</span></div>
+                                <div class="user-meta" style="margin-top:2px;font-size:10px">Quyền xác thực: <span>${userCanVerify ? 'Có' : 'Không'}</span></div>
+                                <div class="user-meta" style="margin-top:2px;font-size:10px">Đăng nhập gần nhất: ${escapeHtml(lastLogin)}</div>
                             </div>
-                            <span class="user-status ${u.status === 'locked' ? 'status-locked' : 'status-active'}">${u.status === 'locked' ? 'Đã khóa' : 'Hoạt động'}</span>
+                            <span class="user-status ${userStatus === 'locked' ? 'status-locked' : 'status-active'}">${userStatus === 'locked' ? 'Đã khóa' : 'Hoạt động'}</span>
                         </div>
                         <div class="user-card-stats">
                             <div class="stat-item"><div class="stat-val">${u.loginCount || 0}</div><div class="stat-lbl">Đăng nhập</div></div>
                             <div class="stat-item"><div class="stat-val">${u.searchCount || 0}</div><div class="stat-lbl">Tra cứu</div></div>
                         </div>
                         <div class="user-card-actions">
-                            <button class="user-action-btn blue" onclick="viewUserHistory('${u.email}')">
+                            <button class="user-action-btn blue" onclick="viewUserHistory('${emailArg}')">
                                 <svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>Lịch sử
                             </button>
-                            <button class="user-action-btn ${u.canVerify ? 'orange' : 'green'}" onclick="toggleVerifyPermission('${uid}', ${u.canVerify ? 'true' : 'false'})">
-                                ${u.canVerify ? 'Gỡ quyền XT' : 'Cấp quyền XT'}
+                            <button class="user-action-btn ${userCanVerify ? 'orange' : 'green'}" onclick="toggleVerifyPermission('${uidArg}', ${userCanVerify ? 'true' : 'false'})">
+                                ${userCanVerify ? 'Gỡ quyền XT' : 'Cấp quyền XT'}
                             </button>
-                            <button class="user-action-btn ${u.status === 'locked' ? 'green' : 'orange'}" onclick="toggleUserStatus('${uid}', '${u.status}')">
-                                <svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="${u.status === 'locked' ? 'M8 11V7a4 4 0 118 0m-4 8v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2z' : 'M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z'}"/></svg>${u.status === 'locked' ? 'Mở khóa' : 'Khóa'}
+                            <button class="user-action-btn ${userStatus === 'locked' ? 'green' : 'orange'}" onclick="toggleUserStatus('${uidArg}', '${statusArg}')">
+                                <svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="${userStatus === 'locked' ? 'M8 11V7a4 4 0 118 0m-4 8v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2z' : 'M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z'}"/></svg>${userStatus === 'locked' ? 'Mở khóa' : 'Khóa'}
                             </button>
-                            <button class="user-action-btn blue" onclick="openEditUser('${uid}', '${u.email}', '${u.password}', '${u.fullName || ''}')">
+                            <button class="user-action-btn blue" onclick="openEditUser('${uidArg}', '${emailArg}', '${passwordArg}', '${fullNameArg}')">
                                 <svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M11 5H6a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"/></svg>Sửa
                             </button>
-                            <button class="user-action-btn red" onclick="deleteSubUser('${uid}', '${u.email}')">
+                            <button class="user-action-btn red" onclick="deleteSubUser('${uidArg}', '${emailArg}')">
                                 <svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"/></svg>Xóa
                             </button>
                         </div>
@@ -1835,6 +1872,8 @@
         };
 
         window.toggleUserStatus = async (uid, currentStatus) => {
+            uid = decodeActionValue(uid);
+            currentStatus = decodeActionValue(currentStatus);
             const newStatus = currentStatus === 'locked' ? 'active' : 'locked';
             const msg = newStatus === 'locked' ? 'Khóa tài khoản này không cho đăng nhập?' : 'Mở khóa tài khoản này?';
             customConfirm(msg, async () => {
@@ -1845,6 +1884,7 @@
         };
 
         window.toggleVerifyPermission = async (uid, currentValue) => {
+            uid = decodeActionValue(uid);
             const nextValue = !currentValue;
             const msg = nextValue ? "Cấp quyền duyệt xác thực phụ tùng cho tài khoản này?" : "Gỡ quyền duyệt xác thực phụ tùng của tài khoản này?";
             customConfirm(msg, async () => {
@@ -1855,6 +1895,7 @@
         };
 
         window.viewUserHistory = async (email) => {
+            email = decodeActionValue(email);
             document.getElementById('historyEmailText').innerText = email;
             const container = document.getElementById('historyListContainer');
             container.innerHTML = '<p style="text-align:center;padding:20px;font-size:12px;font-weight:600;color:var(--text-3)">Đang tải...</p>';
@@ -1875,6 +1916,10 @@
 
         let editingUserId = null;
         window.openEditUser = (uid, email, pass, fullName) => {
+            uid = decodeActionValue(uid);
+            email = decodeActionValue(email);
+            pass = decodeActionValue(pass);
+            fullName = decodeActionValue(fullName);
             editingUserId = uid;
             document.getElementById('editUserEmailDisplay').innerText = email;
             document.getElementById('editFullName').value = fullName;
@@ -1917,6 +1962,8 @@
         };
 
         window.deleteSubUser = async (uid, email) => {
+            uid = decodeActionValue(uid);
+            email = decodeActionValue(email);
             customConfirm(`Xóa vĩnh viễn người dùng ${email}?`, async () => {
                 await deleteDoc(doc(db, "sub_users", uid));
                 refreshUserList();
