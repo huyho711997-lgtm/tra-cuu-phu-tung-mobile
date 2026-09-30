@@ -504,6 +504,12 @@ html.dark #dataSection .price-reference-badge{border-color:#31558e;background:#1
             .kgpt-delete-cancel:hover{border-color:#e2e4e8;background:#f0f1f3;transform:translateY(-1px)}
             .kgpt-delete-confirm{min-width:110px;border:1px solid #e52d46;background:linear-gradient(145deg,#ef3d54,#e52d46);color:#fff;box-shadow:0 12px 22px -13px rgba(229,45,70,.82)}
             .kgpt-delete-confirm:hover{filter:saturate(1.06);transform:translateY(-1px);box-shadow:0 16px 26px -13px rgba(229,45,70,.92)}
+            .kgpt-delete-overlay.is-primary .kgpt-delete-icon{background:#eaf2ff;color:#2563eb;box-shadow:0 10px 24px -15px rgba(37,99,235,.55)}
+            .kgpt-delete-overlay.is-primary .kgpt-delete-confirm{border-color:#1d4ed8;background:linear-gradient(145deg,#3b82f6,#1d4ed8);box-shadow:0 12px 22px -13px rgba(29,78,216,.82)}
+            .kgpt-delete-overlay.is-primary .kgpt-delete-confirm:hover{box-shadow:0 16px 26px -13px rgba(29,78,216,.92)}
+            .kgpt-delete-overlay.is-alert .kgpt-delete-cancel{display:none}
+            .kgpt-delete-overlay.is-alert .kgpt-delete-actions{justify-content:center}
+            .kgpt-delete-overlay.is-alert .kgpt-delete-confirm{min-width:132px}
             .kgpt-delete-btn:active{transform:translateY(0) scale(.97)}
             .kgpt-delete-btn:focus-visible{outline:3px solid rgba(59,130,246,.18);outline-offset:2px}
             html.dark .kgpt-delete-dialog{border-color:#334155;background:#172033}
@@ -523,6 +529,7 @@ html.dark #dataSection .price-reference-badge{border-color:#31558e;background:#1
 
         const titleNode = overlay.querySelector('.kgpt-delete-title');
         const messageNode = overlay.querySelector('.kgpt-delete-message');
+        const iconNode = overlay.querySelector('.kgpt-delete-icon');
         const cancelButton = overlay.querySelector('.kgpt-delete-cancel');
         const confirmButton = overlay.querySelector('.kgpt-delete-confirm');
         let activeResolver = null;
@@ -545,11 +552,21 @@ html.dark #dataSection .price-reference-badge{border-color:#31558e;background:#1
         function showDeleteConfirm(options) {
             const config = typeof options === 'string' ? { message: options } : (options || {});
             if (activeResolver) finish(false);
+            const isPrimary = config.variant === 'primary' || config.mode === 'alert';
+            const isAlert = config.mode === 'alert';
             previousFocus = doc.activeElement;
             previousBodyOverflow = doc.body.style.overflow;
-            titleNode.textContent = config.title || 'Xác nhận xóa dữ liệu?';
+            overlay.classList.toggle('is-primary', isPrimary);
+            overlay.classList.toggle('is-alert', isAlert);
+            iconNode.innerHTML = isAlert
+                ? '<svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"></circle><path d="M12 10v6M12 7h.01"></path></svg>'
+                : isPrimary
+                    ? '<svg viewBox="0 0 24 24"><path d="M12 3a9 9 0 1 1-9 9 9 9 0 0 1 9-9Z"></path><path d="m8.5 12 2.2 2.2 4.8-5"></path></svg>'
+                    : '<svg viewBox="0 0 24 24"><path d="M10.3 3.7 2.6 17a2 2 0 0 0 1.7 3h15.4a2 2 0 0 0 1.7-3L13.7 3.7a2 2 0 0 0-3.4 0Z"></path><path d="M12 9v4M12 17h.01"></path></svg>';
+            titleNode.textContent = config.title || (isAlert ? 'Thông báo' : isPrimary ? 'Xác nhận thao tác' : 'Xác nhận xóa dữ liệu?');
             messageNode.textContent = config.message || 'Bạn có chắc chắn muốn xóa mục đã chọn khỏi hệ thống?';
-            confirmButton.querySelector('span').textContent = config.confirmText || 'Xóa ngay';
+            confirmButton.querySelector('span').textContent = config.confirmText || (isAlert ? 'Đã hiểu' : isPrimary ? 'Xác nhận' : 'Xóa ngay');
+            cancelButton.querySelector('span').textContent = config.cancelText || 'Hủy bỏ';
             doc.body.style.overflow = 'hidden';
             overlay.classList.add('is-open');
             return new Promise(function (resolve) {
@@ -647,6 +664,17 @@ html.dark #dataSection .price-reference-badge{border-color:#31558e;background:#1
             };
         }
         win.premiumDeleteConfirm = showDeleteConfirm;
+        win.premiumConfirm = function(options) {
+            const config = typeof options === 'string' ? { message: options } : (options || {});
+            return showDeleteConfirm({ ...config, variant: 'primary' });
+        };
+        win.premiumAlert = function(message, options = {}) {
+            const config = typeof message === 'object' ? message : { ...options, message: String(message || '') };
+            return showDeleteConfirm({ ...config, variant: 'primary', mode: 'alert' });
+        };
+        win.alert = function(message) {
+            win.premiumAlert(String(message || ''), { title: 'Thông báo' });
+        };
     }
 
     function enhanceStudentWorkspace(frame) {
@@ -1338,6 +1366,12 @@ html.dark #dataSection .price-reference-badge{border-color:#31558e;background:#1
         ['newTopic', 'newAudience', 'newDuration'].forEach(function (id) {
             const select = doc.getElementById(id);
             if (!select || select.dataset.premiumReady) return;
+            if (id === 'newDuration' && !Array.from(select.options).some(function (option) { return option.value === 'custom'; })) {
+                const customOption = doc.createElement('option');
+                customOption.value = 'custom';
+                customOption.textContent = 'Tự chọn thời gian';
+                select.appendChild(customOption);
+            }
             select.dataset.premiumReady = '1';
             select.classList.add('premium-select-native');
             const field = select.closest('.field');
@@ -3145,7 +3179,7 @@ document.addEventListener('DOMContentLoaded',function(){
 <iframe class="ti-learning-frame" id="teacherLearningFrame" title="Quản lý bài tập dành cho giảng viên" data-embedded-key="teacher"></iframe>
 </section>
 <section class="ti-learning-shell" id="studentLearningSection" aria-label="Bài tập dành cho người dùng">
-<iframe class="ti-learning-frame" id="studentLearningFrame" title="Bài tập dành cho người dùng" data-embedded-key="student"></iframe>
+<iframe class="ti-learning-frame" id="studentLearningFrame" title="Bài tập dành cho người dùng" data-embedded-key="student" allow="fullscreen" allowfullscreen></iframe>
 </section>
 <section class="ti-learning-shell" id="userManagementSection" aria-label="Quản lý người dùng và phân quyền">
 <iframe class="ti-learning-frame" id="userManagementFrame" title="Quản lý người dùng và phân quyền" data-embedded-key="users"></iframe>
@@ -4119,9 +4153,14 @@ document.addEventListener('DOMContentLoaded',function(){
         let currentUserProfile = null;
         const KGPT_TRAINING_ASSIGNMENTS_DB_KEY = 'kgpt_training_assignments_v1';
         const KGPT_TRAINING_RESULTS_DB_PREFIX = 'kgpt_training_results_v1';
+        const KGPT_TRAINING_RESULT_HISTORY_DB_PREFIX = 'kgpt_training_result_history_v1';
         function getTrainingResultsDbKey() {
             const ownerId = auth.currentUser?.uid || currentUserProfile?.uid || 'anonymous';
             return `${KGPT_TRAINING_RESULTS_DB_PREFIX}_${ownerId}`;
+        }
+        function getTrainingResultHistoryDbKey() {
+            const ownerId = auth.currentUser?.uid || currentUserProfile?.uid || 'anonymous';
+            return `${KGPT_TRAINING_RESULT_HISTORY_DB_PREFIX}_${ownerId}`;
         }
         async function readTrainingMetadata(key) {
             const { data, error } = await supabase
@@ -4143,11 +4182,12 @@ document.addEventListener('DOMContentLoaded',function(){
                 return !!auth.currentUser?.uid;
             },
             async load() {
-                const [assignments, results] = await Promise.all([
+                const [assignments, results, resultHistory] = await Promise.all([
                     readTrainingMetadata(KGPT_TRAINING_ASSIGNMENTS_DB_KEY),
-                    readTrainingMetadata(getTrainingResultsDbKey())
+                    readTrainingMetadata(getTrainingResultsDbKey()),
+                    readTrainingMetadata(getTrainingResultHistoryDbKey())
                 ]);
-                return { assignments, results };
+                return { assignments, results, resultHistory };
             },
             async saveAssignments(assignments) {
                 await writeTrainingMetadata(
@@ -4159,6 +4199,12 @@ document.addEventListener('DOMContentLoaded',function(){
                 await writeTrainingMetadata(
                     getTrainingResultsDbKey(),
                     results && typeof results === 'object' ? results : {}
+                );
+            },
+            async saveResultHistory(history) {
+                await writeTrainingMetadata(
+                    getTrainingResultHistoryDbKey(),
+                    Array.isArray(history) ? history : []
                 );
             }
         };
@@ -4239,6 +4285,37 @@ document.addEventListener('DOMContentLoaded',function(){
                 console.warn('Không thể đồng bộ quyền vào hồ sơ người dùng:', uid, error);
             }
         }
+        function installUserHistoryActions() {
+            const frame = document.getElementById('userManagementFrame');
+            const frameDoc = frame?.contentDocument;
+            const rows = frameDoc?.getElementById('userRows');
+            if (!frameDoc || !rows) return;
+            const enhanceRows = () => {
+                rows.querySelectorAll('tr[data-uid]').forEach(row => {
+                    if (row.querySelector('.kgpt-user-history-btn')) return;
+                    const uid = row.dataset.uid || '';
+                    const actionWrap = row.querySelector('td:last-child > div') || row.querySelector('td:last-child');
+                    if (!uid || !actionWrap) return;
+                    const button = frameDoc.createElement('button');
+                    button.type = 'button';
+                    button.className = 'icon-btn kgpt-user-history-btn';
+                    button.title = 'Xem lịch sử hoạt động';
+                    button.setAttribute('aria-label', button.title);
+                    button.innerHTML = '<svg fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true"><path d="M12 7v5l3 2" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"></path><path d="M4.9 5.7A9 9 0 1 1 3 12M3 5v5h5" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"></path></svg>';
+                    button.addEventListener('click', event => {
+                        event.preventDefault();
+                        event.stopPropagation();
+                        window.viewUserHistoryById(uid);
+                    });
+                    const deleteButton = actionWrap.querySelector('.danger');
+                    actionWrap.insertBefore(button, deleteButton || null);
+                });
+            };
+            enhanceRows();
+            if (frame.__kgptHistoryObserver) frame.__kgptHistoryObserver.disconnect();
+            frame.__kgptHistoryObserver = new MutationObserver(enhanceRows);
+            frame.__kgptHistoryObserver.observe(rows, { childList: true, subtree: true });
+        }
         window.syncUserManagementFrame = async function() {
             const frame = document.getElementById('userManagementFrame');
             if (!frame?.contentWindow || currentUserProfile?.role !== 'admin') return;
@@ -4252,6 +4329,8 @@ document.addEventListener('DOMContentLoaded',function(){
                 updatedAt: (user.updatedAt?.seconds || user.createdAt?.seconds || 0) * 1000
             })));
             frame.contentWindow.postMessage({ type: 'kgpt:user-list', users }, '*');
+            setTimeout(installUserHistoryActions, 40);
+            setTimeout(installUserHistoryActions, 180);
         };
         window.addEventListener('message', async function(event) {
             const frame = document.getElementById('userManagementFrame');
@@ -4606,6 +4685,10 @@ document.addEventListener('DOMContentLoaded',function(){
         // CHUYỂN TAB TRA CỨU CHÍNH
         window.switchMainLookupTab = function(tab = 'home', persist = true) {
             const requestedTab = ['quote', 'parts', 'teacher', 'student', 'users'].includes(tab) ? tab : 'parts';
+            if (requestedTab !== 'student' && window.isStudentQuizInProgress?.()) {
+                customAlert('Bài làm đang diễn ra. Bạn không thể chuyển sang trang khác trước khi nộp bài.', 'warning');
+                return false;
+            }
             if (!canCurrentUserAccessPage(requestedTab, 'view')) {
                 customAlert("Tài khoản của bạn không có quyền xem trang này. Vui lòng liên hệ quản trị viên.", "warning");
                 return false;
@@ -5163,7 +5246,7 @@ document.addEventListener('DOMContentLoaded',function(){
         window.filterAdminUserCards = function() { renderAdminUserCards(); };
         window.openEditUserById = function(uid) { const user = ADMIN_USER_CACHE.find(item => item.uid === uid); if (!user) return customAlert('Không tìm thấy thông tin người dùng để chỉnh sửa.'); openEditUser(uid, user.email || '', user.fullName || '', 'profile'); };
         window.openUserApiSettingsById = function(uid) { const user = ADMIN_USER_CACHE.find(item => item.uid === uid); if (!user) return customAlert('Không tìm thấy thông tin người dùng để cấu hình API.'); openEditUser(uid, user.email || '', user.fullName || '', 'api'); };
-        window.viewUserHistoryById = function(uid) { const user = ADMIN_USER_CACHE.find(item => item.uid === uid); if (!user) return customAlert('Không tìm thấy lịch sử người dùng.'); viewUserHistory(user.email || ''); };
+        window.viewUserHistoryById = function(uid) { const user = ADMIN_USER_CACHE.find(item => item.uid === uid); if (!user) return customAlert('Không tìm thấy lịch sử người dùng.'); viewUserHistory(user.email || '', uid); };
         window.deleteSubUserById = function(uid) { const user = ADMIN_USER_CACHE.find(item => item.uid === uid); if (!user) return customAlert('Không tìm thấy hồ sơ người dùng để xóa.'); deleteSubUser(uid, user.email || ''); };
         window.refreshUserList = async function() {
             const container = document.getElementById('adminUserCardList');
@@ -5277,16 +5360,25 @@ document.addEventListener('DOMContentLoaded',function(){
             });
         };
         // XEM LỊCH SỬ USER LOGS
-        window.viewUserHistory = async (email) => {
+        window.viewUserHistory = async (email, uid = '') => {
             document.getElementById('historyEmailText').innerText = sanitize(email);
             const container = document.getElementById('historyListContainer');
             container.innerHTML = '<p class="text-center text-sm font-bold text-slate-400 py-10">Đang tải dữ liệu...</p>';
             openModal('modalHistory');
             try {
-                const q = query(collection(db, "user_logs"), where("email", "==", email));
-                const snap = await getDocs(q);
                 let logs = [];
-                snap.forEach(d => logs.push(d.data()));
+                const logQueries = [];
+                if (email) logQueries.push(getDocs(query(collection(db, "user_logs"), where("email", "==", email))));
+                if (uid) logQueries.push(getDocs(query(collection(db, "user_logs"), where("user_id", "==", uid))));
+                const snapshots = await Promise.all(logQueries);
+                snapshots.forEach(snap => snap.forEach(d => logs.push(d.data())));
+                const seenLogs = new Set();
+                logs = logs.filter(log => {
+                    const key = [log.timestamp?.seconds || '', log.action || '', log.details || '', log.searchKeyword || ''].join('|');
+                    if (seenLogs.has(key)) return false;
+                    seenLogs.add(key);
+                    return true;
+                });
                 if (logs.length === 0) {
                     container.innerHTML = '<p class="text-center text-sm font-bold text-slate-400 py-10">Chưa ghi nhận hoạt động nào của thành viên này</p>';
                     return;
@@ -11384,6 +11476,7 @@ ${text}` });
 (function() {
     const TRAINING_ASSIGNMENTS_STORAGE_KEY = 'kgpt_shared_assignments_v1';
     const TRAINING_RESULTS_STORAGE_KEY = 'kgpt_student_quiz_results';
+    const TRAINING_RESULT_HISTORY_STORAGE_KEY = 'kgpt_student_quiz_result_history';
     let trainingDatabaseLoaded = false;
     let trainingDatabaseLoadPromise = null;
 
@@ -11394,6 +11487,26 @@ ${text}` });
         } catch (error) {
             return fallback;
         }
+    }
+
+    function requestPremiumConfirmation(options, targetWindow = window) {
+        const config = typeof options === 'string' ? { message: options } : (options || {});
+        try {
+            if (typeof window.premiumConfirm === 'function') return window.premiumConfirm(config);
+            if (targetWindow && typeof targetWindow.premiumConfirm === 'function') return targetWindow.premiumConfirm(config);
+        } catch (error) {}
+        return new Promise(resolve => {
+            if (typeof window.customConfirm === 'function') window.customConfirm(config.message || '', () => resolve(true));
+            else resolve(false);
+        });
+    }
+
+    function showPremiumTrainingAlert(message, options = {}) {
+        try {
+            if (typeof window.premiumAlert === 'function') return window.premiumAlert(message, options);
+        } catch (error) {}
+        window.customAlert?.(String(message || ''), options.type || 'error');
+        return Promise.resolve(true);
     }
 
     async function waitForTrainingDatabase() {
@@ -11412,6 +11525,7 @@ ${text}` });
             const databaseData = await store.load();
             const localAssignments = readTrainingLocalValue(TRAINING_ASSIGNMENTS_STORAGE_KEY, []);
             const localResults = readTrainingLocalValue(TRAINING_RESULTS_STORAGE_KEY, {});
+            const localResultHistory = readTrainingLocalValue(TRAINING_RESULT_HISTORY_STORAGE_KEY, []);
 
             if (Array.isArray(databaseData.assignments)) {
                 localStorage.setItem(TRAINING_ASSIGNMENTS_STORAGE_KEY, JSON.stringify(databaseData.assignments));
@@ -11427,6 +11541,14 @@ ${text}` });
                 await store.saveResults(localResults);
             } else {
                 localStorage.setItem(TRAINING_RESULTS_STORAGE_KEY, '{}');
+            }
+
+            if (Array.isArray(databaseData.resultHistory)) {
+                localStorage.setItem(TRAINING_RESULT_HISTORY_STORAGE_KEY, JSON.stringify(databaseData.resultHistory));
+            } else if (Array.isArray(localResultHistory) && localResultHistory.length) {
+                await store.saveResultHistory(localResultHistory);
+            } else {
+                localStorage.setItem(TRAINING_RESULT_HISTORY_STORAGE_KEY, '[]');
             }
 
             trainingDatabaseLoaded = true;
@@ -11457,6 +11579,17 @@ ${text}` });
             await store.saveResults(results && typeof results === 'object' ? results : {});
         } catch (error) {
             console.error('Không lưu được kết quả bài tập vào Supabase:', error);
+        }
+    }
+
+    async function saveResultHistoryToDatabase() {
+        try {
+            await loadTrainingDataFromDatabase();
+            const store = await waitForTrainingDatabase();
+            const history = readTrainingLocalValue(TRAINING_RESULT_HISTORY_STORAGE_KEY, []);
+            await store.saveResultHistory(Array.isArray(history) ? history : []);
+        } catch (error) {
+            console.error('Không lưu được lịch sử lượt làm bài vào Supabase:', error);
         }
     }
 
@@ -11508,6 +11641,1009 @@ ${text}` });
         }
     }
 
+    window.isStudentQuizInProgress = function() {
+        const frame = document.getElementById('studentLearningFrame');
+        const doc = frame?.contentDocument;
+        return !!(doc?.getElementById('quiz')?.classList.contains('active') && !doc?.getElementById('resultModal')?.classList.contains('open'));
+    };
+
+    function deactivateStudentExamSecurity() {
+        const frame = document.getElementById('studentLearningFrame');
+        const frameWindow = frame?.contentWindow;
+        const frameDoc = frame?.contentDocument;
+        if (frameWindow) frameWindow.__kgptExamSecurityActive = false;
+        frameDoc?.getElementById('quiz')?.classList.remove('kgpt-secure-exam', 'kgpt-capture-blocked');
+        if (document.fullscreenElement === frame) document.exitFullscreen?.().catch(() => {});
+    }
+
+    function activateStudentExamSecurity(requestFullscreen = false) {
+        const frame = document.getElementById('studentLearningFrame');
+        const frameWindow = frame?.contentWindow;
+        const frameDoc = frame?.contentDocument;
+        const quiz = frameDoc?.getElementById('quiz');
+        if (!frameWindow || !frameDoc || !quiz || !quiz.classList.contains('active')) return;
+        frameWindow.__kgptExamSecurityActive = true;
+        quiz.classList.add('kgpt-secure-exam');
+
+        if (!frameDoc.getElementById('kgptExamSecurityStyle')) {
+            const style = frameDoc.createElement('style');
+            style.id = 'kgptExamSecurityStyle';
+            style.textContent = '#quiz.kgpt-secure-exam{position:relative}.kgpt-secure-watermark{position:fixed;inset:0;z-index:9990;display:grid;grid-template-columns:repeat(3,1fr);grid-auto-rows:90px;align-content:center;gap:24px;overflow:hidden;pointer-events:none;opacity:.055;color:#1d4ed8;font-size:12px;font-weight:900;letter-spacing:.08em;text-transform:uppercase}.kgpt-secure-watermark span{display:flex;align-items:center;justify-content:center;white-space:nowrap;transform:rotate(-24deg)}#quiz.kgpt-capture-blocked:after{content:"Chụp màn hình không được phép";position:fixed;inset:0;z-index:10000;display:grid;place-items:center;background:#081426;color:#fff;font-size:16px;font-weight:900;letter-spacing:.08em;text-transform:uppercase}#quiz.kgpt-capture-blocked .quiz-shell{filter:blur(22px)}';
+            frameDoc.head.appendChild(style);
+        }
+        let watermark = frameDoc.querySelector('.kgpt-secure-watermark');
+        if (!watermark) {
+            watermark = frameDoc.createElement('div');
+            watermark.className = 'kgpt-secure-watermark';
+            const identity = (frameDoc.getElementById('studentFullName')?.textContent || document.getElementById('userDisplayName')?.textContent || 'Học viên').trim();
+            Array.from({ length: 18 }).forEach(() => {
+                const mark = frameDoc.createElement('span');
+                mark.textContent = `${identity} · KHO GIÁ PHỤ TÙNG`;
+                watermark.appendChild(mark);
+            });
+            quiz.appendChild(watermark);
+        }
+
+        if (!frameWindow.__kgptExamListenersInstalled) {
+            frameWindow.__kgptExamListenersInstalled = true;
+            const forceSubmitOnLeave = () => {
+                if (!frameWindow.__kgptExamSecurityActive || !window.isStudentQuizInProgress?.() || frameWindow.__kgptSecuritySubmitting) return;
+                frameWindow.__kgptSecuritySubmitting = true;
+                frameWindow.showToast?.('Bạn đã rời màn hình làm bài. Hệ thống tự động nộp bài hiện tại.');
+                try { frameWindow.submitQuiz?.(true); } finally { setTimeout(() => { frameWindow.__kgptSecuritySubmitting = false; }, 800); }
+            };
+            frameDoc.addEventListener('visibilitychange', () => { if (frameDoc.hidden) forceSubmitOnLeave(); });
+            frameWindow.addEventListener('blur', () => setTimeout(() => {
+                if (!frameDoc.hasFocus()) forceSubmitOnLeave();
+            }, 180));
+            frameDoc.addEventListener('keydown', event => {
+                if (!frameWindow.__kgptExamSecurityActive) return;
+                const key = String(event.key || '').toLowerCase();
+                const captureShortcut = key === 'printscreen' || (event.ctrlKey && event.shiftKey && (key === 's' || key === 'i'));
+                if (!captureShortcut) return;
+                event.preventDefault();
+                event.stopPropagation();
+                quiz.classList.add('kgpt-capture-blocked');
+                frameWindow.showToast?.('Không cho phép chụp màn hình trong thời gian làm bài.');
+                setTimeout(() => quiz.classList.remove('kgpt-capture-blocked'), 1300);
+                navigator.clipboard?.writeText('').catch(() => {});
+            }, true);
+        }
+
+        if (requestFullscreen && document.fullscreenEnabled && !document.fullscreenElement) {
+            frame.requestFullscreen?.().then(() => { frameWindow.__kgptFullscreenEntered = true; }).catch(() => {
+                frameWindow.showToast?.('Vui lòng giữ nguyên cửa sổ này trong suốt thời gian làm bài.');
+            });
+        }
+    }
+
+    function preparePersonalizedQuizShuffle(frameWindow) {
+        if (!frameWindow) return null;
+        let assignment;
+        try { assignment = frameWindow.eval('selectedAssignment'); } catch (error) { return null; }
+        if (!assignment || !Array.isArray(assignment.questions) || assignment.questions.length === 0) return null;
+
+        const user = getRealAppUser();
+        const history = readTrainingLocalValue(TRAINING_RESULT_HISTORY_STORAGE_KEY, []);
+        const completedAttempts = (Array.isArray(history) ? history : []).filter(item =>
+            String(item.taskId) === String(assignment.id) &&
+            (!item.studentName || item.studentName === user.fullName)
+        ).length;
+        const attemptNumber = completedAttempts + 1;
+        const seedSource = `${user.email || user.fullName}|${assignment.id}|${attemptNumber}`;
+        let seed = 2166136261;
+        for (let index = 0; index < seedSource.length; index += 1) {
+            seed ^= seedSource.charCodeAt(index);
+            seed = Math.imul(seed, 16777619);
+        }
+        seed >>>= 0;
+        const initialSeed = seed;
+        const random = () => {
+            seed += 0x6D2B79F5;
+            let value = seed;
+            value = Math.imul(value ^ value >>> 15, value | 1);
+            value ^= value + Math.imul(value ^ value >>> 7, value | 61);
+            return ((value ^ value >>> 14) >>> 0) / 4294967296;
+        };
+        const shuffle = values => {
+            const output = [...values];
+            for (let index = output.length - 1; index > 0; index -= 1) {
+                const target = Math.floor(random() * (index + 1));
+                [output[index], output[target]] = [output[target], output[index]];
+            }
+            return output;
+        };
+
+        const shuffledQuestions = assignment.questions.map((question, originalQuestionIndex) => {
+            const answerPairs = (question.a || []).map((text, originalAnswerIndex) => ({ text, originalAnswerIndex }));
+            const shuffledAnswers = shuffle(answerPairs);
+            const originalCorrectIndex = Number(question.c);
+            return {
+                ...question,
+                a: shuffledAnswers.map(item => item.text),
+                c: shuffledAnswers.findIndex(item => item.originalAnswerIndex === originalCorrectIndex),
+                __kgptOriginalQuestionIndex: originalQuestionIndex
+            };
+        });
+        const randomizedQuestionPool = shuffle(shuffledQuestions);
+        const requestedQuestionCount = Math.max(1, Math.min(
+            randomizedQuestionPool.length,
+            Number(assignment.deliveryQuestionCount) || randomizedQuestionPool.length
+        ));
+        assignment.questions = randomizedQuestionPool.slice(0, requestedQuestionCount);
+        assignment.__kgptShuffleInfo = {
+            applied: true,
+            attemptNumber,
+            seed: initialSeed,
+            sourceQuestionCount: randomizedQuestionPool.length,
+            deliveredQuestionCount: requestedQuestionCount,
+            generatedAt: new Date().toISOString()
+        };
+        return assignment.__kgptShuffleInfo;
+    }
+
+    function enforceTeacherResultReview() {
+        const frame = document.getElementById('teacherLearningFrame');
+        const frameWindow = frame?.contentWindow;
+        const frameDoc = frame?.contentDocument;
+        if (!frameWindow || !frameDoc || !frameDoc.getElementById('resultsModal')) return;
+
+        if (!frameDoc.getElementById('kgptResultReviewStyle')) {
+            const style = frameDoc.createElement('style');
+            style.id = 'kgptResultReviewStyle';
+            style.textContent = '.kgpt-result-actions{display:flex;align-items:center;gap:7px;white-space:nowrap}.kgpt-view-result-btn,.kgpt-retake-btn{height:36px;padding:0 12px;border-radius:10px;font-size:9.5px;font-weight:800;cursor:pointer}.kgpt-view-result-btn{border:1px solid #bfd2f8;background:#f5f8ff;color:#2456c8}.kgpt-view-result-btn:hover{background:#eaf1ff;border-color:#85aaf2}.kgpt-retake-btn{border:0;background:linear-gradient(135deg,#3b82f6,#1d4ed8);color:#fff;box-shadow:0 10px 22px -13px #1d4ed8}.kgpt-learner-result-row{cursor:pointer;transition:background .18s}.kgpt-learner-result-row:hover{background:#f7faff}.kgpt-learner-result-row.is-open{background:#f3f7ff}.kgpt-learner-name{display:inline-flex;align-items:center;gap:7px;color:#172033}.kgpt-learner-name:after{content:"Xem";padding:3px 6px;border-radius:999px;background:#edf4ff;color:#315fc5;font-size:7.5px;font-weight:900;text-transform:uppercase}.kgpt-retake-count{display:inline-flex;align-items:center;justify-content:center;min-width:48px;padding:6px 9px;border:1px solid #d8e5fb;border-radius:999px;background:#f5f8ff;color:#315fc5;font-size:9px;font-weight:900}.kgpt-attempt-label{display:block;margin-top:4px;color:#8a96a8;font-size:8px;font-weight:700}.kgpt-result-detail-row[hidden]{display:none}.kgpt-result-detail-row td{padding:16px!important;background:#f8faff}.kgpt-answer-list{display:grid;gap:9px;margin-top:14px}.kgpt-answer-card{padding:12px 14px;border:1px solid #e2e8f0;border-radius:12px;background:#fff}.kgpt-answer-card.correct{border-color:#b7ebcf;background:#f1fbf5}.kgpt-answer-card.wrong{border-color:#fecaca;background:#fff7f7}.kgpt-answer-head{display:flex;align-items:flex-start;justify-content:space-between;gap:12px;margin-bottom:8px}.kgpt-answer-title{font-size:11px;font-weight:800;color:#172033;line-height:1.5}.kgpt-answer-state{flex:none;padding:5px 8px;border-radius:999px;font-size:8px;font-weight:900;text-transform:uppercase}.kgpt-answer-card.correct .kgpt-answer-state{color:#087a46;background:#dcfce7}.kgpt-answer-card.wrong .kgpt-answer-state{color:#b42318;background:#fee2e2}.kgpt-answer-meta{display:grid;grid-template-columns:1fr 1fr;gap:8px;font-size:9.5px;color:#526076}.kgpt-answer-meta span{padding:8px 10px;border-radius:9px;background:rgba(255,255,255,.78);border:1px solid rgba(203,213,225,.7)}.kgpt-answer-meta b{display:block;margin-bottom:3px;color:#334155}.kgpt-legacy-result{margin-top:14px;padding:13px 14px;border:1px solid #fde68a;border-radius:12px;background:#fffbeb;color:#92400e;font-size:10px;line-height:1.6}.kgpt-export-results-btn{height:42px;padding:0 15px;border:1px solid #bcd0f2;border-radius:12px;background:linear-gradient(180deg,#fff,#f4f8ff);color:#2456c8;display:inline-flex;align-items:center;justify-content:center;gap:8px;font-size:10.5px;font-weight:850;cursor:pointer;box-shadow:0 10px 22px -19px #1d4ed8;transition:.18s}.kgpt-export-results-btn:hover{border-color:#84a9ed;background:#edf4ff;transform:translateY(-1px);box-shadow:0 14px 26px -19px #1d4ed8}.kgpt-export-results-btn svg{width:16px;height:16px;fill:none;stroke:currentColor;stroke-width:1.8;stroke-linecap:round;stroke-linejoin:round}.kgpt-export-results-btn.modal-export{height:36px;margin-left:auto;padding:0 12px;border-radius:10px;font-size:9.5px}.kgpt-export-assignment{color:#2563eb!important;border-color:#c8d9f5!important;background:#f6f9ff!important}.kgpt-export-assignment:hover{background:#eaf2ff!important;border-color:#8fb0eb!important}.kgpt-export-assignment svg{width:16px;height:16px;fill:none;stroke:currentColor;stroke-width:1.8;stroke-linecap:round;stroke-linejoin:round}@media(max-width:650px){.kgpt-answer-meta{grid-template-columns:1fr}.kgpt-result-actions{flex-direction:column;align-items:stretch}.kgpt-export-results-btn span{display:none}.kgpt-export-results-btn{width:42px;padding:0}}';
+            frameDoc.head.appendChild(style);
+        }
+
+        if (!frameDoc.getElementById('kgptQuestionSamplingStyle')) {
+            const samplingStyle = frameDoc.createElement('style');
+            samplingStyle.id = 'kgptQuestionSamplingStyle';
+            samplingStyle.textContent = '.kgpt-sampling-field{grid-column:1/-1;padding:0!important;border:1px solid #cbdcf6;border-radius:16px;background:#fff;overflow:hidden;box-shadow:0 14px 34px -28px rgba(30,64,175,.65),inset 0 1px 0 #fff}.kgpt-sampling-head{min-height:58px;padding:12px 15px;display:flex;align-items:center;justify-content:space-between;gap:12px;border-bottom:1px solid #dce7f7;background:linear-gradient(135deg,#f9fbff,#eef5ff)}.kgpt-sampling-title-wrap{display:flex;align-items:center;gap:11px}.kgpt-sampling-icon{width:36px;height:36px;display:grid;place-items:center;flex:0 0 36px;border:1px solid #c7d9f7;border-radius:11px;background:linear-gradient(145deg,#fff,#e8f1ff);color:#2563eb;box-shadow:0 9px 18px -14px #1d4ed8}.kgpt-sampling-icon svg{width:18px;height:18px;fill:none;stroke:currentColor;stroke-width:1.8;stroke-linecap:round;stroke-linejoin:round}.kgpt-sampling-eyebrow{color:#5876b8;font-size:8px;font-weight:900;letter-spacing:.13em;text-transform:uppercase}.kgpt-sampling-title{margin-top:2px;color:#172033;font-size:12.5px;font-weight:900}.kgpt-sampling-status{padding:6px 9px;border:1px solid #b9d1fb;border-radius:999px;background:#fff;color:#315fc5;font-size:8px;font-weight:900;text-transform:uppercase}.kgpt-sampling-control{display:grid;grid-template-columns:minmax(0,220px) 1fr;align-items:stretch;gap:16px;padding:14px 15px}.kgpt-sampling-number{padding:11px;border:1px solid #d8e4f5;border-radius:13px;background:linear-gradient(180deg,#fff,#f8faff)}.kgpt-sampling-number>span{display:block;margin-bottom:7px;color:#6a7890;font-size:8.5px;font-weight:900;letter-spacing:.08em;text-transform:uppercase}.kgpt-sampling-input-wrap{height:54px;display:flex;align-items:center;border:1px solid #bcd0f2;border-radius:11px;background:#fff;overflow:hidden;box-shadow:0 8px 18px -16px #1d4ed8}.kgpt-sampling-input-wrap input{min-width:0;height:100%!important;border:0!important;border-radius:0!important;box-shadow:none!important;text-align:center;font-size:20px!important;font-weight:900;color:#1d4ed8}.kgpt-sampling-input-wrap>span{height:28px;padding:0 12px;display:flex;align-items:center;border-left:1px solid #e2e8f0;color:#7a879a;font-size:10px;white-space:nowrap}.kgpt-sampling-help{padding:4px 0;display:flex;flex-direction:column;justify-content:center}.kgpt-sampling-help strong{display:block;color:#1e3a6d;font-size:12px;margin-bottom:4px}.kgpt-sampling-help>span{color:#6b7d98;font-size:10.5px;line-height:1.55}.kgpt-sampling-chips{display:flex;flex-wrap:wrap;gap:6px;margin-top:9px}.kgpt-sampling-chip{display:inline-flex;align-items:center;gap:5px;padding:5px 8px;border:1px solid #d6e3f7;border-radius:999px;background:#f8fbff;color:#50698f;font-size:8.5px;font-weight:800}.kgpt-sampling-chip:before{content:"✓";color:#2563eb}.kgpt-sampling-presets{display:flex;align-items:center;gap:6px;margin-top:10px}.kgpt-sampling-preset{height:30px;padding:0 10px;border:1px solid #d3e0f4;border-radius:9px;background:#fff;color:#50617b;font-size:9px;font-weight:800;cursor:pointer;transition:.18s}.kgpt-sampling-preset:hover{border-color:#8eb1ee;background:#f2f7ff;color:#2456c8}.kgpt-sampling-preset.active{border-color:#7ea5ed;background:#eaf2ff;color:#1d4ed8;box-shadow:0 7px 14px -12px #1d4ed8}.kgpt-sampling-preset:disabled{opacity:.38;cursor:not-allowed}.kgpt-random-meta{color:#315fc5;font-weight:800}#modal .modal{width:min(1280px,calc(100vw - 56px))!important;max-width:1280px!important;max-height:94vh!important;border-radius:24px!important}#modal .modal-head{padding-left:30px!important;padding-right:30px!important}#modal .form{padding-left:30px!important;padding-right:30px!important}#modal .modal-foot{padding-left:30px!important;padding-right:30px!important}#modal .form>.field label,#modal .grid2>.field label{font-size:10.5px!important}#modal .form>.field input,#modal .grid2>.field input,#modal .grid2>.field select{font-size:12.5px!important}#modal .question-card{padding:18px!important}#modal .question-card-head b{font-size:13px!important}#modal .question-number{font-size:11px!important}#modal .points-control{font-size:10.5px!important}#modal .points-control input{font-size:11.5px!important}#modal .question-prompt{min-height:82px!important;padding:13px 14px!important;font-size:13.5px!important;line-height:1.6!important;color:#172033!important}#modal .premium-answers{gap:10px!important}#modal .premium-answer-option{min-height:47px!important;padding:0 11px!important}#modal .answer-key{width:27px!important;height:27px!important;font-size:11px!important}#modal .answer-text{font-size:12.5px!important;line-height:1.45!important;color:#243047!important}#modal .add-question-btn{font-size:12.5px!important}@media(max-width:900px){#modal .modal{width:calc(100vw - 28px)!important;max-height:96vh!important}#modal .modal-head,#modal .form,#modal .modal-foot{padding-left:18px!important;padding-right:18px!important}}@media(max-width:650px){.kgpt-sampling-control{grid-template-columns:1fr}.kgpt-sampling-status{display:none}#modal .question-prompt{font-size:13px!important}#modal .answer-text{font-size:12px!important}}';
+            frameDoc.head.appendChild(samplingStyle);
+        }
+
+        if (!frameDoc.getElementById('kgptCustomDurationStyle')) {
+            const durationStyle = frameDoc.createElement('style');
+            durationStyle.id = 'kgptCustomDurationStyle';
+            durationStyle.textContent = '.kgpt-custom-duration{display:none;margin-top:9px;padding:11px 12px;border:1px solid #d5e1f1;border-radius:13px;background:linear-gradient(180deg,#fff,#fbfdff);box-shadow:0 10px 24px -22px rgba(15,23,42,.55),inset 0 1px 0 #fff}.kgpt-custom-duration.is-visible{display:block;animation:kgptDurationReveal .2s ease}.kgpt-custom-duration-row{display:grid;grid-template-columns:minmax(0,1fr) auto;align-items:center;gap:12px}.kgpt-custom-duration-meta{min-width:0}.kgpt-custom-duration-heading{display:flex;align-items:center;gap:8px}.kgpt-custom-duration-icon{width:30px;height:30px;display:grid;place-items:center;flex:0 0 30px;border:1px solid #d2e0f5;border-radius:9px;background:#f2f7ff;color:#2563eb}.kgpt-custom-duration-icon svg{width:15px;height:15px;fill:none;stroke:currentColor;stroke-width:1.9;stroke-linecap:round;stroke-linejoin:round}.kgpt-custom-duration-copy strong{display:block;color:#263854;font-size:10.5px;font-weight:900}.kgpt-custom-duration-copy span{display:block;margin-top:2px;color:#8997aa;font-size:8.5px;font-weight:650}.kgpt-duration-stepper{height:40px;display:flex;align-items:center;border:1px solid #bfd1ef;border-radius:11px;background:#fff;overflow:hidden;box-shadow:0 8px 18px -16px rgba(37,99,235,.75)}.kgpt-duration-step{width:34px;height:100%;padding:0;border:0;background:#f6f9ff;color:#3568ca;font-size:17px;font-weight:700;cursor:pointer}.kgpt-duration-step:hover{background:#eaf2ff}.kgpt-custom-duration-input{width:58px!important;height:100%!important;padding:0 5px!important;border:0!important;border-left:1px solid #e3eaf4!important;border-right:1px solid #e3eaf4!important;border-radius:0!important;background:#fff!important;color:#1d4ed8!important;font-size:14px!important;font-weight:900!important;text-align:center;outline:none}.kgpt-custom-duration-input:focus{box-shadow:inset 0 0 0 2px rgba(59,130,246,.13)!important}.kgpt-custom-duration-input::-webkit-inner-spin-button,.kgpt-custom-duration-input::-webkit-outer-spin-button{-webkit-appearance:none;margin:0}.kgpt-custom-duration-unit{padding:0 9px;color:#65758d;font-size:9px;font-weight:850}.kgpt-duration-presets{display:flex;gap:5px;margin-top:8px;margin-left:38px}.kgpt-duration-preset{height:25px;padding:0 8px;border:1px solid #dbe4f1;border-radius:8px;background:#fff;color:#65758c;font-size:8px;font-weight:850;cursor:pointer}.kgpt-duration-preset:hover,.kgpt-duration-preset.active{border-color:#91afe7;background:#eef5ff;color:#2456c8}@keyframes kgptDurationReveal{from{opacity:0;transform:translateY(-4px)}to{opacity:1;transform:none}}@media(max-width:620px){.kgpt-custom-duration-row{grid-template-columns:1fr}.kgpt-duration-stepper{width:100%}.kgpt-custom-duration-input{flex:1;width:auto!important}.kgpt-duration-presets{margin-left:0}}';
+            frameDoc.head.appendChild(durationStyle);
+        }
+
+        const durationSelect = frameDoc.getElementById('newDuration');
+        const durationField = durationSelect?.closest('.field');
+        if (durationField && !frameDoc.getElementById('kgptCustomDuration')) {
+            const customDuration = frameDoc.createElement('div');
+            customDuration.id = 'kgptCustomDuration';
+            customDuration.className = 'kgpt-custom-duration';
+            customDuration.innerHTML = '<div class="kgpt-custom-duration-row"><div class="kgpt-custom-duration-meta"><div class="kgpt-custom-duration-heading"><span class="kgpt-custom-duration-icon"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="8"></circle><path d="M12 8v5l3 2"></path></svg></span><span class="kgpt-custom-duration-copy"><strong>Thời lượng tùy chỉnh</strong><span>Từ 1 đến 480 phút</span></span></div><div class="kgpt-duration-presets"><button type="button" class="kgpt-duration-preset" data-duration-minutes="75">75 phút</button><button type="button" class="kgpt-duration-preset" data-duration-minutes="90">90 phút</button><button type="button" class="kgpt-duration-preset" data-duration-minutes="120">120 phút</button></div></div><div class="kgpt-duration-stepper"><button type="button" class="kgpt-duration-step" data-duration-step="-5" aria-label="Giảm 5 phút">−</button><input class="kgpt-custom-duration-input" id="kgptCustomDurationMinutes" type="number" min="1" max="480" step="1" value="90" aria-label="Nhập thời gian làm bài tùy chọn"><span class="kgpt-custom-duration-unit">phút</span><button type="button" class="kgpt-duration-step" data-duration-step="5" aria-label="Tăng 5 phút">+</button></div></div>';
+            durationField.appendChild(customDuration);
+            const customInput = customDuration.querySelector('#kgptCustomDurationMinutes');
+            const syncDurationPreset = () => customDuration.querySelectorAll('[data-duration-minutes]').forEach(button => button.classList.toggle('active', Number(button.dataset.durationMinutes) === Number(customInput.value)));
+            customInput.addEventListener('input', syncDurationPreset);
+            customDuration.querySelectorAll('[data-duration-minutes]').forEach(button => button.addEventListener('click', () => {
+                customInput.value = button.dataset.durationMinutes;
+                syncDurationPreset();
+                customInput.focus();
+            }));
+            customDuration.querySelectorAll('[data-duration-step]').forEach(button => button.addEventListener('click', () => {
+                const nextValue = Math.max(1, Math.min(480, (Number(customInput.value) || 0) + Number(button.dataset.durationStep)));
+                customInput.value = String(nextValue);
+                syncDurationPreset();
+                customInput.focus();
+            }));
+            syncDurationPreset();
+        }
+        const syncCustomDurationVisibility = () => {
+            const customDuration = frameDoc.getElementById('kgptCustomDuration');
+            customDuration?.classList.toggle('is-visible', durationSelect?.value === 'custom');
+        };
+        if (durationSelect && durationSelect.dataset.customDurationBound !== '1') {
+            durationSelect.dataset.customDurationBound = '1';
+            durationSelect.addEventListener('change', syncCustomDurationVisibility);
+        }
+        syncCustomDurationVisibility();
+        const getConfiguredDuration = () => {
+            if (durationSelect?.value !== 'custom') return durationSelect?.value || '30 phút';
+            const minutes = Math.max(1, Math.min(480, Number(frameDoc.getElementById('kgptCustomDurationMinutes')?.value) || 0));
+            return `${minutes} phút`;
+        };
+        const validateConfiguredDuration = () => {
+            if (durationSelect?.value !== 'custom') return true;
+            const input = frameDoc.getElementById('kgptCustomDurationMinutes');
+            const minutes = Number(input?.value);
+            if (Number.isInteger(minutes) && minutes >= 1 && minutes <= 480) return true;
+            showPremiumTrainingAlert('Thời gian tự chọn phải từ 1 đến 480 phút.', { title: 'Thời gian chưa hợp lệ' });
+            input?.focus();
+            return false;
+        };
+
+        if (!frameDoc.getElementById('kgptDeliveryQuestionCount')) {
+            if (durationField) {
+                const field = frameDoc.createElement('div');
+                field.className = 'field kgpt-sampling-field';
+                field.innerHTML = '<div class="kgpt-sampling-head"><div class="kgpt-sampling-title-wrap"><div class="kgpt-sampling-icon"><svg viewBox="0 0 24 24"><path d="M4 7h3c4.5 0 5 10 10 10h3"></path><path d="m17 14 3 3-3 3M4 17h3c1.8 0 2.9-1.6 4-3.5M14 7.5c.8-.4 1.8-.5 3-.5h3"></path><path d="m17 4 3 3-3 3"></path></svg></div><div><div class="kgpt-sampling-eyebrow">Cấu hình bộ đề</div><div class="kgpt-sampling-title">Phân phối câu hỏi ngẫu nhiên</div></div></div><span class="kgpt-sampling-status">Cá nhân hóa</span></div><div class="kgpt-sampling-control"><div class="kgpt-sampling-number"><span>Số câu trong mỗi đề</span><div class="kgpt-sampling-input-wrap"><input type="number" id="kgptDeliveryQuestionCount" min="1" step="1" placeholder="Tất cả"><span>/<b id="kgptQuestionBankTotal">0</b>&nbsp;câu</span></div><div class="kgpt-sampling-presets"><button class="kgpt-sampling-preset" type="button" data-sampling-preset="all">Tất cả</button><button class="kgpt-sampling-preset" type="button" data-sampling-preset="20">20 câu</button><button class="kgpt-sampling-preset" type="button" data-sampling-preset="half">50%</button></div></div><div class="kgpt-sampling-help"><strong id="kgptSamplingSummary">Tạo bộ đề riêng cho từng người</strong><span id="kgptSamplingDescription">Mỗi giám định viên nhận một tổ hợp câu hỏi khác nhau từ ngân hàng.</span><div class="kgpt-sampling-chips"><span class="kgpt-sampling-chip">Tráo câu hỏi</span><span class="kgpt-sampling-chip">Tráo đáp án</span><span class="kgpt-sampling-chip">Chấm điểm tự động</span></div></div></div>';
+                durationField.after(field);
+                const samplingInput = field.querySelector('#kgptDeliveryQuestionCount');
+                samplingInput?.addEventListener('input', () => syncSamplingQuestionCount());
+                field.querySelectorAll('[data-sampling-preset]').forEach(button => button.addEventListener('click', () => {
+                    const total = frameDoc.querySelectorAll('#questionListContainer .question-card').length;
+                    const preset = button.dataset.samplingPreset;
+                    if (preset === 'all') samplingInput.value = '';
+                    else if (preset === 'half') samplingInput.value = String(Math.max(1, Math.ceil(total / 2)));
+                    else samplingInput.value = String(Math.min(total, Number(preset) || total));
+                    syncSamplingQuestionCount();
+                }));
+            }
+        }
+
+        const syncSamplingQuestionCount = () => {
+            const total = frameDoc.querySelectorAll('#questionListContainer .question-card').length;
+            const input = frameDoc.getElementById('kgptDeliveryQuestionCount');
+            const totalLabel = frameDoc.getElementById('kgptQuestionBankTotal');
+            if (totalLabel) totalLabel.textContent = total;
+            if (input) {
+                input.max = String(Math.max(1, total));
+                if (input.value && Number(input.value) > total) input.value = String(total);
+            }
+            const effectiveCount = input?.value ? Math.max(1, Math.min(total, Number(input.value) || total)) : total;
+            const summary = frameDoc.getElementById('kgptSamplingSummary');
+            const description = frameDoc.getElementById('kgptSamplingDescription');
+            if (summary) summary.textContent = effectiveCount < total ? `Mỗi người nhận ${effectiveCount} trong ${total} câu` : `Mỗi người nhận toàn bộ ${total} câu`;
+            if (description) description.textContent = effectiveCount < total
+                ? `Hệ thống chọn ngẫu nhiên ${effectiveCount} câu và tiếp tục tráo vị trí đáp án cho từng tài khoản.`
+                : 'Toàn bộ câu hỏi được sử dụng nhưng thứ tự câu và đáp án vẫn được tráo riêng cho từng tài khoản.';
+            frameDoc.querySelectorAll('[data-sampling-preset]').forEach(button => {
+                const preset = button.dataset.samplingPreset;
+                const presetValue = preset === 'all' ? total : preset === 'half' ? Math.max(1, Math.ceil(total / 2)) : Math.min(total, Number(preset) || total);
+                button.classList.toggle('active', (preset === 'all' && !input?.value) || (preset !== 'all' && !!input?.value && Number(input.value) === presetValue));
+                if (preset === '20') button.disabled = total < 20;
+            });
+        };
+        syncSamplingQuestionCount();
+        const questionContainer = frameDoc.getElementById('questionListContainer');
+        if (questionContainer && !frameWindow.__kgptSamplingQuestionObserver) {
+            frameWindow.__kgptSamplingQuestionObserver = new MutationObserver(syncSamplingQuestionCount);
+            frameWindow.__kgptSamplingQuestionObserver.observe(questionContainer, { childList: true });
+        }
+
+        if (!frameWindow.__kgptQuestionSamplingInstalled) {
+            frameWindow.__kgptQuestionSamplingInstalled = true;
+            const originalOpenModal = frameWindow.openModal;
+            if (typeof originalOpenModal === 'function') {
+                frameWindow.openModal = function() {
+                    frameWindow.__kgptEditingAssignmentId = null;
+                    const result = originalOpenModal.apply(this, arguments);
+                    const modal = frameDoc.getElementById('modal');
+                    const heading = modal?.querySelector('.modal-head h2');
+                    const primaryButton = modal?.querySelector('.modal-foot .primary');
+                    if (heading) heading.textContent = 'Tạo bài tập mới';
+                    if (primaryButton) primaryButton.textContent = 'Tạo & giao bài →';
+                    setTimeout(syncSamplingQuestionCount, 0);
+                    return result;
+                };
+            }
+
+            frameWindow.openEditAssignment = async function(taskId) {
+                const storedAssignments = readTrainingLocalValue(TRAINING_ASSIGNMENTS_STORAGE_KEY, []);
+                const task = storedAssignments.find(item => String(item.id) === String(taskId));
+                if (!task) {
+                    frameWindow.showToast?.('Không tìm thấy bài tập cần chỉnh sửa');
+                    return;
+                }
+                const existingResult = readTrainingLocalValue(TRAINING_RESULTS_STORAGE_KEY, {})[taskId];
+                if (existingResult) {
+                    const approved = await requestPremiumConfirmation({
+                        title: 'Chỉnh sửa bài đã có kết quả?',
+                        message: 'Bài tập đã có người nộp. Kết quả đã nộp sẽ được giữ nguyên trong lịch sử, còn nội dung mới áp dụng cho lượt làm tiếp theo.',
+                        confirmText: 'Tiếp tục sửa',
+                        cancelText: 'Quay lại'
+                    }, frameWindow);
+                    if (!approved) return;
+                }
+                originalOpenModal?.call(frameWindow);
+                frameWindow.__kgptEditingAssignmentId = task.id;
+
+                const modal = frameDoc.getElementById('modal');
+                const heading = modal?.querySelector('.modal-head h2');
+                const primaryButton = modal?.querySelector('.modal-foot .primary');
+                if (heading) heading.textContent = 'Chỉnh sửa bài tập';
+                if (primaryButton) primaryButton.textContent = 'Lưu thay đổi →';
+                const setValue = (id, value) => {
+                    const element = frameDoc.getElementById(id);
+                    if (element) element.value = value ?? '';
+                };
+                setValue('newTitle', task.title);
+                setValue('newTopic', task.topic);
+                setValue('newAudience', task.audience || 'Tất cả học viên');
+                setValue('newDeadline', task.deadline || '');
+                const storedDuration = task.duration || '30 phút';
+                const matchingDuration = [...(durationSelect?.options || [])].some(option => option.value === storedDuration && option.value !== 'custom');
+                setValue('newDuration', matchingDuration ? storedDuration : 'custom');
+                if (!matchingDuration) setValue('kgptCustomDurationMinutes', Math.max(1, Math.min(480, parseInt(storedDuration, 10) || 90)));
+                durationSelect?.dispatchEvent(new frameWindow.Event('change', { bubbles: true }));
+                setValue('kgptDeliveryQuestionCount', task.deliveryQuestionCount || (task.questions || []).length);
+
+                const questionList = frameDoc.getElementById('questionListContainer');
+                if (questionList) questionList.innerHTML = '';
+                (task.questions || []).forEach(question => frameWindow.addQuestionCard?.({
+                    prompt: question.q || '',
+                    answers: Array.isArray(question.a) ? question.a : ['', '', '', ''],
+                    correct: Number(question.c) || 0,
+                    points: Number(question.points) || 1
+                }));
+                if (!(task.questions || []).length) frameWindow.addQuestionCard?.();
+                syncSamplingQuestionCount();
+                modal?.querySelector('.form')?.scrollTo({ top: 0, behavior: 'instant' });
+            };
+
+            const originalSaveAssignmentForm = frameWindow.saveAssignmentForm;
+            if (typeof originalSaveAssignmentForm === 'function') {
+                frameWindow.saveAssignmentForm = function(status = 'publish') {
+                    const totalQuestions = frameDoc.querySelectorAll('#questionListContainer .question-card').length;
+                    const input = frameDoc.getElementById('kgptDeliveryQuestionCount');
+                    const rawValue = String(input?.value || '').trim();
+                    const requestedCount = rawValue ? Number(rawValue) : totalQuestions;
+                    if (!validateConfiguredDuration()) return false;
+                    if (status !== 'draft' && (!Number.isInteger(requestedCount) || requestedCount < 1 || requestedCount > totalQuestions)) {
+                        showPremiumTrainingAlert(`Số câu phát phải từ 1 đến ${totalQuestions}.`, { title: 'Số câu chưa hợp lệ' });
+                        input?.focus();
+                        return false;
+                    }
+                    const editingId = frameWindow.__kgptEditingAssignmentId;
+                    if (editingId) {
+                        const title = String(frameDoc.getElementById('newTitle')?.value || '').trim();
+                        if (!title) {
+                            showPremiumTrainingAlert('Vui lòng nhập tên bài tập.', { title: 'Thiếu thông tin' });
+                            frameDoc.getElementById('newTitle')?.focus();
+                            return false;
+                        }
+                        const questionsData = [];
+                        frameDoc.querySelectorAll('#questionListContainer .question-card').forEach(card => {
+                            const prompt = String(card.querySelector('.question-prompt')?.value || '').trim();
+                            const answers = [...card.querySelectorAll('.answer-text')].map(element => String(element.value || '').trim());
+                            const checked = card.querySelector('input[type="radio"]:checked');
+                            if (prompt) questionsData.push({
+                                q: prompt,
+                                a: answers,
+                                c: checked ? Number(checked.value) : 0,
+                                points: Number(card.querySelector('.q-points')?.value) || 1
+                            });
+                        });
+                        if (status !== 'draft' && !questionsData.length) {
+                            showPremiumTrainingAlert('Vui lòng tạo ít nhất một câu hỏi.', { title: 'Chưa có câu hỏi' });
+                            return false;
+                        }
+                        const storedAssignments = readTrainingLocalValue(TRAINING_ASSIGNMENTS_STORAGE_KEY, []);
+                        const taskIndex = storedAssignments.findIndex(item => String(item.id) === String(editingId));
+                        if (taskIndex < 0) {
+                            showPremiumTrainingAlert('Không tìm thấy bài tập cần cập nhật.', { title: 'Không thể cập nhật' });
+                            return false;
+                        }
+                        const topic = frameDoc.getElementById('newTopic')?.value || 'Nghiệp vụ';
+                        const deadline = frameDoc.getElementById('newDeadline')?.value || '';
+                        const deadlineDate = deadline ? new Date(deadline) : null;
+                        const deadlineLabel = deadlineDate && !Number.isNaN(deadlineDate.getTime())
+                            ? `${deadlineDate.toLocaleDateString('vi-VN')} · ${deadlineDate.toLocaleTimeString('vi-VN', { hour: '2-digit', minute: '2-digit' })}`
+                            : 'Chưa thiết lập';
+                        const effectiveCount = questionsData.length ? Math.max(1, Math.min(questionsData.length, requestedCount || questionsData.length)) : 0;
+                        storedAssignments[taskIndex] = {
+                            ...storedAssignments[taskIndex],
+                            title,
+                            topic,
+                            audience: frameDoc.getElementById('newAudience')?.value || 'Tất cả học viên',
+                            deadline,
+                            deadlineLabel,
+                            duration: getConfiguredDuration(),
+                            questions: questionsData,
+                            deliveryQuestionCount: effectiveCount,
+                            randomizeQuestions: true,
+                            randomizeAnswers: true,
+                            description: `${questionsData.length} câu trong ngân hàng · mỗi học viên nhận ${effectiveCount} câu ngẫu nhiên thuộc chuyên đề ${topic}.`,
+                            status: status === 'draft' ? 'draft' : 'open',
+                            updatedAt: new Date().toISOString()
+                        };
+                        localStorage.setItem(TRAINING_ASSIGNMENTS_STORAGE_KEY, JSON.stringify(storedAssignments));
+                        frameWindow.__kgptEditingAssignmentId = null;
+                        frameWindow.loadAssignments?.();
+                        frameWindow.closeModal?.();
+                        frameWindow.showToast?.('Đã cập nhật bài tập thành công');
+                        window.postMessage({ type: 'kgpt:refresh-assignments' }, '*');
+                        return true;
+                    }
+                    const beforeIds = new Set(readTrainingLocalValue(TRAINING_ASSIGNMENTS_STORAGE_KEY, []).map(item => String(item.id)));
+                    const result = originalSaveAssignmentForm.apply(this, arguments);
+                    const storedAssignments = readTrainingLocalValue(TRAINING_ASSIGNMENTS_STORAGE_KEY, []);
+                    const createdAssignment = storedAssignments.find(item => !beforeIds.has(String(item.id)));
+                    if (createdAssignment) {
+                        const effectiveCount = totalQuestions ? Math.max(1, Math.min(totalQuestions, requestedCount || totalQuestions)) : 0;
+                        createdAssignment.deliveryQuestionCount = effectiveCount;
+                        createdAssignment.randomizeQuestions = true;
+                        createdAssignment.randomizeAnswers = true;
+                        createdAssignment.audience = frameDoc.getElementById('newAudience')?.value || 'Tất cả học viên';
+                        createdAssignment.duration = getConfiguredDuration();
+                        createdAssignment.description = `${totalQuestions} câu trong ngân hàng · mỗi học viên nhận ${effectiveCount} câu ngẫu nhiên thuộc chuyên đề ${createdAssignment.topic}.`;
+                        localStorage.setItem(TRAINING_ASSIGNMENTS_STORAGE_KEY, JSON.stringify(storedAssignments));
+                        frameWindow.loadAssignments?.();
+                        window.postMessage({ type: 'kgpt:refresh-assignments' }, '*');
+                    }
+                    return result;
+                };
+            }
+        }
+
+        const exportIcon = '<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 3v11m0 0 4-4m-4 4-4-4M5 14v5h14v-5"></path></svg>';
+        const collectTrainingAttempts = taskId => {
+            const assignments = readTrainingLocalValue(TRAINING_ASSIGNMENTS_STORAGE_KEY, []);
+            const results = readTrainingLocalValue(TRAINING_RESULTS_STORAGE_KEY, {});
+            const history = readTrainingLocalValue(TRAINING_RESULT_HISTORY_STORAGE_KEY, []);
+            const assignmentMap = new Map((Array.isArray(assignments) ? assignments : []).map(item => [String(item.id), item]));
+            const attempts = [];
+
+            Object.entries(results && typeof results === 'object' ? results : {}).forEach(([storedTaskId, result]) => {
+                if (!result || typeof result !== 'object') return;
+                attempts.push({ ...result, taskId: result.taskId || storedTaskId, __current: true });
+            });
+            (Array.isArray(history) ? history : []).forEach(result => {
+                if (!result || typeof result !== 'object' || !result.taskId) return;
+                attempts.push({ ...result, __current: false });
+            });
+
+            const filtered = attempts.filter(item => !taskId || String(item.taskId) === String(taskId));
+            const grouped = new Map();
+            filtered.forEach(item => {
+                const key = `${String(item.taskId)}::${String(item.studentName || 'Học viên')}`;
+                if (!grouped.has(key)) grouped.set(key, []);
+                grouped.get(key).push(item);
+            });
+            grouped.forEach(items => {
+                items.sort((a, b) => new Date(a.completedAt || 0) - new Date(b.completedAt || 0));
+                items.forEach((item, index) => { item.__attemptNumber = index + 1; });
+            });
+            filtered.sort((a, b) => new Date(b.completedAt || 0) - new Date(a.completedAt || 0));
+            return { assignments: Array.isArray(assignments) ? assignments : [], assignmentMap, attempts: filtered };
+        };
+
+        const formatExportDate = value => {
+            if (!value) return '';
+            const date = new Date(value);
+            return Number.isNaN(date.getTime()) ? String(value) : date.toLocaleString('vi-VN');
+        };
+
+        const safeExportFileName = value => String(value || 'ket-qua-bai-tap')
+            .normalize('NFD').replace(/[\u0300-\u036f]/g, '').replace(/đ/g, 'd').replace(/Đ/g, 'D')
+            .replace(/[^a-zA-Z0-9-_]+/g, '-').replace(/^-+|-+$/g, '').slice(0, 80) || 'ket-qua-bai-tap';
+
+        frameWindow.exportTrainingResults = function(taskId = null) {
+            const XLSXLib = window.XLSX || frameWindow.XLSX;
+            if (!XLSXLib?.utils) {
+                showPremiumTrainingAlert('Chưa tải được thư viện tạo Excel. Vui lòng kiểm tra kết nối mạng và thử lại.', { title: 'Không thể kết xuất' });
+                return false;
+            }
+            const exportData = collectTrainingAttempts(taskId);
+            if (!exportData.attempts.length) {
+                showPremiumTrainingAlert(taskId ? 'Bài tập này chưa có kết quả để kết xuất.' : 'Chưa có kết quả làm bài nào để kết xuất.', { title: 'Chưa có dữ liệu' });
+                return false;
+            }
+
+            const summaryRows = exportData.attempts.map((attempt, index) => {
+                const task = exportData.assignmentMap.get(String(attempt.taskId)) || {};
+                const details = Array.isArray(attempt.answerDetails) ? attempt.answerDetails : [];
+                const correctCount = details.filter(item => item.isCorrect).length;
+                const totalQuestions = details.length || Number(task.deliveryQuestionCount) || (task.questions || []).length || '';
+                return {
+                    'STT': index + 1,
+                    'Mã bài tập': attempt.taskId || '',
+                    'Tên bài tập': task.title || 'Bài tập không còn trong danh sách',
+                    'Chuyên đề': task.topic || '',
+                    'Học viên': attempt.studentName || 'Học viên',
+                    'Lượt làm': Number(attempt.__attemptNumber) || 1,
+                    'Phân loại': attempt.__current ? 'Kết quả hiện tại' : 'Lịch sử làm lại',
+                    'Thời gian nộp': formatExportDate(attempt.completedAt),
+                    'Điểm / 10': Number(attempt.score) || 0,
+                    'Điểm đạt được': Number(attempt.earnedPoints) || 0,
+                    'Tổng điểm': Number(attempt.totalPoints) || 0,
+                    'Số câu đúng': details.length ? correctCount : '',
+                    'Tổng số câu': totalQuestions,
+                    'Tỷ lệ đúng': details.length ? `${Math.round(correctCount * 100 / details.length)}%` : '',
+                    'Đánh giá': Number(attempt.score) >= 7 ? 'Đạt' : 'Chưa đạt'
+                };
+            });
+
+            const detailRows = [];
+            exportData.attempts.forEach(attempt => {
+                const task = exportData.assignmentMap.get(String(attempt.taskId)) || {};
+                const details = Array.isArray(attempt.answerDetails) ? attempt.answerDetails : [];
+                details.forEach((answer, questionIndex) => {
+                    detailRows.push({
+                        'Mã bài tập': attempt.taskId || '',
+                        'Tên bài tập': task.title || 'Bài tập không còn trong danh sách',
+                        'Học viên': attempt.studentName || 'Học viên',
+                        'Lượt làm': Number(attempt.__attemptNumber) || 1,
+                        'Thời gian nộp': formatExportDate(attempt.completedAt),
+                        'Câu số': questionIndex + 1,
+                        'Nội dung câu hỏi': answer.question || '',
+                        'Câu trả lời của học viên': answer.selectedAnswer || 'Chưa trả lời',
+                        'Đáp án đúng': answer.correctAnswer || '',
+                        'Kết quả': answer.isCorrect ? 'Đúng' : 'Sai'
+                    });
+                });
+            });
+
+            const relevantAssignments = taskId
+                ? exportData.assignments.filter(item => String(item.id) === String(taskId))
+                : exportData.assignments;
+            const assignmentRows = relevantAssignments.map((task, index) => {
+                const taskAttempts = exportData.attempts.filter(item => String(item.taskId) === String(task.id));
+                const scores = taskAttempts.map(item => Number(item.score)).filter(Number.isFinite);
+                return {
+                    'STT': index + 1,
+                    'Mã bài tập': task.id || '',
+                    'Tên bài tập': task.title || '',
+                    'Chuyên đề': task.topic || '',
+                    'Thời hạn nộp': task.deadlineLabel || formatExportDate(task.deadline),
+                    'Thời gian làm bài': task.duration || '',
+                    'Câu trong ngân hàng': (task.questions || []).length,
+                    'Câu phát mỗi người': Number(task.deliveryQuestionCount) || (task.questions || []).length,
+                    'Tổng lượt nộp': taskAttempts.length,
+                    'Điểm trung bình': scores.length ? Number((scores.reduce((sum, score) => sum + score, 0) / scores.length).toFixed(2)) : 0,
+                    'Trạng thái': task.status === 'draft' ? 'Bản nháp' : 'Đang mở'
+                };
+            });
+
+            const workbook = XLSXLib.utils.book_new();
+            const summarySheet = XLSXLib.utils.json_to_sheet(summaryRows);
+            summarySheet['!cols'] = [6, 18, 34, 22, 24, 10, 18, 22, 12, 14, 12, 12, 12, 12, 14].map(width => ({ wch: width }));
+            summarySheet['!autofilter'] = { ref: summarySheet['!ref'] };
+            XLSXLib.utils.book_append_sheet(workbook, summarySheet, 'Tong_quan_ket_qua');
+
+            if (detailRows.length) {
+                const detailSheet = XLSXLib.utils.json_to_sheet(detailRows);
+                detailSheet['!cols'] = [18, 34, 24, 10, 22, 9, 58, 42, 42, 12].map(width => ({ wch: width }));
+                detailSheet['!autofilter'] = { ref: detailSheet['!ref'] };
+                XLSXLib.utils.book_append_sheet(workbook, detailSheet, 'Chi_tiet_dap_an');
+            }
+
+            if (assignmentRows.length) {
+                const assignmentSheet = XLSXLib.utils.json_to_sheet(assignmentRows);
+                assignmentSheet['!cols'] = [6, 18, 36, 22, 22, 18, 18, 18, 14, 16, 14].map(width => ({ wch: width }));
+                assignmentSheet['!autofilter'] = { ref: assignmentSheet['!ref'] };
+                XLSXLib.utils.book_append_sheet(workbook, assignmentSheet, 'Danh_sach_bai_tap');
+            }
+
+            const selectedTask = taskId ? exportData.assignmentMap.get(String(taskId)) : null;
+            const datePart = new Date().toISOString().slice(0, 10);
+            const fileName = `${safeExportFileName(selectedTask ? `ket-qua-${selectedTask.title}` : 'ket-qua-bai-tap')}-${datePart}.xlsx`;
+            XLSXLib.writeFile(workbook, fileName, { compression: true });
+            frameWindow.showToast?.(`Đã kết xuất ${exportData.attempts.length} lượt làm bài`);
+            return true;
+        };
+
+        const createAssignmentButton = [...frameDoc.querySelectorAll('button')].find(button => /Tạo bài tập mới/i.test(button.textContent || ''));
+        if (createAssignmentButton?.parentElement && !frameDoc.getElementById('kgptExportAllResults')) {
+            const exportAllButton = frameDoc.createElement('button');
+            exportAllButton.id = 'kgptExportAllResults';
+            exportAllButton.type = 'button';
+            exportAllButton.className = 'kgpt-export-results-btn';
+            exportAllButton.innerHTML = `${exportIcon}<span>Kết xuất kết quả</span>`;
+            exportAllButton.title = 'Kết xuất toàn bộ kết quả làm bài ra Excel';
+            exportAllButton.addEventListener('click', () => frameWindow.exportTrainingResults());
+            createAssignmentButton.parentElement.insertBefore(exportAllButton, createAssignmentButton);
+        }
+
+        const syncTaskSamplingMeta = () => {
+            const storedAssignments = readTrainingLocalValue(TRAINING_ASSIGNMENTS_STORAGE_KEY, []);
+            frameDoc.querySelectorAll('#taskRows tr[data-task-id]').forEach(row => {
+                const task = storedAssignments.find(item => String(item.id) === String(row.dataset.taskId));
+                const meta = row.querySelector('.task-meta');
+                if (!task || !meta) return;
+                const bankTotal = (task.questions || []).length;
+                const deliveryCount = Math.min(bankTotal, Number(task.deliveryQuestionCount) || bankTotal);
+                meta.innerHTML = `${bankTotal} câu ngân hàng · <span class="kgpt-random-meta">phát ngẫu nhiên ${deliveryCount} câu/người</span> · ${escape(task.duration || '30 phút')} · ${escape(task.topic || 'Nghiệp vụ')}`;
+                const actionGroup = row.querySelector('.action-group');
+                if (actionGroup && !actionGroup.querySelector('.kgpt-edit-assignment')) {
+                    const editButton = frameDoc.createElement('button');
+                    editButton.className = 'icon-btn kgpt-edit-assignment';
+                    editButton.type = 'button';
+                    editButton.title = 'Chỉnh sửa bài tập';
+                    editButton.setAttribute('aria-label', 'Chỉnh sửa bài tập');
+                    editButton.innerHTML = '<svg viewBox="0 0 24 24"><path d="M4 20h4l11-11-4-4L4 16v4Zm9.5-13.5 4 4M13 20h7"/></svg>';
+                    editButton.addEventListener('click', event => {
+                        event.stopPropagation();
+                        frameWindow.openEditAssignment?.(row.dataset.taskId);
+                    });
+                    const deleteButton = actionGroup.querySelector('.danger');
+                    actionGroup.insertBefore(editButton, deleteButton || null);
+                }
+                if (actionGroup && !actionGroup.querySelector('.kgpt-export-assignment')) {
+                    const exportButton = frameDoc.createElement('button');
+                    exportButton.className = 'icon-btn kgpt-export-assignment';
+                    exportButton.type = 'button';
+                    exportButton.title = 'Kết xuất kết quả bài tập';
+                    exportButton.setAttribute('aria-label', 'Kết xuất kết quả bài tập');
+                    exportButton.innerHTML = exportIcon;
+                    exportButton.addEventListener('click', event => {
+                        event.stopPropagation();
+                        frameWindow.exportTrainingResults?.(row.dataset.taskId);
+                    });
+                    const deleteButton = actionGroup.querySelector('.danger');
+                    actionGroup.insertBefore(exportButton, deleteButton || null);
+                }
+            });
+        };
+        setTimeout(syncTaskSamplingMeta, 0);
+        const taskRows = frameDoc.getElementById('taskRows');
+        if (taskRows && !frameWindow.__kgptSamplingTaskObserver) {
+            frameWindow.__kgptSamplingTaskObserver = new MutationObserver(syncTaskSamplingMeta);
+            frameWindow.__kgptSamplingTaskObserver.observe(taskRows, { childList: true });
+        }
+
+        const escape = value => String(value ?? '').replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;');
+        frameWindow.allowRetakeForStudent = async function(taskId) {
+            const results = readTrainingLocalValue(TRAINING_RESULTS_STORAGE_KEY, {});
+            const result = results?.[taskId];
+            const learner = result?.studentName || 'học viên này';
+            const approved = await requestPremiumConfirmation({
+                title: 'Cho phép làm lại bài?',
+                message: `Mở lượt làm mới cho ${learner}. Kết quả hiện tại sẽ được chuyển vào lịch sử và hệ thống tạo một bộ câu hỏi ngẫu nhiên mới.`,
+                confirmText: 'Cho làm lại',
+                cancelText: 'Hủy'
+            }, frameWindow);
+            if (!approved) return;
+            const historyKey = TRAINING_RESULT_HISTORY_STORAGE_KEY;
+            const history = readTrainingLocalValue(historyKey, []);
+            if (result) {
+                history.unshift({ ...result, taskId, reopenedAt: new Date().toISOString() });
+                localStorage.setItem(historyKey, JSON.stringify(history.slice(0, 200)));
+            }
+            delete results[taskId];
+            localStorage.setItem(TRAINING_RESULTS_STORAGE_KEY, JSON.stringify(results));
+            frameWindow.closeResultsModal?.();
+            frameWindow.loadAssignments?.();
+            frameWindow.showToast?.(`Đã mở lượt làm lại cho ${learner}`);
+            window.postMessage({ type: 'kgpt:quiz-retake-enabled', taskId }, '*');
+        };
+
+        frameWindow.toggleLearnerResultDetails = function(taskId) {
+            const detailRow = frameDoc.getElementById(`kgptResultDetail-${taskId}`);
+            const summaryRow = frameDoc.getElementById(`kgptResultSummary-${taskId}`);
+            const button = frameDoc.getElementById(`kgptViewResult-${taskId}`);
+            if (!detailRow) return;
+            const willOpen = detailRow.hidden;
+            detailRow.hidden = !willOpen;
+            summaryRow?.classList.toggle('is-open', willOpen);
+            if (button) button.textContent = willOpen ? 'Thu gọn' : 'Xem kết quả';
+            if (willOpen) setTimeout(() => detailRow.scrollIntoView({ behavior: 'smooth', block: 'nearest' }), 40);
+        };
+
+        frameWindow.viewTaskResults = function(taskId) {
+            const assignments = readTrainingLocalValue(TRAINING_ASSIGNMENTS_STORAGE_KEY, []);
+            const task = assignments.find(item => String(item.id) === String(taskId));
+            if (!task) return;
+            const results = readTrainingLocalValue(TRAINING_RESULTS_STORAGE_KEY, {});
+            const result = results[taskId];
+            const resultHistory = readTrainingLocalValue(TRAINING_RESULT_HISTORY_STORAGE_KEY, []);
+            const modal = frameDoc.getElementById('resultsModal');
+            const title = frameDoc.getElementById('resultModalTitle');
+            const tbody = frameDoc.getElementById('resultSubmissionsBody');
+            const table = tbody?.closest('table');
+            if (!modal || !tbody || !table) return;
+            const modalCard = modal.querySelector('.modal');
+            modalCard?.style.setProperty('width', 'min(1080px, calc(100vw - 48px))');
+            modalCard?.style.setProperty('max-width', '1080px');
+            title.textContent = `Kết quả: ${task.title}`;
+            frameWindow.__kgptCurrentResultTaskId = taskId;
+            const modalHead = modal.querySelector('.modal-head');
+            if (modalHead && !frameDoc.getElementById('kgptExportCurrentResult')) {
+                const exportCurrentButton = frameDoc.createElement('button');
+                exportCurrentButton.id = 'kgptExportCurrentResult';
+                exportCurrentButton.type = 'button';
+                exportCurrentButton.className = 'kgpt-export-results-btn modal-export';
+                exportCurrentButton.innerHTML = `${exportIcon}<span>Xuất Excel</span>`;
+                exportCurrentButton.title = 'Kết xuất kết quả của bài tập đang xem';
+                exportCurrentButton.addEventListener('click', event => {
+                    event.stopPropagation();
+                    frameWindow.exportTrainingResults?.(frameWindow.__kgptCurrentResultTaskId);
+                });
+                const closeButton = modalHead.querySelector('.close');
+                modalHead.insertBefore(exportCurrentButton, closeButton || null);
+            }
+            table.querySelector('thead').innerHTML = '<tr><th>Học viên</th><th>Thời gian nộp</th><th>Điểm số</th><th>Đánh giá</th><th>Làm lại</th><th>Thao tác</th></tr>';
+            if (!result) {
+                tbody.innerHTML = '<tr><td colspan="6" style="text-align:center;padding:32px;color:#8792a3">Chưa có học viên nào nộp bài tập này.</td></tr>';
+            } else {
+                const submittedAt = result.completedAt ? new Date(result.completedAt).toLocaleString('vi-VN') : '—';
+                const passed = Number(result.score) >= 7;
+                const retakeCount = (Array.isArray(resultHistory) ? resultHistory : []).filter(item => String(item.taskId) === String(taskId) && (!item.studentName || !result.studentName || item.studentName === result.studentName)).length;
+                const attemptNumber = retakeCount + 1;
+                const details = Array.isArray(result.answerDetails) ? result.answerDetails : [];
+                const detailHtml = details.length ? `<div class="kgpt-answer-list">${details.map((item, index) => `
+                    <div class="kgpt-answer-card ${item.isCorrect ? 'correct' : 'wrong'}">
+                        <div class="kgpt-answer-head"><div class="kgpt-answer-title">Câu ${index + 1}: ${escape(item.question)}</div><span class="kgpt-answer-state">${item.isCorrect ? 'Đúng' : 'Sai'}</span></div>
+                        <div class="kgpt-answer-meta"><span><b>Người dùng chọn</b>${escape(item.selectedAnswer || 'Chưa trả lời')}</span><span><b>Đáp án đúng</b>${escape(item.correctAnswer || '—')}</span></div>
+                    </div>`).join('')}</div>` : '<div class="kgpt-legacy-result">Kết quả này được tạo trước khi bật lưu chi tiết đáp án nên chưa thể hiện đúng/sai từng câu. Hãy cho phép học viên làm lại để hệ thống ghi nhận đầy đủ.</div>';
+                tbody.innerHTML = `
+                    <tr class="kgpt-learner-result-row" id="kgptResultSummary-${escape(taskId)}" onclick="toggleLearnerResultDetails('${escape(taskId)}')"><td><b class="kgpt-learner-name">${escape(result.studentName || 'Học viên')}</b></td><td>${submittedAt}</td><td><b style="color:#2563eb;font-size:13px">${escape(result.score)}</b> / 10</td><td><span class="badge ${passed ? 'green' : 'amber'}">${passed ? '● Đạt' : '● Chưa đạt'}</span></td><td><span class="kgpt-retake-count">${retakeCount} lần</span><span class="kgpt-attempt-label">Đang ở lượt ${attemptNumber}</span></td><td><div class="kgpt-result-actions"><button class="kgpt-view-result-btn" id="kgptViewResult-${escape(taskId)}" onclick="event.stopPropagation();toggleLearnerResultDetails('${escape(taskId)}')">Xem kết quả</button><button class="kgpt-retake-btn" onclick="event.stopPropagation();allowRetakeForStudent('${escape(taskId)}')">Cho làm lại</button></div></td></tr>
+                    <tr class="kgpt-result-detail-row" id="kgptResultDetail-${escape(taskId)}" hidden><td colspan="6"><div style="font-size:10px;font-weight:800;color:#475569;margin-top:4px">CHI TIẾT ĐÚNG / SAI TỪNG CÂU · LƯỢT ${attemptNumber}</div>${detailHtml}</td></tr>`;
+            }
+            modal.classList.add('open');
+        };
+    }
+
+    if (!window.__kgptFullscreenGuardInstalled) {
+        window.__kgptFullscreenGuardInstalled = true;
+        document.addEventListener('fullscreenchange', function() {
+            const frame = document.getElementById('studentLearningFrame');
+            const frameWindow = frame?.contentWindow;
+            if (!frameWindow?.__kgptExamSecurityActive || !frameWindow.__kgptFullscreenEntered || document.fullscreenElement === frame || !window.isStudentQuizInProgress?.() || frameWindow.__kgptSecuritySubmitting) return;
+            frameWindow.__kgptSecuritySubmitting = true;
+            frameWindow.showToast?.('Bạn đã thoát chế độ toàn màn hình. Hệ thống tự động nộp bài hiện tại.');
+            try { frameWindow.submitQuiz?.(true); } finally {
+                setTimeout(() => { frameWindow.__kgptSecuritySubmitting = false; }, 800);
+            }
+        });
+    }
+
+    function enforceStudentSingleAttempt() {
+        const frame = document.getElementById('studentLearningFrame');
+        const frameWindow = frame?.contentWindow;
+        const frameDoc = frame?.contentDocument;
+        const startButton = frameDoc?.getElementById('btnStartQuiz');
+        if (!frameWindow || !frameDoc || !startButton) return;
+
+        if (!frameDoc.getElementById('kgptSingleAttemptStyle')) {
+            const style = frameDoc.createElement('style');
+            style.id = 'kgptSingleAttemptStyle';
+            style.textContent = '#btnStartQuiz[disabled]{cursor:not-allowed;transform:none!important;color:#64748b!important;border:1px solid #dbe4ef!important;background:#eef2f7!important;box-shadow:none!important;opacity:1!important}.detail-actions.single-attempt-locked p{color:#64748b!important}#quiz.active{box-sizing:border-box;min-height:100vh;width:100%;padding:28px;align-items:center;justify-content:center}#quiz.active .quiz-shell{width:min(1500px,100%);margin:auto}#quiz.active .quiz-main,#quiz.active .quiz-nav{box-shadow:0 24px 60px -38px rgba(15,23,42,.45)}@media(min-height:720px){#quiz.active{display:flex}}@media(max-height:719px){#quiz.active{display:block;padding:18px}}@media(max-width:1050px){#quiz.active{align-items:flex-start}#quiz.active .quiz-shell{width:100%}}';
+            frameDoc.head.appendChild(style);
+        }
+
+        if (!frameDoc.getElementById('kgptWrongReviewStyle')) {
+            const style = frameDoc.createElement('style');
+            style.id = 'kgptWrongReviewStyle';
+            style.textContent = '.kgpt-review-header-actions{display:flex;align-items:center;justify-content:flex-end;gap:10px;flex-wrap:wrap;max-width:520px}.kgpt-review-header-actions .deadline{margin:0!important}.kgpt-review-header-actions .kgpt-review-wrong-btn{min-height:38px;padding:0 13px;border-radius:999px;background:rgba(255,255,255,.86);box-shadow:0 10px 22px -19px rgba(180,35,24,.65)}.kgpt-review-wrong-btn{min-height:46px;padding:0 17px;border:1px solid #f6b8b8;border-radius:12px;background:linear-gradient(180deg,#fff,#fff7f7);color:#b42318;display:inline-flex;align-items:center;justify-content:center;gap:8px;font-size:11.5px;font-weight:900;cursor:pointer;box-shadow:0 12px 24px -20px rgba(180,35,24,.65);transition:.18s}.kgpt-review-wrong-btn:hover{border-color:#ef8e8e;background:#fff1f1;transform:translateY(-1px)}.kgpt-review-wrong-btn svg{width:17px;height:17px;fill:none;stroke:currentColor;stroke-width:1.9;stroke-linecap:round;stroke-linejoin:round}.kgpt-review-wrong-btn[hidden]{display:none!important}.kgpt-result-button-row{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-top:18px}.kgpt-result-button-row>button{width:100%;margin:0!important}.kgpt-review-modal{position:fixed;inset:0;z-index:999;display:none;align-items:center;justify-content:center;padding:22px;background:rgba(7,15,29,.66);backdrop-filter:blur(10px)}.kgpt-review-modal.open{display:flex;animation:kgptReviewFade .2s ease}.kgpt-review-dialog{width:min(1040px,calc(100vw - 34px));max-height:min(88vh,820px);display:flex;flex-direction:column;overflow:hidden;border:1px solid rgba(255,255,255,.7);border-radius:24px;background:#fff;box-shadow:0 42px 100px -34px rgba(2,8,23,.75);animation:kgptReviewRise .25s cubic-bezier(.2,.8,.2,1)}.kgpt-review-head{padding:22px 26px 18px;display:flex;align-items:flex-start;justify-content:space-between;gap:20px;border-bottom:1px solid #e7edf5;background:radial-gradient(circle at 90% 0,rgba(248,113,113,.12),transparent 30%),linear-gradient(135deg,#fff,#f8fbff)}.kgpt-review-eyebrow{margin-bottom:6px;color:#dc2626;font-size:10px;font-weight:950;letter-spacing:.16em;text-transform:uppercase}.kgpt-review-head h2{margin:0;color:#111c31;font-size:21px;letter-spacing:-.03em}.kgpt-review-head p{margin:7px 0 0;color:#75839a;font-size:12px;line-height:1.55}.kgpt-review-close{width:38px;height:38px;flex:0 0 38px;border:1px solid #dce4ef;border-radius:11px;background:#fff;color:#64748b;font-size:21px;cursor:pointer}.kgpt-review-close:hover{color:#dc2626;border-color:#fecaca;background:#fff7f7}.kgpt-review-summary{padding:14px 26px;display:flex;align-items:center;gap:10px;border-bottom:1px solid #edf1f6;background:#fbfcfe}.kgpt-review-stat{padding:8px 11px;border:1px solid #dde6f2;border-radius:10px;background:#fff;color:#64748b;font-size:10.5px;font-weight:850}.kgpt-review-stat b{margin-right:4px;color:#172033;font-size:14px}.kgpt-review-stat.danger{border-color:#fecaca;background:#fff7f7;color:#b42318}.kgpt-review-stat.danger b{color:#dc2626}.kgpt-review-body{flex:1;overflow:auto;padding:18px 26px 26px;background:#f7f9fc}.kgpt-review-list{display:grid;gap:12px}.kgpt-review-card{padding:16px;border:1px solid #f4c3c3;border-radius:16px;background:#fff;box-shadow:0 13px 28px -26px rgba(15,23,42,.5)}.kgpt-review-card-head{display:flex;align-items:flex-start;justify-content:space-between;gap:14px;margin-bottom:12px}.kgpt-review-question{color:#172033;font-size:13.5px;font-weight:850;line-height:1.55}.kgpt-review-state{flex:0 0 auto;padding:5px 9px;border-radius:999px;background:#fee2e2;color:#b42318;font-size:9.5px;font-weight:950;text-transform:uppercase}.kgpt-review-answer-grid{display:grid;grid-template-columns:1fr 1fr;gap:10px}.kgpt-review-answer{padding:11px 12px;border:1px solid #e2e8f0;border-radius:11px;background:#f8fafc;color:#526076;font-size:11.5px;line-height:1.55}.kgpt-review-answer b{display:block;margin-bottom:4px;color:#64748b;font-size:9.5px;letter-spacing:.08em;text-transform:uppercase}.kgpt-review-answer.wrong{border-color:#fecaca;background:#fff7f7;color:#991b1b}.kgpt-review-answer.correct{border-color:#bbefd2;background:#f2fbf6;color:#087a46}.kgpt-review-empty{padding:50px 24px;text-align:center;border:1px solid #ccebd9;border-radius:18px;background:#f1fbf5}.kgpt-review-empty-icon{width:54px;height:54px;margin:0 auto 14px;display:grid;place-items:center;border-radius:18px;background:#dcfce7;color:#059669;font-size:25px;font-weight:900}.kgpt-review-empty h3{margin:0 0 7px;color:#10613c;font-size:17px}.kgpt-review-empty p{margin:0;color:#56806b;font-size:12px}.kgpt-review-foot{padding:15px 26px;display:flex;align-items:center;justify-content:space-between;gap:16px;border-top:1px solid #e7edf5;background:#fff}.kgpt-review-note{color:#8793a5;font-size:10.5px}.kgpt-review-back{height:40px;padding:0 16px;border:0;border-radius:11px;background:linear-gradient(135deg,#3b82f6,#1d4ed8);color:#fff;font-size:11px;font-weight:900;cursor:pointer;box-shadow:0 12px 24px -16px #1d4ed8}@keyframes kgptReviewFade{from{opacity:0}to{opacity:1}}@keyframes kgptReviewRise{from{opacity:0;transform:translateY(12px) scale(.985)}to{opacity:1;transform:none}}@media(max-width:700px){.kgpt-review-header-actions{width:100%;max-width:none;justify-content:flex-start}.kgpt-review-answer-grid{grid-template-columns:1fr}.kgpt-result-button-row{grid-template-columns:1fr}.kgpt-review-summary{flex-wrap:wrap}.kgpt-review-dialog{max-height:92vh}.kgpt-review-head,.kgpt-review-body,.kgpt-review-foot{padding-left:17px;padding-right:17px}}';
+            frameDoc.head.appendChild(style);
+        }
+
+        const reviewIcon = '<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 5h16v14H4zM8 9h8M8 13h5"></path><path d="m16 16 4 4m0-4-4 4"></path></svg>';
+        if (!frameDoc.getElementById('kgptWrongReviewModal')) {
+            const reviewModal = frameDoc.createElement('div');
+            reviewModal.id = 'kgptWrongReviewModal';
+            reviewModal.className = 'kgpt-review-modal';
+            reviewModal.innerHTML = '<section class="kgpt-review-dialog" role="dialog" aria-modal="true" aria-labelledby="kgptWrongReviewTitle"><header class="kgpt-review-head"><div><div class="kgpt-review-eyebrow">Ôn tập sau đánh giá</div><h2 id="kgptWrongReviewTitle">Các câu cần xem lại</h2><p id="kgptWrongReviewSubtitle">Đối chiếu câu trả lời của bạn với đáp án đúng.</p></div><button type="button" class="kgpt-review-close" id="kgptWrongReviewClose" aria-label="Đóng">×</button></header><div class="kgpt-review-summary" id="kgptWrongReviewSummary"></div><div class="kgpt-review-body" id="kgptWrongReviewBody"></div><footer class="kgpt-review-foot"><span class="kgpt-review-note">Chế độ chỉ xem · Không thay đổi kết quả đã ghi nhận</span><button type="button" class="kgpt-review-back" id="kgptWrongReviewBack">Quay về bài tập</button></footer></section>';
+            frameDoc.body.appendChild(reviewModal);
+            reviewModal.addEventListener('click', event => {
+                if (event.target === reviewModal) frameWindow.closeWrongAnswerReview?.();
+            });
+            reviewModal.querySelector('#kgptWrongReviewClose')?.addEventListener('click', () => frameWindow.closeWrongAnswerReview?.());
+            reviewModal.querySelector('#kgptWrongReviewBack')?.addEventListener('click', () => frameWindow.closeWrongAnswerReview?.());
+        }
+
+        const detailActions = startButton.closest('.detail-actions');
+        const detailTopline = frameDoc.querySelector('#taskSelectedView .detail-topline');
+        const deadlineBadge = frameDoc.getElementById('deadline');
+        let reviewHeaderActions = frameDoc.getElementById('kgptReviewHeaderActions');
+        if (!reviewHeaderActions && detailTopline && deadlineBadge) {
+            reviewHeaderActions = frameDoc.createElement('div');
+            reviewHeaderActions.id = 'kgptReviewHeaderActions';
+            reviewHeaderActions.className = 'kgpt-review-header-actions';
+            detailTopline.insertBefore(reviewHeaderActions, deadlineBadge);
+            reviewHeaderActions.appendChild(deadlineBadge);
+        }
+        if ((reviewHeaderActions || detailActions) && !frameDoc.getElementById('kgptReviewWrongFromDetail')) {
+            const reviewButton = frameDoc.createElement('button');
+            reviewButton.id = 'kgptReviewWrongFromDetail';
+            reviewButton.type = 'button';
+            reviewButton.className = 'kgpt-review-wrong-btn';
+            reviewButton.hidden = true;
+            reviewButton.innerHTML = `${reviewIcon}<span>Xem câu chưa đạt</span>`;
+            reviewButton.addEventListener('click', () => frameWindow.openWrongAnswerReview?.());
+            if (reviewHeaderActions) reviewHeaderActions.insertBefore(reviewButton, deadlineBadge || null);
+            else detailActions.insertBefore(reviewButton, startButton);
+        }
+
+        const resultCard = frameDoc.getElementById('resultModal')?.querySelector('.result-card');
+        if (resultCard && !frameDoc.getElementById('kgptReviewWrongAfterSubmit')) {
+            const backButton = resultCard.querySelector('button.primary');
+            if (backButton) {
+                const buttonRow = frameDoc.createElement('div');
+                buttonRow.className = 'kgpt-result-button-row';
+                const reviewButton = frameDoc.createElement('button');
+                reviewButton.id = 'kgptReviewWrongAfterSubmit';
+                reviewButton.type = 'button';
+                reviewButton.className = 'kgpt-review-wrong-btn';
+                reviewButton.innerHTML = `${reviewIcon}<span>Xem câu chưa đạt</span>`;
+                reviewButton.addEventListener('click', () => frameWindow.openWrongAnswerReview?.());
+                backButton.before(buttonRow);
+                buttonRow.append(reviewButton, backButton);
+            }
+        }
+
+        const getSelectedStudentTaskId = () => {
+            try { return frameWindow.eval('selectedAssignment?.id || null'); } catch (error) { return null; }
+        };
+        const escapeReviewHtml = value => String(value ?? '').replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;');
+
+        frameWindow.openWrongAnswerReview = function(taskId = null) {
+            const activeTaskId = taskId || getSelectedStudentTaskId();
+            const result = readTrainingLocalValue(TRAINING_RESULTS_STORAGE_KEY, {})?.[activeTaskId];
+            const task = readTrainingLocalValue(TRAINING_ASSIGNMENTS_STORAGE_KEY, []).find(item => String(item.id) === String(activeTaskId));
+            const details = Array.isArray(result?.answerDetails) ? result.answerDetails : [];
+            const wrongAnswers = details.map((item, index) => ({ ...item, originalIndex: index })).filter(item => !item.isCorrect);
+            const modal = frameDoc.getElementById('kgptWrongReviewModal');
+            const body = frameDoc.getElementById('kgptWrongReviewBody');
+            const summary = frameDoc.getElementById('kgptWrongReviewSummary');
+            const title = frameDoc.getElementById('kgptWrongReviewTitle');
+            const subtitle = frameDoc.getElementById('kgptWrongReviewSubtitle');
+            if (!modal || !body || !summary || !title) return false;
+            if (!result) {
+                frameWindow.showToast?.('Chưa có kết quả làm bài để xem lại.');
+                return false;
+            }
+            title.textContent = `Câu cần xem lại · ${task?.title || 'Bài tập'}`;
+            if (subtitle) subtitle.textContent = `Điểm đã ghi nhận: ${Number(result.score || 0).toFixed(1)}/10 · Nộp lúc ${result.completedAt ? new Date(result.completedAt).toLocaleString('vi-VN') : '—'}`;
+            const correctCount = details.filter(item => item.isCorrect).length;
+            summary.innerHTML = `<span class="kgpt-review-stat"><b>${details.length}</b> Tổng câu</span><span class="kgpt-review-stat"><b>${correctCount}</b> Câu đúng</span><span class="kgpt-review-stat danger"><b>${wrongAnswers.length}</b> Cần xem lại</span>`;
+            if (!details.length) {
+                body.innerHTML = '<div class="kgpt-review-empty" style="border-color:#fde68a;background:#fffbeb"><div class="kgpt-review-empty-icon" style="background:#fef3c7;color:#d97706">!</div><h3 style="color:#92400e">Kết quả cũ chưa có chi tiết đáp án</h3><p style="color:#a16207">Hãy liên hệ giảng viên để mở lượt làm mới; hệ thống sẽ ghi nhận chi tiết từ lượt tiếp theo.</p></div>';
+            } else if (!wrongAnswers.length) {
+                body.innerHTML = '<div class="kgpt-review-empty"><div class="kgpt-review-empty-icon">✓</div><h3>Bạn đã trả lời đúng tất cả câu hỏi</h3><p>Không có câu nào cần xem lại trong lượt làm này.</p></div>';
+            } else {
+                body.innerHTML = `<div class="kgpt-review-list">${wrongAnswers.map(item => `<article class="kgpt-review-card"><div class="kgpt-review-card-head"><div class="kgpt-review-question">Câu ${item.originalIndex + 1}: ${escapeReviewHtml(item.question || '')}</div><span class="kgpt-review-state">${item.selectedAnswer ? 'Chưa đạt' : 'Chưa trả lời'}</span></div><div class="kgpt-review-answer-grid"><div class="kgpt-review-answer wrong"><b>Câu trả lời của bạn</b>${escapeReviewHtml(item.selectedAnswer || 'Chưa trả lời')}</div><div class="kgpt-review-answer correct"><b>Đáp án đúng</b>${escapeReviewHtml(item.correctAnswer || '—')}</div></div></article>`).join('')}</div>`;
+            }
+            frameDoc.getElementById('resultModal')?.classList.remove('open');
+            modal.classList.add('open');
+            body.scrollTop = 0;
+            return true;
+        };
+
+        frameWindow.closeWrongAnswerReview = function() {
+            frameDoc.getElementById('kgptWrongReviewModal')?.classList.remove('open');
+            frameWindow.backDashboard?.();
+        };
+
+        const syncWrongReviewActions = () => {
+            const taskId = getSelectedStudentTaskId();
+            const result = taskId ? readTrainingLocalValue(TRAINING_RESULTS_STORAGE_KEY, {})?.[taskId] : null;
+            const details = Array.isArray(result?.answerDetails) ? result.answerDetails : [];
+            const wrongCount = details.filter(item => !item.isCorrect).length;
+            const detailButton = frameDoc.getElementById('kgptReviewWrongFromDetail');
+            const resultButton = frameDoc.getElementById('kgptReviewWrongAfterSubmit');
+            if (detailButton) {
+                detailButton.hidden = !result;
+                const label = detailButton.querySelector('span');
+                if (label) label.textContent = details.length ? (wrongCount ? `Xem lại ${wrongCount} câu chưa đạt` : 'Xem lại kết quả') : 'Xem lại kết quả';
+            }
+            if (resultButton) {
+                resultButton.hidden = !result;
+                const label = resultButton.querySelector('span');
+                if (label) label.textContent = details.length ? (wrongCount ? `Xem ${wrongCount} câu chưa đạt` : 'Xem lại kết quả') : 'Xem lại kết quả';
+            }
+        };
+
+        const syncAttemptState = () => {
+            const button = frameDoc.getElementById('btnStartQuiz');
+            const attemptInfo = frameDoc.getElementById('attemptInfo');
+            if (!button) return;
+            if (attemptInfo) attemptInfo.textContent = '1 lần';
+            const buttonText = (button.textContent || '').trim();
+            if (/Bắt đầu làm bài/i.test(buttonText)) {
+                button.dataset.singleAttemptLocked = '0';
+                button.disabled = false;
+                button.closest('.detail-actions')?.classList.remove('single-attempt-locked');
+            } else if (/Làm lại bài/i.test(buttonText) || /Đã hoàn thành/i.test(buttonText)) {
+                button.dataset.singleAttemptLocked = '1';
+                button.disabled = true;
+                if (buttonText !== 'Đã hoàn thành · Không được làm lại') button.textContent = 'Đã hoàn thành · Không được làm lại';
+                button.closest('.detail-actions')?.classList.add('single-attempt-locked');
+            }
+            syncWrongReviewActions();
+        };
+
+        if (!frameWindow.__kgptSingleAttemptInstalled) {
+            frameWindow.__kgptSingleAttemptInstalled = true;
+            const originalSelectTask = frameWindow.selectTask;
+            if (typeof originalSelectTask === 'function') {
+                frameWindow.selectTask = function(taskId) {
+                    const result = originalSelectTask.apply(this, arguments);
+                    const task = readTrainingLocalValue(TRAINING_ASSIGNMENTS_STORAGE_KEY, []).find(item => String(item.id) === String(taskId));
+                    if (task) {
+                        const bankTotal = (task.questions || []).length;
+                        const deliveryCount = Math.min(bankTotal, Number(task.deliveryQuestionCount) || bankTotal);
+                        const countLabel = frameDoc.getElementById('questionCount');
+                        if (countLabel) countLabel.textContent = deliveryCount === bankTotal ? `${bankTotal} câu` : `${deliveryCount} / ${bankTotal} câu`;
+                        const description = frameDoc.getElementById('detailDesc');
+                        if (description && deliveryCount < bankTotal) description.textContent = `Hệ thống sẽ chọn ngẫu nhiên ${deliveryCount} trong ${bankTotal} câu và tráo đáp án riêng cho tài khoản của bạn.`;
+                    }
+                    return result;
+                };
+            }
+            const originalSubmitQuiz = frameWindow.submitQuiz;
+            if (typeof originalSubmitQuiz === 'function') {
+                frameWindow.submitQuiz = function(auto = false) {
+                    if (auto) {
+                        const result = originalSubmitQuiz.apply(this, arguments);
+                        setTimeout(syncWrongReviewActions, 0);
+                        return result;
+                    }
+                    let questions = [];
+                    let submittedAnswers = {};
+                    try {
+                        questions = frameWindow.eval('selectedAssignment?.questions || []');
+                        submittedAnswers = frameWindow.eval('answers');
+                    } catch (error) {}
+                    const answeredCount = Object.keys(submittedAnswers || {}).length;
+                    if (answeredCount < questions.length) {
+                        requestPremiumConfirmation({
+                            title: 'Nộp bài khi chưa hoàn thành?',
+                            message: `Bạn mới trả lời ${answeredCount}/${questions.length} câu. Các câu chưa trả lời sẽ không được tính điểm.`,
+                            confirmText: 'Vẫn nộp bài',
+                            cancelText: 'Tiếp tục làm'
+                        }, frameWindow).then(approved => {
+                            if (approved) {
+                                originalSubmitQuiz.call(frameWindow, true);
+                                setTimeout(syncWrongReviewActions, 0);
+                            }
+                        });
+                        return false;
+                    }
+                    const result = originalSubmitQuiz.apply(this, arguments);
+                    setTimeout(syncWrongReviewActions, 0);
+                    return result;
+                };
+            }
+            const originalStartQuiz = frameWindow.startQuiz;
+            if (typeof originalStartQuiz === 'function') {
+                frameWindow.startQuiz = function() {
+                    const button = frameDoc.getElementById('btnStartQuiz');
+                    if (button?.dataset.singleAttemptLocked === '1' || button?.disabled) {
+                        frameWindow.showToast?.('Bài tập chỉ được làm một lần. Vui lòng liên hệ giảng viên nếu cần mở lại.');
+                        return false;
+                    }
+                    const shuffleInfo = preparePersonalizedQuizShuffle(frameWindow);
+                    const result = originalStartQuiz.apply(this, arguments);
+                    if (shuffleInfo) {
+                        frameWindow.__kgptActiveShuffleInfo = shuffleInfo;
+                        frameWindow.showToast?.(`Đã tạo bộ câu hỏi riêng cho lượt ${shuffleInfo.attemptNumber}`);
+                    }
+                    activateStudentExamSecurity(true);
+                    return result;
+                };
+            }
+            const originalSaveQuizResult = frameWindow.saveQuizResult;
+            if (typeof originalSaveQuizResult === 'function') {
+                frameWindow.saveQuizResult = function(taskId, result) {
+                    const existing = frameWindow.getQuizResults?.()?.[taskId];
+                    if (existing) return existing;
+                    try {
+                        const assignment = frameWindow.eval('selectedAssignment');
+                        const submittedAnswers = frameWindow.eval('answers');
+                        result.answerDetails = (assignment?.questions || []).map((question, index) => {
+                            const selectedIndex = submittedAnswers[index];
+                            const correctIndex = Number(question.c);
+                            return {
+                                question: question.q || `Câu ${index + 1}`,
+                                selectedIndex: selectedIndex ?? null,
+                                correctIndex: correctIndex,
+                                selectedAnswer: selectedIndex === undefined ? '' : (question.a?.[selectedIndex] || ''),
+                                correctAnswer: question.a?.[correctIndex] || '',
+                                isCorrect: selectedIndex === correctIndex
+                            };
+                        });
+                        result.shuffleInfo = assignment?.__kgptShuffleInfo || frameWindow.__kgptActiveShuffleInfo || null;
+                    } catch (error) {
+                        console.warn('Không ghi được chi tiết đáp án:', error);
+                    }
+                    return originalSaveQuizResult.apply(this, arguments);
+                };
+            }
+        }
+
+        syncAttemptState();
+        if (frame.__kgptSingleAttemptObserver) frame.__kgptSingleAttemptObserver.disconnect();
+        frame.__kgptSingleAttemptObserver = new MutationObserver(syncAttemptState);
+        frame.__kgptSingleAttemptObserver.observe(startButton, { childList: true, subtree: true, characterData: true });
+    }
+
     // Lắng nghe sự kiện chuyển đổi tab tra cứu/học tập
     const origSwitchTab = window.switchMainLookupTab;
     if (typeof origSwitchTab === 'function') {
@@ -11517,6 +12653,14 @@ ${text}` });
             if (tab === 'teacher' || tab === 'student') {
                 setTimeout(dispatchUserToFrames, 60);
                 setTimeout(dispatchUserToFrames, 300);
+                if (tab === 'teacher') {
+                    setTimeout(enforceTeacherResultReview, 90);
+                    setTimeout(enforceTeacherResultReview, 360);
+                }
+                if (tab === 'student') {
+                    setTimeout(enforceStudentSingleAttempt, 90);
+                    setTimeout(enforceStudentSingleAttempt, 360);
+                }
             }
             return res;
         };
@@ -11527,15 +12671,24 @@ ${text}` });
         const data = event.data || {};
         if (data.type === 'kgpt:student-ready' || data.type === 'kgpt:teacher-ready') {
             dispatchUserToFrames();
+            if (data.type === 'kgpt:student-ready') setTimeout(enforceStudentSingleAttempt, 120);
+            if (data.type === 'kgpt:teacher-ready') setTimeout(enforceTeacherResultReview, 120);
             loadTrainingDataFromDatabase()
-                .then(dispatchAssignmentsRefresh)
+                .then(() => { dispatchAssignmentsRefresh(); setTimeout(enforceStudentSingleAttempt, 220); })
                 .catch(error => console.error('Không đồng bộ được dữ liệu bài tập:', error));
         }
         if (data.type === 'kgpt:refresh-assignments') {
             saveAssignmentsToDatabase().then(dispatchAssignmentsRefresh);
         }
         if (data.type === 'kgpt:quiz-completed') {
+            deactivateStudentExamSecurity();
             saveResultsToDatabase().then(dispatchAssignmentsRefresh);
+        }
+        if (data.type === 'kgpt:quiz-retake-enabled') {
+            Promise.all([saveResultsToDatabase(), saveResultHistoryToDatabase()]).then(() => {
+                dispatchAssignmentsRefresh();
+                setTimeout(enforceStudentSingleAttempt, 180);
+            });
         }
     });
 
@@ -11546,11 +12699,13 @@ ${text}` });
     if (tFrame) {
         tFrame.addEventListener('load', function() {
             setTimeout(dispatchUserToFrames, 80);
+            setTimeout(enforceTeacherResultReview, 160);
         });
     }
     if (sFrame) {
         sFrame.addEventListener('load', function() {
             setTimeout(dispatchUserToFrames, 80);
+            setTimeout(enforceStudentSingleAttempt, 160);
         });
     }
 
