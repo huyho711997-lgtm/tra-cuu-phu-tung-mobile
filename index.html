@@ -915,8 +915,19 @@ html.dark #dataSection .price-reference-badge{border-color:#31558e;background:#1
             .pending-approval-filter b{min-width:20px;height:20px;padding:0 6px;border-radius:999px;background:#f59e0b;color:#fff;display:inline-flex;align-items:center;justify-content:center;font-size:10px}
             .pending-approval-filter:hover,.pending-approval-filter.active{border-color:#f59e0b;background:#f59e0b;color:#fff;transform:translateY(-1px);box-shadow:0 12px 24px -16px rgba(180,83,9,.8)}
             .pending-approval-filter.active b{background:#fff;color:#b45309}
+            html.kgpt-user-modal-open,html.kgpt-user-modal-open body{height:100%!important;overflow:hidden!important;overscroll-behavior:none}
+            #userModal.modal-bg{padding:clamp(14px,3vh,28px)!important;overflow:hidden!important;align-items:center!important}
+            #userModal .modal{width:min(960px,calc(100vw - 32px))!important;max-height:min(880px,calc(100vh - 32px))!important;border-radius:24px!important;overflow:hidden!important;box-shadow:0 38px 95px -30px rgba(3,12,29,.72),0 0 0 1px rgba(255,255,255,.4)!important}
+            #userModal .modal-head{flex:0 0 auto;padding:20px 24px!important;background:linear-gradient(135deg,#fff,#f8fbff)!important}
+            #userModal .form{flex:1 1 auto!important;min-height:0!important;overflow-y:auto!important;overflow-x:hidden!important;margin:0 7px 0 0!important;padding:20px 17px 22px 24px!important;scrollbar-gutter:stable;overscroll-behavior:contain;scrollbar-width:thin;scrollbar-color:#9db3d1 transparent}
+            #userModal .form::-webkit-scrollbar{width:8px}
+            #userModal .form::-webkit-scrollbar-track{background:transparent;margin:10px 0}
+            #userModal .form::-webkit-scrollbar-thumb{background:linear-gradient(180deg,#b7c7dc,#8da5c5);border:2px solid transparent;background-clip:padding-box;border-radius:999px;min-height:46px}
+            #userModal .form::-webkit-scrollbar-thumb:hover{background:linear-gradient(180deg,#7fa6df,#5f88c8);border:1px solid transparent;background-clip:padding-box}
+            #userModal .modal-foot{position:relative;z-index:3;flex:0 0 auto;padding:14px 24px!important;background:rgba(255,255,255,.97)!important;box-shadow:0 -14px 32px -28px rgba(15,23,42,.5)!important}
+            #userModal .perm-table{overflow:hidden;border-radius:15px}
             @media(max-width:1180px){.hero-row{flex-direction:column}.user-hero-actions{width:100%;margin-left:0;justify-content:flex-start}.user-hero-actions .tools{flex:1}.user-search-wrap{flex:1;width:auto}}
-            @media(max-width:760px){.page{padding:16px}.hero{padding:17px}.user-hero-actions{align-items:stretch;flex-direction:column}.user-hero-actions .tools{width:100%;flex-wrap:wrap}.user-search-wrap{width:100%;flex-basis:100%}.premium-user-filter{width:100%;flex-basis:100%}.pending-approval-filter{width:100%;justify-content:center}.user-hero-actions>.primary{width:100%}.hero .stats{grid-template-columns:repeat(2,1fr)}.panel-head{align-items:flex-start;flex-direction:column}.user-pagination{width:100%;margin-left:0;justify-content:flex-start;flex-wrap:wrap}}
+            @media(max-width:760px){.page{padding:16px}.hero{padding:17px}.user-hero-actions{align-items:stretch;flex-direction:column}.user-hero-actions .tools{width:100%;flex-wrap:wrap}.user-search-wrap{width:100%;flex-basis:100%}.premium-user-filter{width:100%;flex-basis:100%}.pending-approval-filter{width:100%;justify-content:center}.user-hero-actions>.primary{width:100%}.hero .stats{grid-template-columns:repeat(2,1fr)}.panel-head{align-items:flex-start;flex-direction:column}.user-pagination{width:100%;margin-left:0;justify-content:flex-start;flex-wrap:wrap}#userModal.modal-bg{padding:8px!important;align-items:stretch!important}#userModal .modal{width:100%!important;max-height:100%!important;border-radius:19px!important}#userModal .modal-head{padding:17px 18px!important}#userModal .form{margin-right:4px!important;padding:17px 10px 20px 18px!important}#userModal .modal-foot{padding:12px 18px!important}}
             @media(max-width:520px){.stats{grid-template-columns:1fr}}
             @media(prefers-reduced-motion:reduce){.stat,.user-search-wrap .search,.premium-user-filter-trigger,.premium-user-filter-menu,.premium-user-filter-option,.user-page-nav,.user-page-number,.user-page-size-trigger,.user-page-size-menu,.user-page-size-option{transition:none!important}}
         `;
@@ -1128,10 +1139,23 @@ html.dark #dataSection .price-reference-badge{border-color:#31558e;background:#1
         if (typeof originalEditPermissions === 'function' && !frame.contentWindow.__kgptApprovalEditWrapped) {
             frame.contentWindow.editPermissions = function (button) {
                 originalEditPermissions(button);
+                doc.documentElement.classList.add('kgpt-user-modal-open');
                 const row = button && button.closest('tr[data-uid]');
                 if (row && userStatusSelect) userStatusSelect.value = row.dataset.status || 'active';
             };
             frame.contentWindow.__kgptApprovalEditWrapped = true;
+        }
+        const userModal = doc.getElementById('userModal');
+        if (userModal && !frame.contentWindow.__kgptUserModalScrollObserver) {
+            const syncUserModalScrollLock = function () {
+                doc.documentElement.classList.toggle('kgpt-user-modal-open', userModal.classList.contains('open'));
+                const formBody = userModal.querySelector('.form');
+                if (formBody && userModal.classList.contains('open')) formBody.scrollTop = 0;
+            };
+            const modalObserver = new frame.contentWindow.MutationObserver(syncUserModalScrollLock);
+            modalObserver.observe(userModal, { attributes: true, attributeFilter: ['class'] });
+            frame.contentWindow.__kgptUserModalScrollObserver = modalObserver;
+            syncUserModalScrollLock();
         }
         frame.contentWindow.addEventListener('message', function (event) {
             const data = event.data || {};
@@ -3969,8 +3993,15 @@ document.addEventListener('DOMContentLoaded',function(){
             });
             if (error) console.warn('Không cập nhật được user metadata Supabase:', error);
         }
-        async function deleteUser() {
-            throw new Error('Không thể xóa Supabase Auth user từ frontend. Hãy dùng Supabase Dashboard hoặc Edge Function có service_role.');
+        async function deleteUser(uid) {
+            const targetUid = String(uid || '').trim();
+            if (!targetUid) throw new Error('Không xác định được tài khoản cần xóa.');
+            const currentUid = String(auth?.currentUser?.uid || currentUserProfile?.uid || '').trim();
+            if (targetUid === currentUid) throw new Error('Không thể tự xóa tài khoản quản trị đang đăng nhập.');
+            const { data, error } = await supabase.rpc('kgpt_admin_delete_user', { p_user_id: targetUid });
+            if (error) throw normalizeAuthError(error, 'Không xóa được tài khoản khỏi Supabase Auth');
+            if (data?.deleted === false) throw new Error(data?.message || 'Supabase không xác nhận đã xóa tài khoản.');
+            return data;
         }
         const COLLECTION_CONFIG = {
             LichSuBaoGia: { table: 'lich_su_bao_gia', pk: 'id' },
@@ -4624,11 +4655,10 @@ document.addEventListener('DOMContentLoaded',function(){
                 }
                 if (message.type === 'kgpt:delete-user') {
                     if (!payload.uid) throw new Error('Không xác định được người dùng cần xóa.');
-                    await deleteDoc(doc(db, 'user_profiles', payload.uid));
-                    try { await deleteDoc(doc(db, USER_API_KEYS_COLLECTION, payload.uid)); } catch (error) { console.warn(error); }
-                    try { await deleteDoc(doc(db, 'metadata', `user_permissions_${payload.uid}`)); } catch (error) { console.warn(error); }
+                    await deleteUser(payload.uid);
                     await window.refreshUserList();
-                    respond(true, 'Đã xóa hồ sơ người dùng khỏi danh sách quản lý.');
+                    respond(true, 'Đã xóa hoàn toàn tài khoản đăng nhập và dữ liệu quản lý liên quan.');
+                    return;
                 }
             } catch (error) {
                 console.error('Lỗi quản lý người dùng:', error);
@@ -5760,14 +5790,13 @@ document.addEventListener('DOMContentLoaded',function(){
                 }
             } catch (e) { customAlert("Lỗi tác vụ: " + e.message); }
         };
-        // XÓA USER KHỎI FIRESTORE MANAGEMENT LIST
+        // XÓA HOÀN TOÀN USER KHỎI SUPABASE AUTH VÀ DỮ LIỆU QUẢN LÝ
         window.deleteSubUser = async (uid, email) => {
-            customConfirm(`Xóa hồ sơ quản lý thành viên ${email} khỏi danh sách? (Dữ liệu Auth của thành viên vẫn tồn tại trên Firebase)`, async () => {
+            customConfirm(`Xóa vĩnh viễn tài khoản ${email} khỏi hệ thống? Người dùng sẽ không thể đăng nhập lại và thao tác này không thể hoàn tác.`, async () => {
                 try {
-                    await deleteDoc(doc(db, "user_profiles", uid));
-                    try { await deleteDoc(doc(db, USER_API_KEYS_COLLECTION, uid)); } catch (apiDeleteErr) { console.warn('Không xóa được user_api_keys:', apiDeleteErr); }
-                    refreshUserList();
-                    customAlert("Đã gỡ hồ sơ và API settings khỏi bảng quản trị hệ thống!", "success");
+                    await deleteUser(uid);
+                    await refreshUserList();
+                    customAlert("Đã xóa hoàn toàn tài khoản đăng nhập và dữ liệu quản lý liên quan!", "success");
                 } catch (e) { customAlert("Lỗi: " + e.message); }
             });
         };
