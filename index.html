@@ -3683,6 +3683,7 @@ document.addEventListener('DOMContentLoaded',function(){
             if (raw.includes('invalid login') || raw.includes('invalid credentials')) normalized.code = 'auth/invalid-credential';
             if (raw.includes('already registered') || raw.includes('already exists')) normalized.code = 'auth/email-already-in-use';
             if (raw.includes('rate limit') || raw.includes('too many')) normalized.code = 'auth/too-many-requests';
+            if (raw.includes('email not confirmed') || raw.includes('email_not_confirmed')) normalized.code = 'auth/email-not-verified';
             return normalized;
         }
         async function setPersistence(authRef, persistence) {
@@ -3692,6 +3693,12 @@ document.addEventListener('DOMContentLoaded',function(){
         async function signInWithEmailAndPassword(authRef, email, password) {
             const { data, error } = await authRef._client.auth.signInWithPassword({ email, password });
             if (error) throw normalizeAuthError(error, 'Sai email hoặc mật khẩu');
+            if (!data?.user?.email_confirmed_at) {
+                await authRef._client.auth.signOut().catch(() => {});
+                const verificationError = new Error('Email chưa được xác minh. Vui lòng kiểm tra hộp thư trước khi đăng nhập.');
+                verificationError.code = 'auth/email-not-verified';
+                throw verificationError;
+            }
             authRef._setCurrentUser(data?.user || null);
             return { user: authRef.currentUser };
         }
@@ -3717,13 +3724,25 @@ document.addEventListener('DOMContentLoaded',function(){
             return () => data?.subscription?.unsubscribe?.();
         }
         async function signOut(authRef) {
+            const { data: sessionData } = await authRef._client.auth.getSession().catch(() => ({ data: null }));
+            if (!sessionData?.session) {
+                authRef._setCurrentUser(null);
+                return;
+            }
             const { error } = await authRef._client.auth.signOut();
             if (error) throw normalizeAuthError(error, 'Không đăng xuất được');
             authRef._setCurrentUser(null);
         }
+        function getSupabaseAuthRedirectUrl() {
+            if (!/^https?:$/.test(location.protocol)) return '';
+            return `${location.origin}${location.pathname}`;
+        }
         async function sendPasswordResetEmail(authRef, email) {
-            const redirectTo = `${location.origin}${location.pathname}`;
-            const { error } = await authRef._client.auth.resetPasswordForEmail(email, { redirectTo });
+            const redirectTo = getSupabaseAuthRedirectUrl();
+            const { error } = await authRef._client.auth.resetPasswordForEmail(
+                email,
+                redirectTo ? { redirectTo } : undefined
+            );
             if (error) throw normalizeAuthError(error, 'Không gửi được email khôi phục mật khẩu');
         }
         const EmailAuthProvider = {
@@ -3738,15 +3757,23 @@ document.addEventListener('DOMContentLoaded',function(){
             const { error } = await supabase.auth.updateUser({ password: newPassword });
             if (error) throw normalizeAuthError(error, 'Không cập nhật được mật khẩu');
         }
-        async function createUserWithEmailAndPassword(authRef, email, password) {
-            const { data, error } = await authRef._client.auth.signUp({ email, password });
+        async function createUserWithEmailAndPassword(authRef, email, password, profile = {}) {
+            const fullName = String(profile.fullName || profile.displayName || '').trim();
+            const emailRedirectTo = getSupabaseAuthRedirectUrl();
+            const { data, error } = await authRef._client.auth.signUp({
+                email,
+                password,
+                options: {
+                    data: { fullName, full_name: fullName, displayName: fullName },
+                    ...(emailRedirectTo ? { emailRedirectTo } : {})
+                }
+            });
             if (error) throw normalizeAuthError(error, 'Không tạo được tài khoản Supabase');
-            if (!data.session && data.user) {
-                throw new Error('Bạn chưa tắt "Confirm email" trên Supabase. Vui lòng vào Supabase Dashboard -> Authentication -> Providers -> Email và TẮT "Confirm email" để tính năng đăng ký hoạt động.');
-            }
-            authRef._setCurrentUser(data?.user || null);
-            if (!authRef.currentUser?.uid) throw normalizeAuthError(null, 'Supabase đã nhận yêu cầu tạo tài khoản nhưng chưa trả về User ID. Hãy kiểm tra cấu hình xác nhận email trong Authentication.');
-            return { user: authRef.currentUser };
+            const createdUser = normalizeSupabaseUser(data?.user || null);
+            if (!createdUser?.uid) throw normalizeAuthError(null, 'Supabase đã nhận yêu cầu nhưng chưa trả về User ID.');
+            // Confirm email bật đúng sẽ không tạo session ở bước đăng ký.
+            authRef._setCurrentUser(data?.session ? data.user : null);
+            return { user: createdUser, session: data?.session || null, requiresEmailConfirmation: !data?.session };
         }
         async function updateProfile(user, payload = {}) {
             if (!user) return;
@@ -4149,7 +4176,6 @@ document.addEventListener('DOMContentLoaded',function(){
             };
         }
         // CONSTANTS
-        const MGR_EMAIL = 'huyho71@gmail.com';
         let currentUserProfile = null;
         const KGPT_TRAINING_ASSIGNMENTS_DB_KEY = 'kgpt_training_assignments_v1';
         const KGPT_TRAINING_RESULTS_DB_PREFIX = 'kgpt_training_results_v1';
@@ -4239,7 +4265,8 @@ document.addEventListener('DOMContentLoaded',function(){
             return normalized;
         }
         function canCurrentUserAccessPage(page, action = 'view') {
-            if (!currentUserProfile) return true;
+            // Fail closed: tuyệt đối không cấp quyền trong lúc hồ sơ/quyền chưa tải xong.
+            if (!currentUserProfile || currentUserProfile.status !== 'active') return false;
             if (currentUserProfile.role === 'admin') return true;
             if (page === 'users') return false;
             return currentUserProfile.permissions?.[page]?.[action] === true;
@@ -4277,7 +4304,7 @@ document.addEventListener('DOMContentLoaded',function(){
             await setDoc(doc(db, 'metadata', `user_permissions_${uid}`), {
                 permissions,
                 updatedAt: serverTimestamp(),
-                updatedBy: auth.currentUser?.email || MGR_EMAIL
+                updatedBy: auth.currentUser?.email || 'system'
             }, { merge: true });
             try {
                 await updateDoc(doc(db, 'user_profiles', uid), { permissions, updatedAt: serverTimestamp() });
@@ -4353,9 +4380,8 @@ document.addEventListener('DOMContentLoaded',function(){
                     const email = emailRaw.includes('@') ? emailRaw : `${emailRaw}@tasco.vn`;
                     const password = String(payload.password || '');
                     if (!fullName || !emailRaw || password.length < 6) throw new Error('Vui lòng nhập họ tên, email và mật khẩu tối thiểu 6 ký tự.');
-                    const credential = await createUserWithEmailAndPassword(secondaryAuth, email, password);
+                    const credential = await createUserWithEmailAndPassword(secondaryAuth, email, password, { fullName });
                     const newUser = credential.user;
-                    await updateProfile(newUser, { displayName: fullName });
                     await setDoc(doc(db, 'user_profiles', newUser.uid), {
                         fullName, email, role: normalizedRole, status: payload.status || 'active',
                         createdAt: serverTimestamp(), updatedAt: serverTimestamp(), loginCount: 0, searchCount: 0
@@ -4568,7 +4594,6 @@ document.addEventListener('DOMContentLoaded',function(){
                 const users = [];
                 snap.forEach(docSnap => {
                     const u = docSnap.data();
-                    if (String(u.email || '').toLowerCase() === MGR_EMAIL.toLowerCase()) return;
                     users.push({ ...u, uid: docSnap.id, status: u.status || 'active' });
                 });
                 users.sort((a, b) => String(a.fullName || a.email || '').localeCompare(String(b.fullName || b.email || ''), 'vi'));
@@ -4600,6 +4625,14 @@ document.addEventListener('DOMContentLoaded',function(){
             if (window.IS_REGISTERING) return;
             if (user) {
                 try {
+                    if (!user.emailVerified) {
+                        await signOut(auth).catch(() => {});
+                        hideApp();
+                        const err = document.getElementById('loginError');
+                        err.innerText = "EMAIL CHƯA ĐƯỢC XÁC MINH. VUI LÒNG KIỂM TRA HỘP THƯ VÀ XÁC NHẬN TÀI KHOẢN.";
+                        err.classList.remove('hidden');
+                        return;
+                    }
                     let profileSnap = null;
                     let profile = {};
                     try {
@@ -4610,25 +4643,33 @@ document.addEventListener('DOMContentLoaded',function(){
                     } catch (dbErr) {
                         console.warn("Không thể tải thông tin profile từ DB (do RLS hoặc cấu hình):", dbErr);
                     }
-                    if (
-                        (profile.status === 'locked' || profile.status === 'pending') &&
-                        user.email.toLowerCase().trim() !== MGR_EMAIL.toLowerCase().trim()
-                    ) {
+                    // Không có profile hợp lệ thì không được vào ứng dụng. Điều này ngăn
+                    // tài khoản Auth mồ côi hoặc lỗi RLS rơi về quyền mặc định.
+                    if (!profileSnap || !profileSnap.exists()) {
+                        await signOut(auth);
+                        hideApp();
+                        const err = document.getElementById('loginError');
+                        err.innerText = "TÀI KHOẢN CHƯA CÓ HỒ SƠ PHÂN QUYỀN HỢP LỆ. VUI LÒNG LIÊN HỆ QUẢN TRỊ VIÊN.";
+                        err.classList.remove('hidden');
+                        return;
+                    }
+                    if (profile.status !== 'active') {
                         await signOut(auth);
                         hideApp();
                         const err = document.getElementById('loginError');
                         if (profile.status === 'locked') {
                             err.innerText = "TÀI KHOẢN NÀY ĐÃ BỊ KHÓA! VUI LÒNG LIÊN HỆ QUẢN TRỊ VIÊN.";
-                        } else {
+                        } else if (profile.status === 'pending') {
                             err.innerText = "TÀI KHOẢN ĐANG CHỜ PHÊ DUYỆT TỪ QUẢN TRỊ VIÊN.";
+                        } else {
+                            err.innerText = "TÀI KHOẢN KHÔNG Ở TRẠNG THÁI HOẠT ĐỘNG. VUI LÒNG LIÊN HỆ QUẢN TRỊ VIÊN.";
                         }
                         err.classList.remove('hidden');
                         return;
                     }
-                    const role =
-                        user.email && user.email.toLowerCase().trim() === MGR_EMAIL.toLowerCase().trim()
-                            ? 'admin'
-                            : (profile.role || 'user');
+                    // Vai trò chỉ lấy từ profile đã được RLS bảo vệ, không suy ra từ email.
+                    const allowedRoles = ['admin', 'teacher', 'user', 'user_no_quote'];
+                    const role = allowedRoles.includes(profile.role) ? profile.role : 'user';
                     const fullName = profile.fullName || user.displayName || user.email;
                     const storedPermissions = role === 'admin' ? getDefaultUserPermissions('admin') : (profile.permissions || await getStoredUserPermissions(user.uid));
                     profile.permissions = normalizeUserPermissions(storedPermissions, role);
@@ -4980,27 +5021,16 @@ document.addEventListener('DOMContentLoaded',function(){
                 btn.disabled = true; btn.innerText = "ĐANG ĐĂNG KÝ...";
                 err.classList.add('hidden');
                 try {
-                    const userCredential = await createUserWithEmailAndPassword(auth, email, pass);
-                    const newUser = userCredential.user;
-                    await updateProfile(newUser, { displayName: fullName });
-                    const profilePayload = toDbPayload('user_profiles', {
-                        email: email,
-                        fullName: fullName,
-                        role: 'user', // default role
-                        status: 'pending',
-                        loginCount: 0,
-                        searchCount: 0,
-                        createdAt: serverTimestamp(),
-                        lastLogin: null
-                    }, newUser.uid);
-                    
-                    const { error: insertErr } = await supabase.from('user_profiles').insert(profilePayload);
-                    if (insertErr) throw insertErr;
-                    
+                    const userCredential = await createUserWithEmailAndPassword(auth, email, pass, { fullName });
+                    if (userCredential.session) {
+                        await signOut(auth).catch(() => {});
+                        const configurationError = new Error('Confirm email đang bị tắt trong cấu hình Supabase. Đăng ký công khai đã bị chặn để bảo vệ danh tính tài khoản.');
+                        configurationError.code = 'auth/email-verification-disabled';
+                        throw configurationError;
+                    }
                     window.IS_REGISTERING = false;
-                    await signOut(auth); // Sign out immediately so they can't enter
                     
-                    err.innerText = "ĐĂNG KÝ THÀNH CÔNG! VUI LÒNG CHỜ QUẢN TRỊ VIÊN PHÊ DUYỆT.";
+                    err.innerText = "ĐĂNG KÝ THÀNH CÔNG! VUI LÒNG KIỂM TRA EMAIL ĐỂ XÁC MINH, SAU ĐÓ CHỜ QUẢN TRỊ VIÊN PHÊ DUYỆT.";
                     err.classList.remove('hidden');
                     err.classList.remove('text-red-500');
                     err.classList.add('text-emerald-500');
@@ -5010,7 +5040,9 @@ document.addEventListener('DOMContentLoaded',function(){
                 } catch (error) {
                     window.IS_REGISTERING = false;
                     let msg = "LỖI ĐĂNG KÝ: " + error.message;
-                    if (error.message.includes('User already registered') || error.message.includes('already_registered')) {
+                    if (error.code === 'auth/email-verification-disabled') {
+                        msg = "ĐĂNG KÝ ĐÃ BỊ CHẶN: QUẢN TRỊ VIÊN CẦN BẬT CONFIRM EMAIL TRONG SUPABASE.";
+                    } else if (error.message.includes('User already registered') || error.message.includes('already_registered')) {
                         msg = "EMAIL ĐÃ ĐƯỢC ĐĂNG KÝ!";
                     } else if (error.message.includes('Password should be at least 6 characters') || error.message.includes('weak_password')) {
                         msg = "MẬT KHẨU TỐI THIỂU 6 KÝ TỰ!";
@@ -5038,8 +5070,8 @@ document.addEventListener('DOMContentLoaded',function(){
                     msg = "TÀI KHOẢN ĐÃ BỊ KHÓA, LIÊN HỆ QUẢN TRỊ!";
                 } else if (error.message) {
                     const rawMsg = error.message.toLowerCase();
-                    if (rawMsg.includes('email not confirmed') || rawMsg.includes('confirm_email')) {
-                        msg = "EMAIL CHƯA XÁC NHẬN! Vui lòng vào Supabase Dashboard -> Authentication -> Providers -> Email và TẮT cấu hình 'Confirm email' để cho phép sub-user đăng nhập ngay.";
+                    if (error.code === 'auth/email-not-verified' || rawMsg.includes('email not confirmed') || rawMsg.includes('confirm_email')) {
+                        msg = "EMAIL CHƯA XÁC NHẬN! Vui lòng kiểm tra hộp thư và nhấn liên kết xác minh trước khi đăng nhập.";
                     } else if (rawMsg.includes('invalid oauth') || rawMsg.includes('invalid credentials') || rawMsg.includes('invalid login')) {
                         msg = "SAI TÀI KHOẢN HOẶC MẬT KHẨU!";
                     } else {
@@ -5098,10 +5130,8 @@ document.addEventListener('DOMContentLoaded',function(){
             btn.innerText = "ĐANG TẠO..."; btn.disabled = true;
             try {
                 // Tạo tài khoản trên hệ thống Firebase Auth thông qua App phụ
-                const userCredential = await createUserWithEmailAndPassword(secondaryAuth, email, pass);
+                const userCredential = await createUserWithEmailAndPassword(secondaryAuth, email, pass, { fullName });
                 const newUser = userCredential.user;
-                // Cập nhật tên hiển thị
-                await updateProfile(newUser, { displayName: fullName });
                 // Lưu thông tin cấu hình vào Firestore collection 'user_profiles'
                 await setDoc(doc(db, "user_profiles", newUser.uid), {
                     fullName: fullName,
@@ -5122,7 +5152,7 @@ document.addEventListener('DOMContentLoaded',function(){
                     allowSelfEdit: true,
                     createdAt: serverTimestamp(),
                     updatedAt: serverTimestamp(),
-                    updatedBy: auth.currentUser?.email || MGR_EMAIL
+                    updatedBy: auth.currentUser?.email || 'system'
                 }, { merge: true });
                 // Ngắt session của app phụ để không ảnh hưởng Admin
                 await signOut(secondaryAuth);
@@ -5261,7 +5291,6 @@ document.addEventListener('DOMContentLoaded',function(){
                 const usersData = [];
                 snap.forEach(docSnap => {
                     const u = docSnap.data();
-                    if (String(u.email || '').toLowerCase() === MGR_EMAIL.toLowerCase()) return;
                     usersData.push({ ...u, uid: docSnap.id, status: u.status || 'active' });
                 });
                 
@@ -11492,11 +11521,18 @@ ${text}` });
     function requestPremiumConfirmation(options, targetWindow = window) {
         const config = typeof options === 'string' ? { message: options } : (options || {});
         try {
+            // Hộp thoại của bài thi phải nằm trong chính iframe bài thi. Khi iframe
+            // đang fullscreen, mọi overlay được tạo ở trang cha đều có thể bị lớp
+            // fullscreen che lên dù z-index rất lớn.
+            if (targetWindow && typeof targetWindow.premiumConfirm === 'function') {
+                return targetWindow.premiumConfirm(config);
+            }
             if (typeof window.premiumConfirm === 'function') return window.premiumConfirm(config);
-            if (targetWindow && typeof targetWindow.premiumConfirm === 'function') return targetWindow.premiumConfirm(config);
         } catch (error) {}
         return new Promise(resolve => {
-            if (typeof window.customConfirm === 'function') window.customConfirm(config.message || '', () => resolve(true));
+            if (targetWindow && typeof targetWindow.customConfirm === 'function') {
+                targetWindow.customConfirm(config.message || '', () => resolve(true));
+            } else if (typeof window.customConfirm === 'function') window.customConfirm(config.message || '', () => resolve(true));
             else resolve(false);
         });
     }
@@ -12397,10 +12433,18 @@ ${text}` });
             frameDoc.head.appendChild(style);
         }
 
+        if (!frameDoc.getElementById('kgptQuizReadableTypeStyle')) {
+            const style = frameDoc.createElement('style');
+            style.id = 'kgptQuizReadableTypeStyle';
+            style.textContent = '#quiz.active .quiz-progress span{font-size:12px!important;line-height:1.5}#quiz.active .quiz-progress b{font-size:14px!important}#quiz.active .timer{font-size:13.5px!important;padding:9px 13px}#quiz.active .question{padding:30px 28px 18px}#quiz.active .question-num{font-size:12px!important}#quiz.active .question h2{font-size:22px!important;line-height:1.5!important;margin:13px 0 22px!important;letter-spacing:-.018em}#quiz.active .options{gap:11px}#quiz.active .option{min-height:60px;padding:16px!important;font-size:14px!important;line-height:1.5!important}#quiz.active .letter{font-size:12px!important;flex:0 0 auto}#quiz.active .quiz-nav h3{font-size:15px!important}#quiz.active .quiz-nav p{font-size:11px!important;line-height:1.45}#quiz.active .qbtn{font-size:12px!important}#quiz.active .legend,#quiz.active .legend span{font-size:10.5px!important}#quiz.active .quiz-actions button,#quiz.active .submit{font-size:12px!important;font-weight:850!important}@media(max-width:650px){#quiz.active .question{padding:22px 18px 14px}#quiz.active .question h2{font-size:19px!important}#quiz.active .option{font-size:13px!important;padding:14px!important;min-height:54px}}';
+            frameDoc.head.appendChild(style);
+        }
+
         if (!frameDoc.getElementById('kgptWrongReviewStyle')) {
             const style = frameDoc.createElement('style');
             style.id = 'kgptWrongReviewStyle';
             style.textContent = '.kgpt-review-header-actions{display:flex;align-items:center;justify-content:flex-end;gap:10px;flex-wrap:wrap;max-width:520px}.kgpt-review-header-actions .deadline{margin:0!important}.kgpt-review-header-actions .kgpt-review-wrong-btn{min-height:38px;padding:0 13px;border-radius:999px;background:rgba(255,255,255,.86);box-shadow:0 10px 22px -19px rgba(180,35,24,.65)}.kgpt-review-wrong-btn{min-height:46px;padding:0 17px;border:1px solid #f6b8b8;border-radius:12px;background:linear-gradient(180deg,#fff,#fff7f7);color:#b42318;display:inline-flex;align-items:center;justify-content:center;gap:8px;font-size:11.5px;font-weight:900;cursor:pointer;box-shadow:0 12px 24px -20px rgba(180,35,24,.65);transition:.18s}.kgpt-review-wrong-btn:hover{border-color:#ef8e8e;background:#fff1f1;transform:translateY(-1px)}.kgpt-review-wrong-btn svg{width:17px;height:17px;fill:none;stroke:currentColor;stroke-width:1.9;stroke-linecap:round;stroke-linejoin:round}.kgpt-review-wrong-btn[hidden]{display:none!important}.kgpt-result-button-row{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-top:18px}.kgpt-result-button-row>button{width:100%;margin:0!important}.kgpt-review-modal{position:fixed;inset:0;z-index:999;display:none;align-items:center;justify-content:center;padding:22px;background:rgba(7,15,29,.66);backdrop-filter:blur(10px)}.kgpt-review-modal.open{display:flex;animation:kgptReviewFade .2s ease}.kgpt-review-dialog{width:min(1040px,calc(100vw - 34px));max-height:min(88vh,820px);display:flex;flex-direction:column;overflow:hidden;border:1px solid rgba(255,255,255,.7);border-radius:24px;background:#fff;box-shadow:0 42px 100px -34px rgba(2,8,23,.75);animation:kgptReviewRise .25s cubic-bezier(.2,.8,.2,1)}.kgpt-review-head{padding:22px 26px 18px;display:flex;align-items:flex-start;justify-content:space-between;gap:20px;border-bottom:1px solid #e7edf5;background:radial-gradient(circle at 90% 0,rgba(248,113,113,.12),transparent 30%),linear-gradient(135deg,#fff,#f8fbff)}.kgpt-review-eyebrow{margin-bottom:6px;color:#dc2626;font-size:10px;font-weight:950;letter-spacing:.16em;text-transform:uppercase}.kgpt-review-head h2{margin:0;color:#111c31;font-size:21px;letter-spacing:-.03em}.kgpt-review-head p{margin:7px 0 0;color:#75839a;font-size:12px;line-height:1.55}.kgpt-review-close{width:38px;height:38px;flex:0 0 38px;border:1px solid #dce4ef;border-radius:11px;background:#fff;color:#64748b;font-size:21px;cursor:pointer}.kgpt-review-close:hover{color:#dc2626;border-color:#fecaca;background:#fff7f7}.kgpt-review-summary{padding:14px 26px;display:flex;align-items:center;gap:10px;border-bottom:1px solid #edf1f6;background:#fbfcfe}.kgpt-review-stat{padding:8px 11px;border:1px solid #dde6f2;border-radius:10px;background:#fff;color:#64748b;font-size:10.5px;font-weight:850}.kgpt-review-stat b{margin-right:4px;color:#172033;font-size:14px}.kgpt-review-stat.danger{border-color:#fecaca;background:#fff7f7;color:#b42318}.kgpt-review-stat.danger b{color:#dc2626}.kgpt-review-body{flex:1;overflow:auto;padding:18px 26px 26px;background:#f7f9fc}.kgpt-review-list{display:grid;gap:12px}.kgpt-review-card{padding:16px;border:1px solid #f4c3c3;border-radius:16px;background:#fff;box-shadow:0 13px 28px -26px rgba(15,23,42,.5)}.kgpt-review-card-head{display:flex;align-items:flex-start;justify-content:space-between;gap:14px;margin-bottom:12px}.kgpt-review-question{color:#172033;font-size:13.5px;font-weight:850;line-height:1.55}.kgpt-review-state{flex:0 0 auto;padding:5px 9px;border-radius:999px;background:#fee2e2;color:#b42318;font-size:9.5px;font-weight:950;text-transform:uppercase}.kgpt-review-answer-grid{display:grid;grid-template-columns:1fr 1fr;gap:10px}.kgpt-review-answer{padding:11px 12px;border:1px solid #e2e8f0;border-radius:11px;background:#f8fafc;color:#526076;font-size:11.5px;line-height:1.55}.kgpt-review-answer b{display:block;margin-bottom:4px;color:#64748b;font-size:9.5px;letter-spacing:.08em;text-transform:uppercase}.kgpt-review-answer.wrong{border-color:#fecaca;background:#fff7f7;color:#991b1b}.kgpt-review-answer.correct{border-color:#bbefd2;background:#f2fbf6;color:#087a46}.kgpt-review-empty{padding:50px 24px;text-align:center;border:1px solid #ccebd9;border-radius:18px;background:#f1fbf5}.kgpt-review-empty-icon{width:54px;height:54px;margin:0 auto 14px;display:grid;place-items:center;border-radius:18px;background:#dcfce7;color:#059669;font-size:25px;font-weight:900}.kgpt-review-empty h3{margin:0 0 7px;color:#10613c;font-size:17px}.kgpt-review-empty p{margin:0;color:#56806b;font-size:12px}.kgpt-review-foot{padding:15px 26px;display:flex;align-items:center;justify-content:space-between;gap:16px;border-top:1px solid #e7edf5;background:#fff}.kgpt-review-note{color:#8793a5;font-size:10.5px}.kgpt-review-back{height:40px;padding:0 16px;border:0;border-radius:11px;background:linear-gradient(135deg,#3b82f6,#1d4ed8);color:#fff;font-size:11px;font-weight:900;cursor:pointer;box-shadow:0 12px 24px -16px #1d4ed8}@keyframes kgptReviewFade{from{opacity:0}to{opacity:1}}@keyframes kgptReviewRise{from{opacity:0;transform:translateY(12px) scale(.985)}to{opacity:1;transform:none}}@media(max-width:700px){.kgpt-review-header-actions{width:100%;max-width:none;justify-content:flex-start}.kgpt-review-answer-grid{grid-template-columns:1fr}.kgpt-result-button-row{grid-template-columns:1fr}.kgpt-review-summary{flex-wrap:wrap}.kgpt-review-dialog{max-height:92vh}.kgpt-review-head,.kgpt-review-body,.kgpt-review-foot{padding-left:17px;padding-right:17px}}';
+            style.textContent += '.kgpt-review-header-actions{max-width:560px}.kgpt-review-header-actions .deadline,.kgpt-review-header-actions .kgpt-review-wrong-btn{box-sizing:border-box!important;height:40px!important;min-height:40px!important;padding:0 15px!important;border-radius:999px!important;display:inline-flex!important;align-items:center!important;justify-content:center!important;line-height:1!important;font-size:10.5px!important;font-weight:850!important;white-space:nowrap}.kgpt-review-header-actions .kgpt-review-wrong-btn svg{width:15px;height:15px;flex:0 0 15px}';
             frameDoc.head.appendChild(style);
         }
 
