@@ -901,8 +901,22 @@ html.dark #dataSection .price-reference-badge{border-color:#31558e;background:#1
             .user-page-size-option:hover,.user-page-size-option:focus-visible{outline:none;background:#f0f6ff;color:#1d4ed8}
             .user-page-size-option[aria-selected="true"]{background:#eaf2ff;color:#1d4ed8;font-weight:850}
             .user-page-size-option[aria-selected="true"]:after{content:"✓";font-size:10px}
+            .hero .stats{grid-template-columns:repeat(5,minmax(0,1fr))}
+            .stat.kgpt-pending-stat{border-color:#fde1a8}.stat.kgpt-pending-stat:after{background:rgba(245,158,11,.14)}
+            .stat.kgpt-pending-stat .stat-icon{background:#fff7e8!important;color:#b45309!important}
+            .badge.pending{background:#fff7e6;color:#a85308;border:1px solid #fed7aa}
+            .kgpt-approve-user{color:#087a46!important;border-color:#b9e8d0!important;background:#effcf5!important}
+            .kgpt-approve-user:hover{color:#fff!important;border-color:#0f9f61!important;background:#0f9f61!important;box-shadow:0 9px 18px -12px rgba(15,159,97,.75)!important;transform:translateY(-1px)}
+            .kgpt-approve-user:disabled{opacity:.55;cursor:wait;transform:none!important}
+            .kgpt-approve-user.is-loading svg{animation:kgptApprovePulse .8s ease-in-out infinite alternate}
+            @keyframes kgptApprovePulse{from{opacity:.35;transform:scale(.82)}to{opacity:1;transform:scale(1.08)}}
+            .pending-approval-filter{height:42px;padding:0 14px;border:1px solid #f4cc82;border-radius:11px;background:linear-gradient(180deg,#fffaf0,#fff7e8);color:#a85308;display:inline-flex;align-items:center;gap:8px;cursor:pointer;font-size:11px;font-weight:800;white-space:nowrap;box-shadow:0 10px 23px -19px rgba(180,83,9,.65);transition:.18s ease}
+            .pending-approval-filter svg{width:16px;height:16px;fill:none;stroke:currentColor;stroke-width:2;stroke-linecap:round;stroke-linejoin:round}
+            .pending-approval-filter b{min-width:20px;height:20px;padding:0 6px;border-radius:999px;background:#f59e0b;color:#fff;display:inline-flex;align-items:center;justify-content:center;font-size:10px}
+            .pending-approval-filter:hover,.pending-approval-filter.active{border-color:#f59e0b;background:#f59e0b;color:#fff;transform:translateY(-1px);box-shadow:0 12px 24px -16px rgba(180,83,9,.8)}
+            .pending-approval-filter.active b{background:#fff;color:#b45309}
             @media(max-width:1180px){.hero-row{flex-direction:column}.user-hero-actions{width:100%;margin-left:0;justify-content:flex-start}.user-hero-actions .tools{flex:1}.user-search-wrap{flex:1;width:auto}}
-            @media(max-width:760px){.page{padding:16px}.hero{padding:17px}.user-hero-actions{align-items:stretch;flex-direction:column}.user-hero-actions .tools{width:100%;flex-wrap:wrap}.user-search-wrap{width:100%;flex-basis:100%}.premium-user-filter{width:100%;flex-basis:100%}.user-hero-actions>.primary{width:100%}.stats{grid-template-columns:repeat(2,1fr)}.panel-head{align-items:flex-start;flex-direction:column}.user-pagination{width:100%;margin-left:0;justify-content:flex-start;flex-wrap:wrap}}
+            @media(max-width:760px){.page{padding:16px}.hero{padding:17px}.user-hero-actions{align-items:stretch;flex-direction:column}.user-hero-actions .tools{width:100%;flex-wrap:wrap}.user-search-wrap{width:100%;flex-basis:100%}.premium-user-filter{width:100%;flex-basis:100%}.pending-approval-filter{width:100%;justify-content:center}.user-hero-actions>.primary{width:100%}.hero .stats{grid-template-columns:repeat(2,1fr)}.panel-head{align-items:flex-start;flex-direction:column}.user-pagination{width:100%;margin-left:0;justify-content:flex-start;flex-wrap:wrap}}
             @media(max-width:520px){.stats{grid-template-columns:1fr}}
             @media(prefers-reduced-motion:reduce){.stat,.user-search-wrap .search,.premium-user-filter-trigger,.premium-user-filter-menu,.premium-user-filter-option,.user-page-nav,.user-page-number,.user-page-size-trigger,.user-page-size-menu,.user-page-size-option{transition:none!important}}
         `;
@@ -994,6 +1008,161 @@ html.dark #dataSection .price-reference-badge{border-color:#31558e;background:#1
         const panelHead = doc.querySelector('.panel .panel-head');
         const userRows = doc.getElementById('userRows');
         const emptyState = doc.getElementById('empty');
+        const userStatusSelect = doc.getElementById('status');
+        if (userStatusSelect && !userStatusSelect.querySelector('option[value="pending"]')) {
+            const pendingOption = doc.createElement('option');
+            pendingOption.value = 'pending';
+            pendingOption.textContent = 'Chờ phê duyệt';
+            userStatusSelect.insertBefore(pendingOption, userStatusSelect.firstChild);
+        }
+
+        const stats = doc.querySelector('.hero .stats');
+        if (stats && !doc.getElementById('pendingUsers')) {
+            const pendingStat = doc.createElement('div');
+            pendingStat.className = 'stat kgpt-pending-stat';
+            pendingStat.innerHTML = '<div class="stat-icon"><svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><path d="M12 7v5l3 2" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"></path><circle cx="12" cy="12" r="9" stroke-width="2"></circle></svg></div><div><b id="pendingUsers">0</b><span>Chờ phê duyệt</span></div>';
+            stats.appendChild(pendingStat);
+        }
+
+        const userActionBar = doc.querySelector('.user-hero-actions');
+        let pendingFilterButton = doc.getElementById('pendingApprovalFilter');
+        if (userActionBar && !pendingFilterButton) {
+            pendingFilterButton = doc.createElement('button');
+            pendingFilterButton.type = 'button';
+            pendingFilterButton.id = 'pendingApprovalFilter';
+            pendingFilterButton.className = 'pending-approval-filter';
+            pendingFilterButton.innerHTML = '<svg viewBox="0 0 24 24"><path d="M9 12l2 2 4-5"></path><circle cx="12" cy="12" r="9"></circle></svg><span>Chờ phê duyệt</span><b>0</b>';
+            userActionBar.insertBefore(pendingFilterButton, userActionBar.querySelector('.primary'));
+            pendingFilterButton.addEventListener('click', function () {
+                const enabled = doc.body.dataset.kgptApprovalOnly !== 'true';
+                doc.body.dataset.kgptApprovalOnly = enabled ? 'true' : 'false';
+                pendingFilterButton.classList.toggle('active', enabled);
+                pendingFilterButton.setAttribute('aria-pressed', String(enabled));
+                if (frame.contentWindow.__kgptApplyUserPagination) frame.contentWindow.__kgptApplyUserPagination(true);
+            });
+        }
+
+        const roleDisplay = function (role) {
+            return role === 'admin' ? 'Quản trị viên' : role === 'teacher' ? 'Giảng viên' : 'Người dùng';
+        };
+        if (!doc.getElementById('kgpt-approval-bridge')) {
+            const approvalBridge = doc.createElement('script');
+            approvalBridge.id = 'kgpt-approval-bridge';
+            approvalBridge.textContent = `document.addEventListener('click',function(event){
+                const button=event.target.closest('.kgpt-approve-user');
+                if(!button||button.disabled)return;
+                window.parent.postMessage({type:'kgpt:approve-user',payload:{uid:button.dataset.uid||'',email:button.dataset.email||''}},'*');
+            },true);`;
+            doc.body.appendChild(approvalBridge);
+        }
+        const decorateApprovalState = function (users) {
+            const list = Array.isArray(users) ? users : [];
+            const byId = new Map(list.map(function (user) { return [String(user.uid || ''), user]; }));
+            const pendingCount = list.filter(function (user) { return user.status === 'pending'; }).length;
+            const activeCount = list.filter(function (user) { return (user.status || 'active') === 'active'; }).length;
+            const lockedCount = list.filter(function (user) { return user.status === 'locked'; }).length;
+            const pendingStatValue = doc.getElementById('pendingUsers');
+            if (pendingStatValue) pendingStatValue.textContent = String(pendingCount);
+            const totalStatValue = doc.getElementById('totalUsers');
+            const activeStatValue = doc.getElementById('activeUsers');
+            const lockedStatValue = doc.getElementById('lockedUsers');
+            if (totalStatValue) totalStatValue.textContent = String(list.length);
+            if (activeStatValue) activeStatValue.textContent = String(activeCount);
+            if (lockedStatValue) lockedStatValue.textContent = String(lockedCount);
+            if (pendingFilterButton) {
+                const count = pendingFilterButton.querySelector('b');
+                if (count) count.textContent = String(pendingCount);
+                pendingFilterButton.title = pendingCount ? pendingCount + ' tài khoản đang chờ quản trị viên phê duyệt' : 'Không có tài khoản chờ phê duyệt';
+            }
+
+            if (!userRows) return;
+            userRows.querySelectorAll('tr[data-uid]').forEach(function (row) {
+                const user = byId.get(String(row.dataset.uid || ''));
+                if (!user) return;
+                row.dataset.status = user.status || 'active';
+                const statusCell = row.children[2];
+                if (statusCell && user.status === 'pending') statusCell.innerHTML = '<span class="badge pending">● Chờ duyệt</span>';
+                const actionWrap = row.querySelector('td:last-child > div') || row.querySelector('td:last-child');
+                if (!actionWrap) return;
+                const existing = actionWrap.querySelector('.kgpt-approve-user');
+                if (user.status !== 'pending') {
+                    if (existing) existing.remove();
+                    return;
+                }
+                if (existing) return;
+                const approve = doc.createElement('button');
+                approve.type = 'button';
+                approve.className = 'icon-btn kgpt-approve-user';
+                approve.title = 'Phê duyệt tài khoản';
+                approve.setAttribute('aria-label', approve.title);
+                approve.dataset.uid = String(user.uid || '');
+                approve.dataset.email = String(user.email || '');
+                approve.innerHTML = '<svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><path d="m5 12 4 4L19 7" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"></path></svg>';
+                approve.addEventListener('click', function (event) {
+                    event.preventDefault();
+                    event.stopPropagation();
+                    approve.disabled = true;
+                    approve.classList.add('is-loading');
+                    approve.title = 'Đang phê duyệt...';
+                    frame.contentWindow.__kgptApprovingUid = String(user.uid || '');
+                    frame.contentWindow.clearTimeout(frame.contentWindow.__kgptApprovalTimeout);
+                    frame.contentWindow.__kgptApprovalTimeout = frame.contentWindow.setTimeout(function () {
+                        if (!approve.isConnected) return;
+                        approve.disabled = false;
+                        approve.classList.remove('is-loading');
+                        approve.title = 'Phê duyệt tài khoản';
+                        if (typeof frame.contentWindow.showToast === 'function') frame.contentWindow.showToast('Phê duyệt quá thời gian. Vui lòng thử lại.');
+                    }, 15000);
+                });
+                actionWrap.insertBefore(approve, actionWrap.firstChild);
+            });
+            if (frame.contentWindow.__kgptApplyUserPagination) frame.contentWindow.__kgptApplyUserPagination();
+        };
+
+        const originalEditPermissions = frame.contentWindow.editPermissions;
+        if (typeof originalEditPermissions === 'function' && !frame.contentWindow.__kgptApprovalEditWrapped) {
+            frame.contentWindow.editPermissions = function (button) {
+                originalEditPermissions(button);
+                const row = button && button.closest('tr[data-uid]');
+                if (row && userStatusSelect) userStatusSelect.value = row.dataset.status || 'active';
+            };
+            frame.contentWindow.__kgptApprovalEditWrapped = true;
+        }
+        frame.contentWindow.addEventListener('message', function (event) {
+            const data = event.data || {};
+            if (data.type === 'kgpt:user-list') {
+                frame.contentWindow.clearTimeout(frame.contentWindow.__kgptApprovalTimeout);
+                frame.contentWindow.setTimeout(function () { decorateApprovalState(data.users || []); }, 0);
+                frame.contentWindow.setTimeout(function () { decorateApprovalState(data.users || []); }, 80);
+            }
+            if (data.type === 'kgpt:operation-result') {
+                frame.contentWindow.clearTimeout(frame.contentWindow.__kgptApprovalTimeout);
+                const approvingUid = frame.contentWindow.__kgptApprovingUid || '';
+                if (data.ok && approvingUid) {
+                    const approvedRow = userRows && userRows.querySelector('tr[data-uid="' + approvingUid.replace(/"/g, '\\"') + '"]');
+                    if (approvedRow) {
+                        approvedRow.dataset.status = 'active';
+                        const statusCell = approvedRow.children[2];
+                        if (statusCell) statusCell.innerHTML = '<span class="badge active">● Hoạt động</span>';
+                        const approveButton = approvedRow.querySelector('.kgpt-approve-user');
+                        if (approveButton) approveButton.remove();
+                        const pendingValue = doc.getElementById('pendingUsers');
+                        const activeValue = doc.getElementById('activeUsers');
+                        if (pendingValue) pendingValue.textContent = String(Math.max(0, Number(pendingValue.textContent || 0) - 1));
+                        if (activeValue) activeValue.textContent = String(Number(activeValue.textContent || 0) + 1);
+                        const filterCount = pendingFilterButton && pendingFilterButton.querySelector('b');
+                        if (filterCount) filterCount.textContent = pendingValue ? pendingValue.textContent : String(Math.max(0, Number(filterCount.textContent || 0) - 1));
+                        if (frame.contentWindow.__kgptApplyUserPagination) frame.contentWindow.__kgptApplyUserPagination();
+                    }
+                }
+                frame.contentWindow.__kgptApprovingUid = '';
+                doc.querySelectorAll('.kgpt-approve-user:disabled').forEach(function (button) {
+                    button.disabled = false;
+                    button.classList.remove('is-loading');
+                    button.title = 'Phê duyệt tài khoản';
+                });
+            }
+        });
         if (panelHead && userRows && !doc.getElementById('userPagination')) {
             const pagination = doc.createElement('div');
             pagination.className = 'user-pagination';
@@ -1025,10 +1194,12 @@ html.dark #dataSection .price-reference-badge{border-color:#31558e;background:#1
             const getFilteredRows = function () {
                 const query = search ? search.value.trim().toLowerCase() : '';
                 const role = nativeFilter ? nativeFilter.value : '';
+                const approvalOnly = doc.body.dataset.kgptApprovalOnly === 'true';
                 return getDataRows().filter(function (row) {
                     const matchesQuery = !query || row.innerText.toLowerCase().includes(query);
                     const matchesRole = !role || row.dataset.role === role;
-                    return matchesQuery && matchesRole;
+                    const matchesApproval = !approvalOnly || row.dataset.status === 'pending';
+                    return matchesQuery && matchesRole && matchesApproval;
                 });
             };
 
@@ -4374,6 +4545,41 @@ document.addEventListener('DOMContentLoaded',function(){
                 const payload = message.payload || {};
                 const roleMap = { 'Quản trị viên': 'admin', 'Giảng viên': 'teacher', 'Người dùng': 'user' };
                 const normalizedRole = roleMap[payload.role] || payload.role || 'user';
+                if (message.type === 'kgpt:approve-user') {
+                    const uid = String(payload.uid || '').trim();
+                    if (!uid) throw new Error('Không xác định được tài khoản cần phê duyệt.');
+                    let { data: approvedProfile, error: approvalError } = await supabase
+                        .from('user_profiles')
+                        .update({ status: 'active', updated_at: new Date().toISOString() })
+                        .eq('id', uid)
+                        .eq('status', 'pending')
+                        .select('id,status,email')
+                        .maybeSingle();
+                    if (approvalError) throw approvalError;
+                    if (!approvedProfile) {
+                        const { data: currentProfile, error: currentProfileError } = await supabase
+                            .from('user_profiles')
+                            .select('id,status,email')
+                            .eq('id', uid)
+                            .maybeSingle();
+                        if (currentProfileError) throw currentProfileError;
+                        if (currentProfile?.status === 'active') {
+                            approvedProfile = currentProfile;
+                        } else {
+                            const currentStatus = currentProfile?.status || 'không đọc được';
+                            const blockedError = new Error(`RLS không cho phép chuyển tài khoản sang active (trạng thái hiện tại: ${currentStatus}).`);
+                            blockedError.code = 'RLS_UPDATE_BLOCKED';
+                            throw blockedError;
+                        }
+                    }
+                    respond(true, `Đã phê duyệt tài khoản ${approvedProfile.email || payload.email || ''}.`);
+                    try {
+                        await window.refreshUserList();
+                    } catch (refreshError) {
+                        console.warn('Đã phê duyệt nhưng chưa tải lại được danh sách:', refreshError);
+                    }
+                    return;
+                }
                 if (message.type === 'kgpt:create-user') {
                     const fullName = String(payload.fullName || '').trim();
                     const emailRaw = String(payload.email || '').trim().toLowerCase();
@@ -4415,7 +4621,11 @@ document.addEventListener('DOMContentLoaded',function(){
             } catch (error) {
                 console.error('Lỗi quản lý người dùng:', error);
                 await signOut(secondaryAuth).catch(() => {});
-                respond(false, `Không thể thực hiện: ${error.message || error}`);
+                const errorParts = [error?.message || String(error)];
+                if (error?.code) errorParts.push(`mã ${error.code}`);
+                if (error?.details) errorParts.push(error.details);
+                if (error?.hint) errorParts.push(error.hint);
+                respond(false, `Không thể thực hiện: ${errorParts.filter(Boolean).join(' · ')}`);
             }
         });
         // CHỐNG XSS
