@@ -708,8 +708,8 @@ html.dark #dataSection .price-reference-badge{border-color:#31558e;background:#1
             #dashboard .hero-score-top{font-size:9.5px;color:#64748b}
             #dashboard .hero-score strong{font-size:11px;color:#245bd2}
             #dashboard .hero-score .bar{position:relative;height:8px;margin:11px 0 8px;background:#e5ebf5;box-shadow:inset 0 1px 2px rgba(15,23,42,.08)}
-            #dashboard .hero-score .bar i{position:relative;background:linear-gradient(90deg,#2563eb,#4f8cf5 62%,#60a5fa);box-shadow:0 3px 10px -4px #2563eb}
-            #dashboard .hero-score .bar i:after{content:"";position:absolute;inset:0;background:linear-gradient(90deg,transparent,rgba(255,255,255,.55),transparent);transform:translateX(-100%);animation:studentProgressShine 2.6s ease-in-out infinite}
+            #dashboard .hero-score .bar i{position:relative;background:linear-gradient(90deg,#2563eb,#4f8cf5 62%,#60a5fa);box-shadow:0 3px 10px -4px #2563eb;transition:none!important;animation:none!important}
+            #dashboard .hero-score .bar i:after{display:none!important;content:none!important;animation:none!important}
             #dashboard .hero-score small{font-size:8.5px;line-height:1.5;color:#8b98aa}
             #dashboard .layout{grid-template-columns:minmax(300px,340px) minmax(0,1fr);gap:16px;margin-top:16px;align-items:stretch}
             #dashboard .panel{border:1px solid #dce5f1;border-radius:19px;background:rgba(255,255,255,.97);box-shadow:0 25px 55px -40px rgba(15,23,42,.52),0 10px 25px -23px rgba(37,99,235,.22)}
@@ -763,7 +763,6 @@ html.dark #dataSection .price-reference-badge{border-color:#31558e;background:#1
             #quiz .option{min-height:52px;border-color:#dfe7f1;background:linear-gradient(145deg,#fff,#fbfcfe);font-size:11.5px;box-shadow:0 7px 16px -17px rgba(15,23,42,.55)}
             #quiz .option:hover{border-color:#9eb9eb;background:#f5f8ff;transform:translateY(-1px)}
             #quiz .option.selected{border-color:#79a2ee;background:linear-gradient(145deg,#edf4ff,#f7faff);box-shadow:0 0 0 3px rgba(59,130,246,.08)}
-            @keyframes studentProgressShine{0%,55%{transform:translateX(-120%)}85%,100%{transform:translateX(120%)}}
             @media(max-width:1350px){#dashboard .hero{grid-template-columns:minmax(0,1fr) 255px}#dashboard .student-stat-grid{grid-column:1/-1;grid-row:2}}
             @media(max-width:1050px){#dashboard .layout{grid-template-columns:1fr}#dashboard .task-list{min-height:auto}#dashboard .detail{min-height:auto}}
             @media(max-width:720px){#dashboard{padding:16px}#dashboard .hero{grid-template-columns:1fr;align-items:flex-start;padding:18px}#dashboard .student-stat-grid{grid-column:1;grid-row:auto;width:100%}#dashboard .hero-score{width:100%;min-width:0}#dashboard .info-grid{grid-template-columns:repeat(2,1fr)}#dashboard .detail-topline{flex-direction:column}#dashboard .deadline{align-self:flex-start}#dashboard .detail-actions{align-items:stretch;flex-direction:column;gap:13px}#dashboard #btnStartQuiz{width:100%;justify-content:center}}
@@ -2407,7 +2406,38 @@ document.addEventListener('DOMContentLoaded',function(){
     var syncAdmin=function(){target.hidden=source.classList.contains('hidden')||source.hidden};
     syncAdmin();new MutationObserver(syncAdmin).observe(source,{attributes:true,attributeFilter:['class','hidden']});
 });
+function tiUpdateLiveDateTime(){
+    var dateEl=document.getElementById('tiLiveDate');var timeEl=document.getElementById('tiLiveTime');var wrap=document.getElementById('tiLiveDateTime');
+    if(!dateEl||!timeEl||!wrap)return;
+    var now=new Date();var timeZone='Asia/Ho_Chi_Minh';
+    var weekday=new Intl.DateTimeFormat('vi-VN',{weekday:'long',timeZone:timeZone}).format(now);
+    weekday=weekday.charAt(0).toLocaleUpperCase('vi-VN')+weekday.slice(1);
+    var date=new Intl.DateTimeFormat('vi-VN',{day:'2-digit',month:'2-digit',year:'numeric',timeZone:timeZone}).format(now);
+    var time=new Intl.DateTimeFormat('vi-VN',{hour:'2-digit',minute:'2-digit',hourCycle:'h23',timeZone:timeZone}).format(now);
+    dateEl.textContent=weekday+', '+date;timeEl.textContent=time;wrap.setAttribute('aria-label',weekday+', '+date+' lúc '+time);
+}
+document.addEventListener('DOMContentLoaded',function(){
+    tiUpdateLiveDateTime();
+    if(window.__tiLiveDateTimeTimer)clearInterval(window.__tiLiveDateTimeTimer);
+    window.__tiLiveDateTimeTimer=setInterval(tiUpdateLiveDateTime,1000);
+    document.addEventListener('visibilitychange',function(){if(!document.hidden)tiUpdateLiveDateTime()});
+});
 </script>
+
+<style id="tiLiveDateTimeStyle">
+.ti-live-datetime{box-sizing:border-box;min-width:188px;height:44px;padding:0 18px 0 2px;display:flex;align-items:center;gap:11px;border-right:1px solid #e5eaf1;color:#172033}
+.ti-live-datetime-icon{width:30px;height:30px;flex:0 0 30px;display:grid;place-items:center;border-radius:10px;background:linear-gradient(145deg,#f3f7ff,#e8f1ff);color:#2f6fe4;box-shadow:inset 0 0 0 1px rgba(71,120,211,.1)}
+.ti-live-datetime-icon svg{width:15px;height:15px;fill:none;stroke:currentColor;stroke-width:1.75;stroke-linecap:round;stroke-linejoin:round}
+.ti-live-datetime-copy{min-width:0;display:flex;flex-direction:column;justify-content:center;gap:4px;line-height:1}
+.ti-live-date{order:2;color:#7e8b9e;font-size:9.5px;font-weight:850;letter-spacing:.02em;white-space:nowrap}
+.ti-live-time{order:1;color:#111c31;font-size:16px;font-weight:900;letter-spacing:.045em;font-variant-numeric:tabular-nums;white-space:nowrap}
+html.dark .ti-live-datetime{border-right-color:#334155;color:#f8fafc}
+html.dark .ti-live-datetime-icon{background:linear-gradient(145deg,#1e3150,#17233a);color:#84b1ff;box-shadow:inset 0 0 0 1px rgba(132,177,255,.14)}
+html.dark .ti-live-date{color:#94a3b8}
+html.dark .ti-live-time{color:#f8fafc}
+@media(max-width:1240px){.ti-live-datetime{min-width:96px;width:96px;padding-right:12px;gap:8px}.ti-live-datetime-icon{display:none}.ti-live-date{display:none}}
+@media(max-width:780px){.ti-live-datetime{display:none}}
+</style>
 
 <header class="app-topbar flex flex-col md:flex-row md:items-center justify-between gap-4 mb-8 px-2">
 <div class="ti-header-left">
@@ -2442,6 +2472,10 @@ document.addEventListener('DOMContentLoaded',function(){
 </svg>
                     GÓP Ý
                 </button>
+<div class="ti-live-datetime" id="tiLiveDateTime" role="timer" aria-live="off" title="Ngày giờ hiện tại tại Việt Nam">
+<span class="ti-live-datetime-icon" aria-hidden="true"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="8.5"></circle><path d="M12 7.5v4.8l3.2 1.9"></path></svg></span>
+<span class="ti-live-datetime-copy"><strong class="ti-live-time" id="tiLiveTime">--:--</strong><span class="ti-live-date" id="tiLiveDate">Đang tải ngày...</span></span>
+</div>
 <div class="ti-account-wrap" id="tiAccountWrap">
 <button class="ti-account-trigger" id="tiAccountTrigger" type="button" aria-expanded="false" aria-haspopup="menu" onclick="tiToggleAccountMenu(event)">
 <span class="ti-account-copy"><span class="ti-account-name" id="userDisplayName">user</span><span class="ti-account-role" id="tiAccountRole">Giám định viên</span></span>
@@ -12644,11 +12678,19 @@ ${text}` });
             frameDoc.head.appendChild(style);
         }
 
+        if (!frameDoc.getElementById('kgptDetailInfoLabelsStyle')) {
+            const style = frameDoc.createElement('style');
+            style.id = 'kgptDetailInfoLabelsStyle';
+            style.textContent = '#taskSelectedView .info-grid.kgpt-expanded-info-labels .info{min-height:80px;display:flex;flex-direction:column;justify-content:center}#taskSelectedView .info-grid.kgpt-expanded-info-labels .info>span{min-height:25px;margin-bottom:6px;font-size:8.25px!important;line-height:1.35!important;letter-spacing:.055em!important;white-space:normal;text-wrap:balance}#taskSelectedView .info-grid.kgpt-expanded-info-labels .info>b{line-height:1.25}@media(max-width:720px){#taskSelectedView .info-grid.kgpt-expanded-info-labels .info>span{min-height:0;font-size:8.75px!important}}';
+            frameDoc.head.appendChild(style);
+        }
+
         if (!frameDoc.getElementById('kgptWrongReviewStyle')) {
             const style = frameDoc.createElement('style');
             style.id = 'kgptWrongReviewStyle';
             style.textContent = '.kgpt-review-header-actions{display:flex;align-items:center;justify-content:flex-end;gap:10px;flex-wrap:wrap;max-width:520px}.kgpt-review-header-actions .deadline{margin:0!important}.kgpt-review-header-actions .kgpt-review-wrong-btn{min-height:38px;padding:0 13px;border-radius:999px;background:rgba(255,255,255,.86);box-shadow:0 10px 22px -19px rgba(180,35,24,.65)}.kgpt-review-wrong-btn{min-height:46px;padding:0 17px;border:1px solid #f6b8b8;border-radius:12px;background:linear-gradient(180deg,#fff,#fff7f7);color:#b42318;display:inline-flex;align-items:center;justify-content:center;gap:8px;font-size:11.5px;font-weight:900;cursor:pointer;box-shadow:0 12px 24px -20px rgba(180,35,24,.65);transition:.18s}.kgpt-review-wrong-btn:hover{border-color:#ef8e8e;background:#fff1f1;transform:translateY(-1px)}.kgpt-review-wrong-btn svg{width:17px;height:17px;fill:none;stroke:currentColor;stroke-width:1.9;stroke-linecap:round;stroke-linejoin:round}.kgpt-review-wrong-btn[hidden]{display:none!important}.kgpt-result-button-row{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-top:18px}.kgpt-result-button-row>button{width:100%;margin:0!important}.kgpt-review-modal{position:fixed;inset:0;z-index:999;display:none;align-items:center;justify-content:center;padding:22px;background:rgba(7,15,29,.66);backdrop-filter:blur(10px)}.kgpt-review-modal.open{display:flex;animation:kgptReviewFade .2s ease}.kgpt-review-dialog{width:min(1040px,calc(100vw - 34px));max-height:min(88vh,820px);display:flex;flex-direction:column;overflow:hidden;border:1px solid rgba(255,255,255,.7);border-radius:24px;background:#fff;box-shadow:0 42px 100px -34px rgba(2,8,23,.75);animation:kgptReviewRise .25s cubic-bezier(.2,.8,.2,1)}.kgpt-review-head{padding:22px 26px 18px;display:flex;align-items:flex-start;justify-content:space-between;gap:20px;border-bottom:1px solid #e7edf5;background:radial-gradient(circle at 90% 0,rgba(248,113,113,.12),transparent 30%),linear-gradient(135deg,#fff,#f8fbff)}.kgpt-review-eyebrow{margin-bottom:6px;color:#dc2626;font-size:10px;font-weight:950;letter-spacing:.16em;text-transform:uppercase}.kgpt-review-head h2{margin:0;color:#111c31;font-size:21px;letter-spacing:-.03em}.kgpt-review-head p{margin:7px 0 0;color:#75839a;font-size:12px;line-height:1.55}.kgpt-review-close{width:38px;height:38px;flex:0 0 38px;border:1px solid #dce4ef;border-radius:11px;background:#fff;color:#64748b;font-size:21px;cursor:pointer}.kgpt-review-close:hover{color:#dc2626;border-color:#fecaca;background:#fff7f7}.kgpt-review-summary{padding:14px 26px;display:flex;align-items:center;gap:10px;border-bottom:1px solid #edf1f6;background:#fbfcfe}.kgpt-review-stat{padding:8px 11px;border:1px solid #dde6f2;border-radius:10px;background:#fff;color:#64748b;font-size:10.5px;font-weight:850}.kgpt-review-stat b{margin-right:4px;color:#172033;font-size:14px}.kgpt-review-stat.danger{border-color:#fecaca;background:#fff7f7;color:#b42318}.kgpt-review-stat.danger b{color:#dc2626}.kgpt-review-body{flex:1;overflow:auto;padding:18px 26px 26px;background:#f7f9fc}.kgpt-review-list{display:grid;gap:12px}.kgpt-review-card{padding:16px;border:1px solid #f4c3c3;border-radius:16px;background:#fff;box-shadow:0 13px 28px -26px rgba(15,23,42,.5)}.kgpt-review-card-head{display:flex;align-items:flex-start;justify-content:space-between;gap:14px;margin-bottom:12px}.kgpt-review-question{color:#172033;font-size:13.5px;font-weight:850;line-height:1.55}.kgpt-review-state{flex:0 0 auto;padding:5px 9px;border-radius:999px;background:#fee2e2;color:#b42318;font-size:9.5px;font-weight:950;text-transform:uppercase}.kgpt-review-answer-grid{display:grid;grid-template-columns:1fr 1fr;gap:10px}.kgpt-review-answer{padding:11px 12px;border:1px solid #e2e8f0;border-radius:11px;background:#f8fafc;color:#526076;font-size:11.5px;line-height:1.55}.kgpt-review-answer b{display:block;margin-bottom:4px;color:#64748b;font-size:9.5px;letter-spacing:.08em;text-transform:uppercase}.kgpt-review-answer.wrong{border-color:#fecaca;background:#fff7f7;color:#991b1b}.kgpt-review-answer.correct{border-color:#bbefd2;background:#f2fbf6;color:#087a46}.kgpt-review-empty{padding:50px 24px;text-align:center;border:1px solid #ccebd9;border-radius:18px;background:#f1fbf5}.kgpt-review-empty-icon{width:54px;height:54px;margin:0 auto 14px;display:grid;place-items:center;border-radius:18px;background:#dcfce7;color:#059669;font-size:25px;font-weight:900}.kgpt-review-empty h3{margin:0 0 7px;color:#10613c;font-size:17px}.kgpt-review-empty p{margin:0;color:#56806b;font-size:12px}.kgpt-review-foot{padding:15px 26px;display:flex;align-items:center;justify-content:space-between;gap:16px;border-top:1px solid #e7edf5;background:#fff}.kgpt-review-note{color:#8793a5;font-size:10.5px}.kgpt-review-back{height:40px;padding:0 16px;border:0;border-radius:11px;background:linear-gradient(135deg,#3b82f6,#1d4ed8);color:#fff;font-size:11px;font-weight:900;cursor:pointer;box-shadow:0 12px 24px -16px #1d4ed8}@keyframes kgptReviewFade{from{opacity:0}to{opacity:1}}@keyframes kgptReviewRise{from{opacity:0;transform:translateY(12px) scale(.985)}to{opacity:1;transform:none}}@media(max-width:700px){.kgpt-review-header-actions{width:100%;max-width:none;justify-content:flex-start}.kgpt-review-answer-grid{grid-template-columns:1fr}.kgpt-result-button-row{grid-template-columns:1fr}.kgpt-review-summary{flex-wrap:wrap}.kgpt-review-dialog{max-height:92vh}.kgpt-review-head,.kgpt-review-body,.kgpt-review-foot{padding-left:17px;padding-right:17px}}';
-            style.textContent += '.kgpt-review-header-actions{max-width:560px}.kgpt-review-header-actions .deadline,.kgpt-review-header-actions .kgpt-review-wrong-btn{box-sizing:border-box!important;height:40px!important;min-height:40px!important;padding:0 15px!important;border-radius:999px!important;display:inline-flex!important;align-items:center!important;justify-content:center!important;line-height:1!important;font-size:10.5px!important;font-weight:850!important;white-space:nowrap}.kgpt-review-header-actions .kgpt-review-wrong-btn svg{width:15px;height:15px;flex:0 0 15px}';
+            style.textContent += '.kgpt-review-header-actions{max-width:560px}.kgpt-review-header-actions .deadline,.kgpt-review-header-actions .kgpt-review-wrong-btn{box-sizing:border-box!important;height:40px!important;min-height:40px!important;padding:0 15px!important;border-radius:999px!important;display:inline-flex!important;align-items:center!important;justify-content:center!important;line-height:1!important;font-size:10.5px!important;font-weight:850!important;white-space:nowrap}.kgpt-review-header-actions .kgpt-review-wrong-btn svg{width:15px;height:15px;flex:0 0 15px}.kgpt-answer-summary[hidden]{display:none!important}.kgpt-answer-summary{margin:0 22px 16px;display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:10px}.kgpt-answer-stat{min-height:66px;padding:12px 15px;display:flex;align-items:center;gap:12px;border:1px solid;border-radius:13px;background:#fff}.kgpt-answer-stat-icon{width:36px;height:36px;flex:0 0 36px;display:grid;place-items:center;border-radius:11px;font-size:18px;font-weight:950}.kgpt-answer-stat-copy{min-width:0}.kgpt-answer-stat-copy span{display:block;margin-bottom:3px;font-size:9px;font-weight:900;letter-spacing:.075em;text-transform:uppercase}.kgpt-answer-stat-copy strong{display:block;font-size:17px;line-height:1.1}.kgpt-answer-stat.correct{border-color:#bde9d1;background:linear-gradient(145deg,#f3fcf7,#fff)}.kgpt-answer-stat.correct .kgpt-answer-stat-icon{background:#dcfce7;color:#07814d}.kgpt-answer-stat.correct span,.kgpt-answer-stat.correct strong{color:#087a46}.kgpt-answer-stat.wrong{border-color:#fecaca;background:linear-gradient(145deg,#fff7f7,#fff)}.kgpt-answer-stat.wrong .kgpt-answer-stat-icon{background:#fee2e2;color:#dc2626}.kgpt-answer-stat.wrong span,.kgpt-answer-stat.wrong strong{color:#b42318}@media(max-width:560px){.kgpt-answer-summary{grid-template-columns:1fr;margin-left:17px;margin-right:17px}}';
+            style.textContent += '.kgpt-answer-summary{position:relative;isolation:isolate;margin:0 22px 16px;padding:16px;grid-template-columns:minmax(275px,1.08fr) minmax(0,1.42fr);gap:16px;overflow:hidden;border:1px solid #d8e4f3;border-radius:18px;background:radial-gradient(circle at 0 0,rgba(59,130,246,.10),transparent 30%),linear-gradient(135deg,#f8fbff 0%,#f5f8fc 56%,#fbfdff 100%);box-shadow:0 16px 34px -29px rgba(15,23,42,.5),inset 0 1px 0 #fff}.kgpt-answer-summary:before{content:none}.kgpt-answer-summary:after{content:"";position:absolute;z-index:-1;right:-54px;top:-76px;width:180px;height:180px;border-radius:50%;background:radial-gradient(circle,rgba(59,130,246,.10),transparent 68%)}.kgpt-performance-overview{min-width:0;padding:5px 18px 5px 3px;border-right:1px solid #dfe8f3}.kgpt-performance-head{display:flex;align-items:center;gap:11px}.kgpt-performance-icon{width:38px;height:38px;flex:0 0 38px;display:grid;place-items:center;border:1px solid #c9dcfa;border-radius:12px;background:linear-gradient(145deg,#fff,#eaf2ff);color:#2563eb;box-shadow:0 9px 20px -16px #1d4ed8}.kgpt-performance-icon svg{width:19px;height:19px;fill:none;stroke:currentColor;stroke-width:1.9;stroke-linecap:round;stroke-linejoin:round}.kgpt-performance-title{min-width:0}.kgpt-performance-title span{display:block;margin-bottom:3px;color:#6681b8;font-size:7.5px;font-weight:950;letter-spacing:.14em;text-transform:uppercase}.kgpt-performance-title strong{display:block;color:#172033;font-size:12px;font-weight:900}.kgpt-performance-status{margin-left:auto;padding:6px 9px;border:1px solid #bce8d0;border-radius:999px;background:#ecfdf3;color:#087a46;font-size:8px;font-weight:950;text-transform:uppercase;white-space:nowrap}.kgpt-performance-status.not-passed{border-color:#fed7aa;background:#fff7ed;color:#c2410c}.kgpt-performance-score-row{margin:13px 0 8px;display:flex;align-items:flex-end;gap:7px}.kgpt-performance-score{color:#174fca;font-size:29px;font-weight:950;line-height:.95;letter-spacing:-.055em}.kgpt-performance-score-unit{padding-bottom:2px;color:#718096;font-size:9px;font-weight:800}.kgpt-performance-accuracy{margin-left:auto;padding-bottom:2px;color:#315fc5;font-size:10px;font-style:normal;font-weight:900}.kgpt-performance-track{height:6px;overflow:hidden;border-radius:999px;background:#e2e8f0;box-shadow:inset 0 1px 2px rgba(15,23,42,.08)}.kgpt-performance-track i{display:block;height:100%;width:0;border-radius:inherit;background:linear-gradient(90deg,#2563eb,#60a5fa);transition:none!important;animation:none!important}.kgpt-performance-note{display:block;margin-top:7px;color:#8a97aa;font-size:8px;line-height:1.4}.kgpt-answer-metrics{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:10px}.kgpt-answer-stat{position:relative;min-height:92px;padding:13px 14px;gap:12px;overflow:hidden;border-radius:14px;box-shadow:0 10px 24px -22px rgba(15,23,42,.55),inset 0 1px 0 rgba(255,255,255,.95)}.kgpt-answer-stat:after{content:"";position:absolute;right:-22px;top:-28px;width:72px;height:72px;border-radius:50%;background:currentColor;opacity:.045}.kgpt-answer-stat-icon{width:42px;height:42px;flex-basis:42px;border:1px solid currentColor;background:#fff!important}.kgpt-answer-stat-icon svg{width:21px;height:21px;fill:none;stroke:currentColor;stroke-width:2;stroke-linecap:round;stroke-linejoin:round}.kgpt-answer-stat-copy span{margin-bottom:5px;font-size:8px;letter-spacing:.11em}.kgpt-answer-stat-copy strong{font-size:25px;letter-spacing:-.045em}.kgpt-answer-stat-copy small{display:block;margin-top:4px;color:#7f8b9e!important;font-size:8px;line-height:1.35}.kgpt-answer-stat.correct{color:#087a46;border-color:#bce9d1;background:linear-gradient(145deg,#f1fcf6,#fff)}.kgpt-answer-stat.correct .kgpt-answer-stat-icon{border-color:#b8e7cd;color:#059669}.kgpt-answer-stat.wrong{color:#b42318;border-color:#fecaca;background:linear-gradient(145deg,#fff5f5,#fff)}.kgpt-answer-stat.wrong .kgpt-answer-stat-icon{border-color:#fecaca;color:#dc2626}html.dark .kgpt-answer-summary{border-color:#334155;background:linear-gradient(145deg,#111827,#172033);box-shadow:none}html.dark .kgpt-performance-overview{border-color:#334155}html.dark .kgpt-performance-title strong{color:#f8fafc}html.dark .kgpt-performance-icon{border-color:#3b4f70;background:#1e293b}html.dark .kgpt-answer-stat.correct{background:linear-gradient(145deg,rgba(6,78,59,.28),#111827)}html.dark .kgpt-answer-stat.wrong{background:linear-gradient(145deg,rgba(127,29,29,.25),#111827)}html.dark .kgpt-answer-stat-icon{background:#172033!important}@media(max-width:760px){.kgpt-answer-summary{grid-template-columns:1fr}.kgpt-performance-overview{padding-right:3px;padding-bottom:15px;border-right:0;border-bottom:1px solid #dfe8f3}}@media(max-width:560px){.kgpt-answer-metrics{grid-template-columns:1fr}.kgpt-answer-summary{margin-left:17px;margin-right:17px;padding:13px}}';
             frameDoc.head.appendChild(style);
         }
 
@@ -12668,7 +12710,29 @@ ${text}` });
 
         const detailActions = startButton.closest('.detail-actions');
         const detailTopline = frameDoc.querySelector('#taskSelectedView .detail-topline');
+        const detailInfoGrid = frameDoc.querySelector('#taskSelectedView .info-grid');
         const deadlineBadge = frameDoc.getElementById('deadline');
+        if (detailInfoGrid) {
+            const infoLabels = detailInfoGrid.querySelectorAll('.info > span');
+            const expandedLabels = [
+                'Số lượng câu hỏi bài kiểm tra',
+                'Thời gian làm bài',
+                'Số lần làm bài',
+                'Số điểm tối thiểu phải đạt'
+            ];
+            infoLabels.forEach((label, index) => {
+                if (expandedLabels[index]) label.textContent = expandedLabels[index];
+            });
+            detailInfoGrid.classList.add('kgpt-expanded-info-labels');
+        }
+        if (detailInfoGrid && !frameDoc.getElementById('kgptAnswerSummary')) {
+            const answerSummary = frameDoc.createElement('div');
+            answerSummary.id = 'kgptAnswerSummary';
+            answerSummary.className = 'kgpt-answer-summary';
+            answerSummary.hidden = true;
+            answerSummary.innerHTML = '<section class="kgpt-performance-overview"><div class="kgpt-performance-head"><div class="kgpt-performance-icon"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 19V9m5 10V5m5 14v-7m5 7V3"></path></svg></div><div class="kgpt-performance-title"><span>Kết quả đã xác thực</span><strong>Hiệu suất lượt làm</strong></div><span class="kgpt-performance-status" id="kgptPerformanceStatus">Đạt</span></div><div class="kgpt-performance-score-row"><strong class="kgpt-performance-score" id="kgptPerformanceScore">0.0</strong><span class="kgpt-performance-score-unit">/ 10 điểm</span><em class="kgpt-performance-accuracy" id="kgptPerformanceAccuracy">0% chính xác</em></div><div class="kgpt-performance-track"><i id="kgptPerformanceAccuracyBar"></i></div><small class="kgpt-performance-note">Kết quả được chấm và ghi nhận trực tiếp từ hệ thống.</small></section><div class="kgpt-answer-metrics"><div class="kgpt-answer-stat correct"><div class="kgpt-answer-stat-icon"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="m5 12 4 4L19 6"></path></svg></div><div class="kgpt-answer-stat-copy"><span>Câu trả lời đúng</span><strong id="kgptCorrectAnswerCount">0</strong><small id="kgptCorrectAnswerMeta">0 / 0 câu</small></div></div><div class="kgpt-answer-stat wrong"><div class="kgpt-answer-stat-icon"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="m7 7 10 10M17 7 7 17"></path></svg></div><div class="kgpt-answer-stat-copy"><span>Câu trả lời sai</span><strong id="kgptWrongAnswerCount">0</strong><small id="kgptWrongAnswerMeta">0 / 0 câu</small></div></div></div>';
+            detailInfoGrid.insertAdjacentElement('afterend', answerSummary);
+        }
         let reviewHeaderActions = frameDoc.getElementById('kgptReviewHeaderActions');
         if (!reviewHeaderActions && detailTopline && deadlineBadge) {
             reviewHeaderActions = frameDoc.createElement('div');
@@ -12753,7 +12817,41 @@ ${text}` });
             const taskId = getSelectedStudentTaskId();
             const result = taskId ? readTrainingLocalValue(TRAINING_RESULTS_STORAGE_KEY, {})?.[taskId] : null;
             const details = Array.isArray(result?.answerDetails) ? result.answerDetails : [];
-            const wrongCount = details.filter(item => !item.isCorrect).length;
+            const serverCorrectCount = Number(result?.correctCount);
+            const serverWrongCount = Number(result?.wrongCount);
+            const hasServerCounts = Number.isFinite(serverCorrectCount) && Number.isFinite(serverWrongCount);
+            const correctCount = hasServerCounts ? serverCorrectCount : details.filter(item => item.isCorrect).length;
+            const wrongCount = hasServerCounts ? serverWrongCount : details.filter(item => !item.isCorrect).length;
+            const serverQuestionCount = Number(result?.questionCount);
+            const questionCount = Number.isFinite(serverQuestionCount) && serverQuestionCount >= 0
+                ? serverQuestionCount
+                : (hasServerCounts ? correctCount + wrongCount : details.length);
+            const answerSummary = frameDoc.getElementById('kgptAnswerSummary');
+            const correctCountElement = frameDoc.getElementById('kgptCorrectAnswerCount');
+            const wrongCountElement = frameDoc.getElementById('kgptWrongAnswerCount');
+            const correctMetaElement = frameDoc.getElementById('kgptCorrectAnswerMeta');
+            const wrongMetaElement = frameDoc.getElementById('kgptWrongAnswerMeta');
+            const scoreElement = frameDoc.getElementById('kgptPerformanceScore');
+            const accuracyElement = frameDoc.getElementById('kgptPerformanceAccuracy');
+            const accuracyBarElement = frameDoc.getElementById('kgptPerformanceAccuracyBar');
+            const statusElement = frameDoc.getElementById('kgptPerformanceStatus');
+            const hasCountData = !!result && (hasServerCounts || details.length > 0);
+            const score = Number(result?.score) || 0;
+            const accuracy = questionCount > 0 ? Math.round(correctCount * 100 / questionCount) : 0;
+            const wrongRate = questionCount > 0 ? Math.round(wrongCount * 100 / questionCount) : 0;
+            const passed = score >= 7;
+            if (answerSummary) answerSummary.hidden = !hasCountData;
+            if (correctCountElement) correctCountElement.textContent = String(correctCount);
+            if (wrongCountElement) wrongCountElement.textContent = String(wrongCount);
+            if (correctMetaElement) correctMetaElement.textContent = `${correctCount} / ${questionCount} câu · ${accuracy}%`;
+            if (wrongMetaElement) wrongMetaElement.textContent = `${wrongCount} / ${questionCount} câu · ${wrongRate}%`;
+            if (scoreElement) scoreElement.textContent = score.toFixed(1);
+            if (accuracyElement) accuracyElement.textContent = `${accuracy}% chính xác`;
+            if (accuracyBarElement) accuracyBarElement.style.width = `${Math.max(0, Math.min(100, accuracy))}%`;
+            if (statusElement) {
+                statusElement.textContent = passed ? 'Đạt' : 'Chưa đạt';
+                statusElement.classList.toggle('not-passed', !passed);
+            }
             const detailButton = frameDoc.getElementById('kgptReviewWrongFromDetail');
             const resultButton = frameDoc.getElementById('kgptReviewWrongAfterSubmit');
             if (detailButton) {
@@ -12853,6 +12951,9 @@ ${text}` });
                             score,
                             earnedPoints,
                             totalPoints,
+                            questionCount: Number(trustedResult?.questionCount) || questions.length,
+                            correctCount: Number(trustedResult?.correctCount) || 0,
+                            wrongCount: Number(trustedResult?.wrongCount) || 0,
                             completedAt: trustedResult?.completedAt || new Date().toISOString()
                         };
 
