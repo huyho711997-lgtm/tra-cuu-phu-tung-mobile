@@ -1073,6 +1073,11 @@ html.dark #dataSection .price-reference-badge{border-color:#31558e;background:#1
                 const count = pendingFilterButton.querySelector('b');
                 if (count) count.textContent = String(pendingCount);
                 pendingFilterButton.title = pendingCount ? pendingCount + ' tài khoản đang chờ quản trị viên phê duyệt' : 'Không có tài khoản chờ phê duyệt';
+                if (pendingCount === 0 && doc.body.dataset.kgptApprovalOnly === 'true') {
+                    doc.body.dataset.kgptApprovalOnly = 'false';
+                    pendingFilterButton.classList.remove('active');
+                    pendingFilterButton.setAttribute('aria-pressed', 'false');
+                }
             }
 
             if (!userRows) return;
@@ -1152,6 +1157,13 @@ html.dark #dataSection .price-reference-badge{border-color:#31558e;background:#1
                         if (activeValue) activeValue.textContent = String(Number(activeValue.textContent || 0) + 1);
                         const filterCount = pendingFilterButton && pendingFilterButton.querySelector('b');
                         if (filterCount) filterCount.textContent = pendingValue ? pendingValue.textContent : String(Math.max(0, Number(filterCount.textContent || 0) - 1));
+                        if (pendingValue && Number(pendingValue.textContent || 0) === 0 && doc.body.dataset.kgptApprovalOnly === 'true') {
+                            doc.body.dataset.kgptApprovalOnly = 'false';
+                            if (pendingFilterButton) {
+                                pendingFilterButton.classList.remove('active');
+                                pendingFilterButton.setAttribute('aria-pressed', 'false');
+                            }
+                        }
                         if (frame.contentWindow.__kgptApplyUserPagination) frame.contentWindow.__kgptApplyUserPagination();
                     }
                 }
@@ -3350,7 +3362,7 @@ document.addEventListener('DOMContentLoaded',function(){
 <iframe class="ti-learning-frame" id="teacherLearningFrame" title="Quản lý bài tập dành cho giảng viên" data-embedded-key="teacher"></iframe>
 </section>
 <section class="ti-learning-shell" id="studentLearningSection" aria-label="Bài tập dành cho người dùng">
-<iframe class="ti-learning-frame" id="studentLearningFrame" title="Bài tập dành cho người dùng" data-embedded-key="student" allow="fullscreen" allowfullscreen></iframe>
+<iframe class="ti-learning-frame" id="studentLearningFrame" title="Bài tập dành cho người dùng" data-embedded-key="student" allow="fullscreen"></iframe>
 </section>
 <section class="ti-learning-shell" id="userManagementSection" aria-label="Quản lý người dùng và phân quyền">
 <iframe class="ti-learning-frame" id="userManagementFrame" title="Quản lý người dùng và phân quyền" data-embedded-key="users"></iframe>
@@ -5091,6 +5103,7 @@ document.addEventListener('DOMContentLoaded',function(){
             const keepAdminView = role === 'admin' && isAdminViewActive();
             const permissions = normalizeUserPermissions(profileData.permissions, role);
             currentUserProfile = { ...profileData, email, role, fullName, uid, permissions };
+            document.dispatchEvent(new CustomEvent('kgpt:auth-ready', { detail: { uid, role } }));
             document.getElementById('userDisplayName').innerText = fullName || email;
             const userManagementNav = document.getElementById('tiUserManagementNav');
             if (userManagementNav) userManagementNav.style.display = canCurrentUserAccessPage('users', 'view') ? 'flex' : 'none';
@@ -12964,13 +12977,22 @@ ${text}` });
     }
 
     // Lắng nghe khi profile user thay đổi ở app chính
+    function startTrainingDatabaseSyncAfterAuth() {
+        if (!window.kgptTrainingDatabase?.isReady?.()) return;
+        loadTrainingDataFromDatabase()
+            .then(dispatchAssignmentsRefresh)
+            .catch(error => console.error('Không đồng bộ được dữ liệu bài tập sau đăng nhập:', error));
+    }
+
+    document.addEventListener('kgpt:auth-ready', function() {
+        setTimeout(startTrainingDatabaseSyncAfterAuth, 0);
+    });
+
     document.addEventListener('DOMContentLoaded', function() {
         setTimeout(dispatchUserToFrames, 500);
-        setTimeout(function() {
-            loadTrainingDataFromDatabase()
-                .then(dispatchAssignmentsRefresh)
-                .catch(error => console.error('Không đồng bộ được dữ liệu bài tập khi khởi động:', error));
-        }, 800);
+        // Không gọi Supabase tại đây: DOMContentLoaded có thể xảy ra trước khi
+        // Supabase khôi phục xong session. Đồng bộ sẽ được kích hoạt bởi
+        // sự kiện kgpt:auth-ready ngay sau khi profile/RLS đã được xác minh.
         const nameEl = document.getElementById('userDisplayName');
         if (nameEl) {
             new MutationObserver(dispatchUserToFrames).observe(nameEl, { childList: true, subtree: true, characterData: true });
