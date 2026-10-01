@@ -4391,61 +4391,67 @@ document.addEventListener('DOMContentLoaded',function(){
         }
         // CONSTANTS
         let currentUserProfile = null;
-        const KGPT_TRAINING_ASSIGNMENTS_DB_KEY = 'kgpt_training_assignments_v1';
-        const KGPT_TRAINING_RESULTS_DB_PREFIX = 'kgpt_training_results_v1';
-        const KGPT_TRAINING_RESULT_HISTORY_DB_PREFIX = 'kgpt_training_result_history_v1';
-        function getTrainingResultsDbKey() {
-            const ownerId = auth.currentUser?.uid || currentUserProfile?.uid || 'anonymous';
-            return `${KGPT_TRAINING_RESULTS_DB_PREFIX}_${ownerId}`;
+        // SECURITY: answer keys and grading never pass through app_metadata or
+        // browser-generated scores. All training operations use role-checked,
+        // SECURITY DEFINER RPCs installed by supabase-secure-grading.sql.
+        function isTrainingStaffRole() {
+            return currentUserProfile?.role === 'admin' || currentUserProfile?.role === 'teacher';
         }
-        function getTrainingResultHistoryDbKey() {
-            const ownerId = auth.currentUser?.uid || currentUserProfile?.uid || 'anonymous';
-            return `${KGPT_TRAINING_RESULT_HISTORY_DB_PREFIX}_${ownerId}`;
-        }
-        async function readTrainingMetadata(key) {
-            const { data, error } = await supabase
-                .from('app_metadata')
-                .select('value')
-                .eq('key', key)
-                .maybeSingle();
-            if (error) throw error;
-            return data ? data.value : null;
-        }
-        async function writeTrainingMetadata(key, value) {
-            const { error } = await supabase
-                .from('app_metadata')
-                .upsert({ key, value, updated_at: new Date().toISOString() }, { onConflict: 'key' });
-            if (error) throw error;
+        async function callTrainingRpc(name, args = {}) {
+            const { data, error } = await supabase.rpc(name, args);
+            if (error) {
+                const secureError = new Error(error.message || `Không gọi được ${name}`);
+                secureError.code = error.code || 'TRAINING_RPC_ERROR';
+                secureError.details = error.details || '';
+                throw secureError;
+            }
+            return data;
         }
         window.kgptTrainingDatabase = {
+            mode: 'server-side-grading-v2',
             isReady() {
                 return !!auth.currentUser?.uid;
             },
             async load() {
-                const [assignments, results, resultHistory] = await Promise.all([
-                    readTrainingMetadata(KGPT_TRAINING_ASSIGNMENTS_DB_KEY),
-                    readTrainingMetadata(getTrainingResultsDbKey()),
-                    readTrainingMetadata(getTrainingResultHistoryDbKey())
-                ]);
-                return { assignments, results, resultHistory };
+                const rpcName = isTrainingStaffRole()
+                    ? 'kgpt_training_teacher_load'
+                    : 'kgpt_training_student_load';
+                const payload = await callTrainingRpc(rpcName);
+                return {
+                    assignments: Array.isArray(payload?.assignments) ? payload.assignments : [],
+                    results: payload?.results && typeof payload.results === 'object' ? payload.results : {},
+                    resultHistory: Array.isArray(payload?.resultHistory) ? payload.resultHistory : []
+                };
             },
             async saveAssignments(assignments) {
-                await writeTrainingMetadata(
-                    KGPT_TRAINING_ASSIGNMENTS_DB_KEY,
-                    Array.isArray(assignments) ? assignments : []
-                );
+                if (!isTrainingStaffRole()) throw new Error('Chỉ giảng viên hoặc quản trị viên được lưu bài tập.');
+                return callTrainingRpc('kgpt_training_replace_assignments', {
+                    p_assignments: Array.isArray(assignments) ? assignments : []
+                });
             },
-            async saveResults(results) {
-                await writeTrainingMetadata(
-                    getTrainingResultsDbKey(),
-                    results && typeof results === 'object' ? results : {}
-                );
+            async startQuiz(assignmentId) {
+                return callTrainingRpc('kgpt_training_start_quiz', {
+                    p_assignment_id: String(assignmentId || '')
+                });
             },
-            async saveResultHistory(history) {
-                await writeTrainingMetadata(
-                    getTrainingResultHistoryDbKey(),
-                    Array.isArray(history) ? history : []
-                );
+            async submitQuiz(attemptId, answers) {
+                return callTrainingRpc('kgpt_training_submit_quiz', {
+                    p_attempt_id: attemptId,
+                    p_answers: Array.isArray(answers) ? answers : []
+                });
+            },
+            async allowRetake(assignmentId, userId) {
+                if (!isTrainingStaffRole()) throw new Error('Chỉ giảng viên hoặc quản trị viên được mở lượt làm lại.');
+                return callTrainingRpc('kgpt_training_allow_retake', {
+                    p_assignment_id: String(assignmentId || ''),
+                    p_user_id: userId
+                });
+            },
+            async saveResults() {
+                throw new Error('Kết quả chỉ được ghi bởi hàm chấm điểm phía máy chủ.');
+            },
+            async saveResultHistory() {
+                throw new Error('Lịch sử làm bài chỉ được ghi bởi máy chủ.');
             }
         };
         let lastLoggedUid = null; // Kiểm soát ghi log trùng lặp
@@ -5133,6 +5139,14 @@ document.addEventListener('DOMContentLoaded',function(){
             const keepAdminView = role === 'admin' && isAdminViewActive();
             const permissions = normalizeUserPermissions(profileData.permissions, role);
             currentUserProfile = { ...profileData, email, role, fullName, uid, permissions };
+            window.currentUserProfile = currentUserProfile;
+            if (role !== 'admin' && role !== 'teacher') {
+                // Remove answer-bearing cache left by a staff session on the
+                // same browser before any learner iframe can be opened.
+                localStorage.removeItem('kgpt_shared_assignments_v1');
+                localStorage.removeItem('kgpt_student_quiz_results');
+                localStorage.removeItem('kgpt_student_quiz_result_history');
+            }
             document.dispatchEvent(new CustomEvent('kgpt:auth-ready', { detail: { uid, role } }));
             document.getElementById('userDisplayName').innerText = fullName || email;
             const userManagementNav = document.getElementById('tiUserManagementNav');
@@ -5224,6 +5238,10 @@ document.addEventListener('DOMContentLoaded',function(){
             updateView('login');
             clearQuoteApiInputsForPrivacy?.();
             currentUserProfile = null;
+            window.currentUserProfile = null;
+            localStorage.removeItem('kgpt_shared_assignments_v1');
+            localStorage.removeItem('kgpt_student_quiz_results');
+            localStorage.removeItem('kgpt_student_quiz_result_history');
         }
         
         let isRegisterMode = false;
@@ -11805,39 +11823,38 @@ ${text}` });
         throw new Error('Vui lòng đăng nhập trước khi đồng bộ dữ liệu bài tập.');
     }
 
-    async function loadTrainingDataFromDatabase() {
+    async function loadTrainingDataFromDatabase(force = false) {
+        if (force) {
+            trainingDatabaseLoaded = false;
+            trainingDatabaseLoadPromise = null;
+        }
         if (trainingDatabaseLoaded) return;
         if (trainingDatabaseLoadPromise) return trainingDatabaseLoadPromise;
         trainingDatabaseLoadPromise = (async () => {
             const store = await waitForTrainingDatabase();
+            // Clear stale answer-bearing data left by an older version before a
+            // learner session loads its server-sanitized assignment metadata.
+            const profileRole = window.currentUserProfile?.role || '';
+            if (profileRole !== 'admin' && profileRole !== 'teacher') {
+                localStorage.removeItem(TRAINING_ASSIGNMENTS_STORAGE_KEY);
+                localStorage.removeItem(TRAINING_RESULTS_STORAGE_KEY);
+                localStorage.removeItem(TRAINING_RESULT_HISTORY_STORAGE_KEY);
+            }
             const databaseData = await store.load();
-            const localAssignments = readTrainingLocalValue(TRAINING_ASSIGNMENTS_STORAGE_KEY, []);
-            const localResults = readTrainingLocalValue(TRAINING_RESULTS_STORAGE_KEY, {});
-            const localResultHistory = readTrainingLocalValue(TRAINING_RESULT_HISTORY_STORAGE_KEY, []);
-
-            if (Array.isArray(databaseData.assignments)) {
-                localStorage.setItem(TRAINING_ASSIGNMENTS_STORAGE_KEY, JSON.stringify(databaseData.assignments));
-            } else if (Array.isArray(localAssignments) && localAssignments.length) {
-                await store.saveAssignments(localAssignments);
-            } else {
-                localStorage.setItem(TRAINING_ASSIGNMENTS_STORAGE_KEY, '[]');
-            }
-
-            if (databaseData.results && typeof databaseData.results === 'object' && !Array.isArray(databaseData.results)) {
-                localStorage.setItem(TRAINING_RESULTS_STORAGE_KEY, JSON.stringify(databaseData.results));
-            } else if (localResults && typeof localResults === 'object' && Object.keys(localResults).length) {
-                await store.saveResults(localResults);
-            } else {
-                localStorage.setItem(TRAINING_RESULTS_STORAGE_KEY, '{}');
-            }
-
-            if (Array.isArray(databaseData.resultHistory)) {
-                localStorage.setItem(TRAINING_RESULT_HISTORY_STORAGE_KEY, JSON.stringify(databaseData.resultHistory));
-            } else if (Array.isArray(localResultHistory) && localResultHistory.length) {
-                await store.saveResultHistory(localResultHistory);
-            } else {
-                localStorage.setItem(TRAINING_RESULT_HISTORY_STORAGE_KEY, '[]');
-            }
+            // Server data is authoritative. Never upload legacy local scores or
+            // answer-bearing assignment caches as an automatic fallback.
+            localStorage.setItem(
+                TRAINING_ASSIGNMENTS_STORAGE_KEY,
+                JSON.stringify(Array.isArray(databaseData.assignments) ? databaseData.assignments : [])
+            );
+            localStorage.setItem(
+                TRAINING_RESULTS_STORAGE_KEY,
+                JSON.stringify(databaseData.results && typeof databaseData.results === 'object' && !Array.isArray(databaseData.results) ? databaseData.results : {})
+            );
+            localStorage.setItem(
+                TRAINING_RESULT_HISTORY_STORAGE_KEY,
+                JSON.stringify(Array.isArray(databaseData.resultHistory) ? databaseData.resultHistory : [])
+            );
 
             trainingDatabaseLoaded = true;
         })().catch(error => {
@@ -11861,23 +11878,19 @@ ${text}` });
 
     async function saveResultsToDatabase() {
         try {
-            await loadTrainingDataFromDatabase();
-            const store = await waitForTrainingDatabase();
-            const results = readTrainingLocalValue(TRAINING_RESULTS_STORAGE_KEY, {});
-            await store.saveResults(results && typeof results === 'object' ? results : {});
+            // Never trust a browser-created score. Refresh the signed-in user's
+            // authoritative result after the server has graded the attempt.
+            await loadTrainingDataFromDatabase(true);
         } catch (error) {
-            console.error('Không lưu được kết quả bài tập vào Supabase:', error);
+            console.error('Không tải lại được kết quả đã chấm từ Supabase:', error);
         }
     }
 
     async function saveResultHistoryToDatabase() {
         try {
-            await loadTrainingDataFromDatabase();
-            const store = await waitForTrainingDatabase();
-            const history = readTrainingLocalValue(TRAINING_RESULT_HISTORY_STORAGE_KEY, []);
-            await store.saveResultHistory(Array.isArray(history) ? history : []);
+            await loadTrainingDataFromDatabase(true);
         } catch (error) {
-            console.error('Không lưu được lịch sử lượt làm bài vào Supabase:', error);
+            console.error('Không tải lại được lịch sử làm bài từ Supabase:', error);
         }
     }
 
@@ -12003,71 +12016,6 @@ ${text}` });
                 frameWindow.showToast?.('Vui lòng giữ nguyên cửa sổ này trong suốt thời gian làm bài.');
             });
         }
-    }
-
-    function preparePersonalizedQuizShuffle(frameWindow) {
-        if (!frameWindow) return null;
-        let assignment;
-        try { assignment = frameWindow.eval('selectedAssignment'); } catch (error) { return null; }
-        if (!assignment || !Array.isArray(assignment.questions) || assignment.questions.length === 0) return null;
-
-        const user = getRealAppUser();
-        const history = readTrainingLocalValue(TRAINING_RESULT_HISTORY_STORAGE_KEY, []);
-        const completedAttempts = (Array.isArray(history) ? history : []).filter(item =>
-            String(item.taskId) === String(assignment.id) &&
-            (!item.studentName || item.studentName === user.fullName)
-        ).length;
-        const attemptNumber = completedAttempts + 1;
-        const seedSource = `${user.email || user.fullName}|${assignment.id}|${attemptNumber}`;
-        let seed = 2166136261;
-        for (let index = 0; index < seedSource.length; index += 1) {
-            seed ^= seedSource.charCodeAt(index);
-            seed = Math.imul(seed, 16777619);
-        }
-        seed >>>= 0;
-        const initialSeed = seed;
-        const random = () => {
-            seed += 0x6D2B79F5;
-            let value = seed;
-            value = Math.imul(value ^ value >>> 15, value | 1);
-            value ^= value + Math.imul(value ^ value >>> 7, value | 61);
-            return ((value ^ value >>> 14) >>> 0) / 4294967296;
-        };
-        const shuffle = values => {
-            const output = [...values];
-            for (let index = output.length - 1; index > 0; index -= 1) {
-                const target = Math.floor(random() * (index + 1));
-                [output[index], output[target]] = [output[target], output[index]];
-            }
-            return output;
-        };
-
-        const shuffledQuestions = assignment.questions.map((question, originalQuestionIndex) => {
-            const answerPairs = (question.a || []).map((text, originalAnswerIndex) => ({ text, originalAnswerIndex }));
-            const shuffledAnswers = shuffle(answerPairs);
-            const originalCorrectIndex = Number(question.c);
-            return {
-                ...question,
-                a: shuffledAnswers.map(item => item.text),
-                c: shuffledAnswers.findIndex(item => item.originalAnswerIndex === originalCorrectIndex),
-                __kgptOriginalQuestionIndex: originalQuestionIndex
-            };
-        });
-        const randomizedQuestionPool = shuffle(shuffledQuestions);
-        const requestedQuestionCount = Math.max(1, Math.min(
-            randomizedQuestionPool.length,
-            Number(assignment.deliveryQuestionCount) || randomizedQuestionPool.length
-        ));
-        assignment.questions = randomizedQuestionPool.slice(0, requestedQuestionCount);
-        assignment.__kgptShuffleInfo = {
-            applied: true,
-            attemptNumber,
-            seed: initialSeed,
-            sourceQuestionCount: randomizedQuestionPool.length,
-            deliveredQuestionCount: requestedQuestionCount,
-            generatedAt: new Date().toISOString()
-        };
-        return assignment.__kgptShuffleInfo;
     }
 
     function enforceTeacherResultReview() {
@@ -12570,6 +12518,10 @@ ${text}` });
             const results = readTrainingLocalValue(TRAINING_RESULTS_STORAGE_KEY, {});
             const result = results?.[taskId];
             const learner = result?.studentName || 'học viên này';
+            if (!result?.userId) {
+                showPremiumTrainingAlert('Kết quả cũ chưa có mã người dùng tin cậy. Hãy đồng bộ lại dữ liệu trước khi mở lượt làm lại.', { title: 'Thiếu định danh người học' });
+                return;
+            }
             const approved = await requestPremiumConfirmation({
                 title: 'Cho phép làm lại bài?',
                 message: `Mở lượt làm mới cho ${learner}. Kết quả hiện tại sẽ được chuyển vào lịch sử và hệ thống tạo một bộ câu hỏi ngẫu nhiên mới.`,
@@ -12577,18 +12529,18 @@ ${text}` });
                 cancelText: 'Hủy'
             }, frameWindow);
             if (!approved) return;
-            const historyKey = TRAINING_RESULT_HISTORY_STORAGE_KEY;
-            const history = readTrainingLocalValue(historyKey, []);
-            if (result) {
-                history.unshift({ ...result, taskId, reopenedAt: new Date().toISOString() });
-                localStorage.setItem(historyKey, JSON.stringify(history.slice(0, 200)));
+            try {
+                const store = await waitForTrainingDatabase();
+                await store.allowRetake(taskId, result.userId);
+                await loadTrainingDataFromDatabase(true);
+                frameWindow.closeResultsModal?.();
+                frameWindow.loadAssignments?.();
+                frameWindow.showToast?.(`Đã mở lượt làm lại cho ${learner}`);
+                dispatchAssignmentsRefresh();
+            } catch (error) {
+                console.error('Không mở được lượt làm lại:', error);
+                showPremiumTrainingAlert(error.message || 'Không mở được lượt làm lại trên máy chủ.', { title: 'Thao tác thất bại' });
             }
-            delete results[taskId];
-            localStorage.setItem(TRAINING_RESULTS_STORAGE_KEY, JSON.stringify(results));
-            frameWindow.closeResultsModal?.();
-            frameWindow.loadAssignments?.();
-            frameWindow.showToast?.(`Đã mở lượt làm lại cho ${learner}`);
-            window.postMessage({ type: 'kgpt:quiz-retake-enabled', taskId }, '*');
         };
 
         frameWindow.toggleLearnerResultDetails = function(taskId) {
@@ -12855,81 +12807,136 @@ ${text}` });
             }
             const originalSubmitQuiz = frameWindow.submitQuiz;
             if (typeof originalSubmitQuiz === 'function') {
-                frameWindow.submitQuiz = function(auto = false) {
-                    if (auto) {
-                        const result = originalSubmitQuiz.apply(this, arguments);
-                        setTimeout(syncWrongReviewActions, 0);
-                        return result;
-                    }
+                frameWindow.submitQuiz = async function(auto = false) {
+                    if (frameWindow.__kgptSecureSubmitting) return false;
                     let questions = [];
                     let submittedAnswers = {};
+                    let assignment = null;
                     try {
+                        assignment = frameWindow.eval('selectedAssignment');
                         questions = frameWindow.eval('selectedAssignment?.questions || []');
                         submittedAnswers = frameWindow.eval('answers');
                     } catch (error) {}
                     const answeredCount = Object.keys(submittedAnswers || {}).length;
-                    if (answeredCount < questions.length) {
-                        requestPremiumConfirmation({
+                    if (!auto && answeredCount < questions.length) {
+                        const approved = await requestPremiumConfirmation({
                             title: 'Nộp bài khi chưa hoàn thành?',
                             message: `Bạn mới trả lời ${answeredCount}/${questions.length} câu. Các câu chưa trả lời sẽ không được tính điểm.`,
                             confirmText: 'Vẫn nộp bài',
                             cancelText: 'Tiếp tục làm'
-                        }, frameWindow).then(approved => {
-                            if (approved) {
-                                originalSubmitQuiz.call(frameWindow, true);
-                                setTimeout(syncWrongReviewActions, 0);
-                            }
-                        });
+                        }, frameWindow);
+                        if (!approved) return false;
+                    }
+                    const attemptId = assignment?.__kgptAttemptId || frameWindow.__kgptAttemptId;
+                    if (!attemptId || !questions.length) {
+                        showPremiumTrainingAlert('Phiên làm bài không có mã xác thực từ máy chủ. Bài không được chấm để tránh ghi nhận kết quả giả mạo.', { title: 'Không thể nộp bài' });
                         return false;
                     }
-                    const result = originalSubmitQuiz.apply(this, arguments);
-                    setTimeout(syncWrongReviewActions, 0);
-                    return result;
+
+                    frameWindow.__kgptSecureSubmitting = true;
+                    try {
+                        try { frameWindow.eval('clearInterval(timerHandle)'); } catch (error) {}
+                        const answerPayload = questions.map((question, index) => ({
+                            questionId: String(question.id || ''),
+                            selectedIndex: submittedAnswers[index] === undefined ? null : Number(submittedAnswers[index])
+                        }));
+                        const store = await waitForTrainingDatabase();
+                        const trustedResult = await store.submitQuiz(attemptId, answerPayload);
+                        const score = Number(trustedResult?.score) || 0;
+                        const earnedPoints = Number(trustedResult?.earnedPoints) || 0;
+                        const totalPoints = Number(trustedResult?.totalPoints) || 0;
+                        const resultForDisplay = {
+                            taskId: String(trustedResult?.taskId || assignment.id),
+                            attemptId: String(trustedResult?.attemptId || attemptId),
+                            userId: String(trustedResult?.userId || ''),
+                            studentName: trustedResult?.studentName || 'Học viên',
+                            score,
+                            earnedPoints,
+                            totalPoints,
+                            completedAt: trustedResult?.completedAt || new Date().toISOString()
+                        };
+
+                        // Cache only the trusted public result for immediate UI use.
+                        // A refresh always replaces this cache with server data.
+                        const cachedResults = readTrainingLocalValue(TRAINING_RESULTS_STORAGE_KEY, {});
+                        cachedResults[resultForDisplay.taskId] = resultForDisplay;
+                        localStorage.setItem(TRAINING_RESULTS_STORAGE_KEY, JSON.stringify(cachedResults));
+
+                        const scoreElement = frameDoc.getElementById('resultScore');
+                        const detailElement = frameDoc.getElementById('resultDetails');
+                        if (scoreElement) scoreElement.textContent = score.toFixed(1);
+                        if (detailElement) detailElement.textContent = `Điểm số do máy chủ chấm: ${earnedPoints}/${totalPoints} điểm (${score >= 7 ? 'Đạt' : 'Chưa đạt'})`;
+                        frameDoc.getElementById('resultModal')?.classList.add('open');
+                        deactivateStudentExamSecurity();
+                        setTimeout(syncWrongReviewActions, 0);
+                        frameWindow.parent.postMessage({
+                            type: 'kgpt:quiz-completed',
+                            taskId: resultForDisplay.taskId
+                        }, '*');
+                        return trustedResult;
+                    } catch (error) {
+                        console.error('Máy chủ không chấm được bài:', error);
+                        showPremiumTrainingAlert(error.message || 'Không thể chấm bài trên máy chủ. Kết quả chưa được ghi nhận.', { title: 'Nộp bài thất bại' });
+                        return false;
+                    } finally {
+                        frameWindow.__kgptSecureSubmitting = false;
+                    }
                 };
             }
             const originalStartQuiz = frameWindow.startQuiz;
             if (typeof originalStartQuiz === 'function') {
-                frameWindow.startQuiz = function() {
+                frameWindow.startQuiz = async function() {
                     const button = frameDoc.getElementById('btnStartQuiz');
                     if (button?.dataset.singleAttemptLocked === '1' || button?.disabled) {
                         frameWindow.showToast?.('Bài tập chỉ được làm một lần. Vui lòng liên hệ giảng viên nếu cần mở lại.');
                         return false;
                     }
-                    const shuffleInfo = preparePersonalizedQuizShuffle(frameWindow);
-                    const result = originalStartQuiz.apply(this, arguments);
-                    if (shuffleInfo) {
-                        frameWindow.__kgptActiveShuffleInfo = shuffleInfo;
-                        frameWindow.showToast?.(`Đã tạo bộ câu hỏi riêng cho lượt ${shuffleInfo.attemptNumber}`);
+                    let taskId = null;
+                    try { taskId = frameWindow.eval('selectedAssignment?.id || null'); } catch (error) {}
+                    if (!taskId) {
+                        showPremiumTrainingAlert('Không xác định được bài tập cần bắt đầu.', { title: 'Thiếu bài tập' });
+                        return false;
                     }
-                    activateStudentExamSecurity(true);
-                    return result;
+                    const originalText = button?.textContent || 'Bắt đầu làm bài →';
+                    if (button) {
+                        button.disabled = true;
+                        button.textContent = 'Đang nhận đề bảo mật…';
+                    }
+                    try {
+                        const store = await waitForTrainingDatabase();
+                        const serverQuiz = await store.startQuiz(taskId);
+                        if (!serverQuiz?.attemptId || !Array.isArray(serverQuiz?.assignment?.questions)) {
+                            throw new Error('Máy chủ không trả về phiên làm bài hợp lệ.');
+                        }
+                        frameWindow.__kgptServerAssignment = serverQuiz.assignment;
+                        frameWindow.eval('selectedAssignment = window.__kgptServerAssignment');
+                        delete frameWindow.__kgptServerAssignment;
+                        frameWindow.__kgptAttemptId = serverQuiz.attemptId;
+                        frameWindow.__kgptActiveShuffleInfo = {
+                            applied: true,
+                            attemptNumber: Number(serverQuiz.attemptNumber) || 1,
+                            generatedAt: new Date().toISOString(),
+                            serverGraded: true
+                        };
+                        const result = originalStartQuiz.call(frameWindow);
+                        frameWindow.showToast?.(`Đã nhận đề bảo mật cho lượt ${Number(serverQuiz.attemptNumber) || 1}`);
+                        activateStudentExamSecurity(true);
+                        return result;
+                    } catch (error) {
+                        console.error('Không nhận được đề thi bảo mật:', error);
+                        showPremiumTrainingAlert(error.message || 'Không thể nhận đề từ máy chủ. Bài thi không được mở để tránh lộ đáp án.', { title: 'Không thể bắt đầu' });
+                        if (button) {
+                            button.disabled = false;
+                            button.textContent = originalText;
+                        }
+                        return false;
+                    }
                 };
             }
             const originalSaveQuizResult = frameWindow.saveQuizResult;
             if (typeof originalSaveQuizResult === 'function') {
-                frameWindow.saveQuizResult = function(taskId, result) {
-                    const existing = frameWindow.getQuizResults?.()?.[taskId];
-                    if (existing) return existing;
-                    try {
-                        const assignment = frameWindow.eval('selectedAssignment');
-                        const submittedAnswers = frameWindow.eval('answers');
-                        result.answerDetails = (assignment?.questions || []).map((question, index) => {
-                            const selectedIndex = submittedAnswers[index];
-                            const correctIndex = Number(question.c);
-                            return {
-                                question: question.q || `Câu ${index + 1}`,
-                                selectedIndex: selectedIndex ?? null,
-                                correctIndex: correctIndex,
-                                selectedAnswer: selectedIndex === undefined ? '' : (question.a?.[selectedIndex] || ''),
-                                correctAnswer: question.a?.[correctIndex] || '',
-                                isCorrect: selectedIndex === correctIndex
-                            };
-                        });
-                        result.shuffleInfo = assignment?.__kgptShuffleInfo || frameWindow.__kgptActiveShuffleInfo || null;
-                    } catch (error) {
-                        console.warn('Không ghi được chi tiết đáp án:', error);
-                    }
-                    return originalSaveQuizResult.apply(this, arguments);
+                frameWindow.saveQuizResult = function() {
+                    throw new Error('Đã vô hiệu hóa ghi điểm từ trình duyệt. Hãy dùng chấm điểm phía máy chủ.');
                 };
             }
         }
