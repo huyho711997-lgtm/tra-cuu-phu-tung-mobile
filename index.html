@@ -5675,6 +5675,9 @@ html.dark #quotePriceSection #quoteResultBody .premium-empty-orbit::before,html.
             const permissions = normalizeUserPermissions(profileData.permissions, role);
             currentUserProfile = { ...profileData, email, role, fullName, uid, permissions };
             window.currentUserProfile = currentUserProfile;
+            // Mỗi tài khoản có một tập bài tập/kết quả riêng. Khi đổi user trong
+            // cùng một tab, bắt buộc vô hiệu cache đồng bộ của user trước.
+            window.resetTrainingDatabaseSync?.(uid);
             if (role !== 'admin' && role !== 'teacher') {
                 // Remove answer-bearing cache left by a staff session on the
                 // same browser before any learner iframe can be opened.
@@ -5682,7 +5685,6 @@ html.dark #quotePriceSection #quoteResultBody .premium-empty-orbit::before,html.
                 localStorage.removeItem('kgpt_student_quiz_results');
                 localStorage.removeItem('kgpt_student_quiz_result_history');
             }
-            document.dispatchEvent(new CustomEvent('kgpt:auth-ready', { detail: { uid, role } }));
             document.getElementById('userDisplayName').innerText = fullName || email;
             const userManagementNav = document.getElementById('tiUserManagementNav');
             if (userManagementNav) userManagementNav.style.display = canCurrentUserAccessPage('users', 'view') ? 'flex' : 'none';
@@ -5768,12 +5770,16 @@ html.dark #quotePriceSection #quoteResultBody .premium-empty-orbit::before,html.
                 return;
             }
             updateView(keepAdminView ? 'admin' : 'main');
+            // Phát sự kiện sau khi view/iframe tương ứng đã được khởi tạo để sự
+            // kiện refresh bài tập không bị thất lạc trong lúc iframe còn load.
+            document.dispatchEvent(new CustomEvent('kgpt:auth-ready', { detail: { uid, role } }));
         }
         function hideApp() {
             updateView('login');
             clearQuoteApiInputsForPrivacy?.();
             currentUserProfile = null;
             window.currentUserProfile = null;
+            window.resetTrainingDatabaseSync?.('');
             localStorage.removeItem('kgpt_shared_assignments_v1');
             localStorage.removeItem('kgpt_student_quiz_results');
             localStorage.removeItem('kgpt_student_quiz_result_history');
@@ -12314,6 +12320,28 @@ ${text}` });
     const TRAINING_RESULT_HISTORY_STORAGE_KEY = 'kgpt_student_quiz_result_history';
     let trainingDatabaseLoaded = false;
     let trainingDatabaseLoadPromise = null;
+    let trainingDatabaseUserId = '';
+    let trainingDatabaseSyncVersion = 0;
+
+    function getTrainingUserId() {
+        return String(
+            window.currentUserProfile?.uid ||
+            window.auth?.currentUser?.uid ||
+            ''
+        );
+    }
+
+    function resetTrainingDatabaseSync(userId = '') {
+        const nextUserId = String(userId || '');
+        if (trainingDatabaseUserId === nextUserId) return;
+        trainingDatabaseSyncVersion += 1;
+        trainingDatabaseUserId = nextUserId;
+        trainingDatabaseLoaded = false;
+        trainingDatabaseLoadPromise = null;
+    }
+
+    // Được gọi từ showApp/hideApp nằm ở script module phía trên.
+    window.resetTrainingDatabaseSync = resetTrainingDatabaseSync;
 
     function readTrainingLocalValue(key, fallback) {
         try {
@@ -12360,13 +12388,22 @@ ${text}` });
     }
 
     async function loadTrainingDataFromDatabase(force = false) {
+        const requestedUserId = getTrainingUserId();
+        if (!requestedUserId) {
+            throw new Error('Vui lòng đăng nhập trước khi đồng bộ dữ liệu bài tập.');
+        }
+        if (trainingDatabaseUserId !== requestedUserId) {
+            resetTrainingDatabaseSync(requestedUserId);
+        }
         if (force) {
+            trainingDatabaseSyncVersion += 1;
             trainingDatabaseLoaded = false;
             trainingDatabaseLoadPromise = null;
         }
         if (trainingDatabaseLoaded) return;
         if (trainingDatabaseLoadPromise) return trainingDatabaseLoadPromise;
-        trainingDatabaseLoadPromise = (async () => {
+        const requestVersion = trainingDatabaseSyncVersion;
+        const requestPromise = (async () => {
             const store = await waitForTrainingDatabase();
             // Clear stale answer-bearing data left by an older version before a
             // learner session loads its server-sanitized assignment metadata.
@@ -12377,6 +12414,11 @@ ${text}` });
                 localStorage.removeItem(TRAINING_RESULT_HISTORY_STORAGE_KEY);
             }
             const databaseData = await store.load();
+            // Nếu user đã đăng xuất/đổi tài khoản trong khi RPC đang chạy thì
+            // bỏ kết quả cũ, tránh ghi nhầm bài tập vào phiên đăng nhập mới.
+            if (requestVersion !== trainingDatabaseSyncVersion || requestedUserId !== getTrainingUserId()) {
+                return;
+            }
             // Server data is authoritative. Never upload legacy local scores or
             // answer-bearing assignment caches as an automatic fallback.
             localStorage.setItem(
@@ -12393,12 +12435,18 @@ ${text}` });
             );
 
             trainingDatabaseLoaded = true;
-        })().catch(error => {
-            trainingDatabaseLoadPromise = null;
+        })();
+        trainingDatabaseLoadPromise = requestPromise;
+        try {
+            return await requestPromise;
+        } catch (error) {
             console.error('Không tải được dữ liệu đào tạo từ Supabase:', error);
             throw error;
-        });
-        return trainingDatabaseLoadPromise;
+        } finally {
+            if (trainingDatabaseLoadPromise === requestPromise) {
+                trainingDatabaseLoadPromise = null;
+            }
+        }
     }
 
     async function saveAssignmentsToDatabase() {
@@ -12476,6 +12524,16 @@ ${text}` });
         if (sFrame?.contentWindow) {
             try { sFrame.contentWindow.postMessage({ type: 'kgpt:refresh-assignments' }, '*'); } catch (e) {}
         }
+    }
+
+    async function syncTrainingWorkspace() {
+        if (!getTrainingUserId()) return;
+        dispatchUserToFrames();
+        await loadTrainingDataFromDatabase();
+        dispatchAssignmentsRefresh();
+        // Một lượt dự phòng ngắn cho trường hợp iframe vừa hoàn tất srcdoc và
+        // đăng ký message listener ngay sau lần dispatch đầu tiên.
+        setTimeout(dispatchAssignmentsRefresh, 120);
     }
 
     window.isStudentQuizInProgress = function() {
@@ -13559,6 +13617,9 @@ ${text}` });
             if (tab === 'teacher' || tab === 'student') {
                 setTimeout(dispatchUserToFrames, 60);
                 setTimeout(dispatchUserToFrames, 300);
+                setTimeout(function() {
+                    syncTrainingWorkspace().catch(error => console.error('Không đồng bộ được dữ liệu bài tập khi mở trang:', error));
+                }, 80);
                 if (tab === 'teacher') {
                     setTimeout(enforceTeacherResultReview, 90);
                     setTimeout(enforceTeacherResultReview, 360);
@@ -13579,8 +13640,8 @@ ${text}` });
             dispatchUserToFrames();
             if (data.type === 'kgpt:student-ready') setTimeout(enforceStudentSingleAttempt, 120);
             if (data.type === 'kgpt:teacher-ready') setTimeout(enforceTeacherResultReview, 120);
-            loadTrainingDataFromDatabase()
-                .then(() => { dispatchAssignmentsRefresh(); setTimeout(enforceStudentSingleAttempt, 220); })
+            syncTrainingWorkspace()
+                .then(() => { setTimeout(enforceStudentSingleAttempt, 220); })
                 .catch(error => console.error('Không đồng bộ được dữ liệu bài tập:', error));
         }
         if (data.type === 'kgpt:refresh-assignments') {
@@ -13605,26 +13666,31 @@ ${text}` });
     if (tFrame) {
         tFrame.addEventListener('load', function() {
             setTimeout(dispatchUserToFrames, 80);
+            setTimeout(function() {
+                syncTrainingWorkspace().catch(error => console.error('Không đồng bộ được dữ liệu bài tập sau khi iframe tải:', error));
+            }, 100);
             setTimeout(enforceTeacherResultReview, 160);
         });
     }
     if (sFrame) {
         sFrame.addEventListener('load', function() {
             setTimeout(dispatchUserToFrames, 80);
+            setTimeout(function() {
+                syncTrainingWorkspace().catch(error => console.error('Không đồng bộ được dữ liệu bài tập sau khi iframe tải:', error));
+            }, 100);
             setTimeout(enforceStudentSingleAttempt, 160);
         });
     }
 
     // Lắng nghe khi profile user thay đổi ở app chính
-    function startTrainingDatabaseSyncAfterAuth() {
-        if (!window.kgptTrainingDatabase?.isReady?.()) return;
-        loadTrainingDataFromDatabase()
-            .then(dispatchAssignmentsRefresh)
+    function startTrainingDatabaseSyncAfterAuth(event) {
+        resetTrainingDatabaseSync(event?.detail?.uid || getTrainingUserId());
+        syncTrainingWorkspace()
             .catch(error => console.error('Không đồng bộ được dữ liệu bài tập sau đăng nhập:', error));
     }
 
-    document.addEventListener('kgpt:auth-ready', function() {
-        setTimeout(startTrainingDatabaseSyncAfterAuth, 0);
+    document.addEventListener('kgpt:auth-ready', function(event) {
+        setTimeout(() => startTrainingDatabaseSyncAfterAuth(event), 0);
     });
 
     document.addEventListener('DOMContentLoaded', function() {
