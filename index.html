@@ -222,7 +222,7 @@ html.dark .ti-learning-shell{border-color:#263248;background:#0b1220}
 html:has(body.ti-embedded-view),body.ti-embedded-view{height:100%;overflow:hidden!important;overscroll-behavior:none}
 body.ti-embedded-view #mainApp.main-container{height:100vh;min-height:0!important;padding-bottom:0!important;overflow:hidden!important}
 body.ti-embedded-view .ti-learning-shell{height:calc(100vh - var(--ti-header-height) - 22px);min-height:0}
-#sysMgrSection{display:none!important}
+#sysMgrSection{display:none}
 @media(max-width:1199px){:root{--ti-sidebar-width:238px}.action-toolbar{gap:6px!important}.topbar-btn{padding-left:9px!important;padding-right:9px!important}}
 @media(max-width:1023px){
     #mainApp.main-container{margin-left:0!important;width:100%!important;padding:0 16px 24px!important}.ti-sidebar{transform:translateX(-102%);transition:transform .25s ease}.ti-sidebar.open{transform:translateX(0);box-shadow:22px 0 60px -20px rgba(2,6,23,.65)}
@@ -335,8 +335,8 @@ body.ti-embedded-view .ti-learning-shell{height:calc(100vh - var(--ti-header-hei
 </style>
 <style id="sidebarMotionV3">
 @media(min-width:1024px){
-    #mainApp.main-container{width:auto!important;will-change:margin-left;transition:margin-left .3s cubic-bezier(.2,.8,.2,1)!important}
-    #mainApp .ti-sidebar{contain:paint;will-change:width;transition:width .3s cubic-bezier(.2,.8,.2,1),box-shadow .3s ease!important}
+    #mainApp.main-container{width:auto!important;will-change:auto;transition:margin-left .22s cubic-bezier(.4,0,.2,1)!important}
+    #mainApp .ti-sidebar{contain:paint;will-change:auto;transition:width .22s cubic-bezier(.4,0,.2,1)!important}
     #mainApp .ti-brand-mark{width:44px!important;min-width:44px!important;max-width:44px!important;height:44px!important;min-height:44px!important;max-height:44px!important;flex:0 0 44px!important;aspect-ratio:1/1}
     #mainApp .ti-brand-mark svg{width:24px!important;height:24px!important;min-width:24px!important;flex:none!important}
     #mainApp .ti-sidebar-brand,#mainApp.ti-sidebar-collapsed .ti-sidebar-brand{padding:0 18px!important;gap:12px!important;justify-content:flex-start!important}
@@ -349,7 +349,7 @@ body.ti-embedded-view .ti-learning-shell{height:calc(100vh - var(--ti-header-hei
     #mainApp .ti-nav-label-spaced,#mainApp.ti-sidebar-collapsed .ti-nav-label-spaced{margin-top:24px!important}
     #mainApp.ti-sidebar-hide-copy .ti-nav-label,#mainApp.ti-sidebar-collapsed .ti-nav-label{color:transparent!important;pointer-events:none!important}
     #mainApp.ti-sidebar-collapsed .ti-nav-btn.active:after{display:none!important;opacity:0!important}
-    #mainApp .ti-sidebar-collapse svg{transition:transform .3s cubic-bezier(.2,.8,.2,1)!important}
+    #mainApp .ti-sidebar-collapse svg{transition:transform .22s cubic-bezier(.4,0,.2,1)!important}
     #mainApp .ti-sidebar-footer{transition:padding .18s ease!important}
     #mainApp .ti-version-card{transition:padding .18s ease!important}
     #mainApp .ti-version-label{display:block!important;opacity:1;transform:none;white-space:nowrap;transition:opacity .12s ease,transform .18s ease!important}
@@ -2166,6 +2166,13 @@ html.dark #dataSection .price-reference-badge{border-color:#31558e;background:#1
 
     window.__loadEmbeddedPage = function (frame, key) {
         if (!frame || frame.dataset.loaded) return;
+        if (key === 'feedbacks') {
+            const template = document.getElementById('feedbackManagementTemplate');
+            if (!template) return;
+            frame.srcdoc = template.innerHTML.trim();
+            frame.dataset.loaded = '1';
+            return;
+        }
         frame.addEventListener('load', function () {
             installPremiumDeleteDialog(frame.contentWindow);
             if (key === 'teacher') enhanceTeacherWorkspace(frame);
@@ -2347,6 +2354,7 @@ html.dark #dataSection .price-reference-badge{border-color:#31558e;background:#1
         <button class="ti-nav-btn" type="button" data-ti-view="student" onclick="tiNavigate('student',this)"><svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><path d="M4 4h11l5 5v11H4z" stroke-linejoin="round" stroke-width="1.8"/><path d="M15 4v5h5M8 13h8M8 16h5" stroke-linecap="round" stroke-width="1.8"/></svg><span>Bài tập của tôi</span></button>
         <div class="ti-nav-label ti-nav-label-spaced">Công cụ hệ thống</div>
         <button class="ti-nav-btn" id="tiUserManagementNav" style="display:none" type="button" data-ti-view="users" onclick="tiNavigate('users',this)"><svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><circle cx="9" cy="8" r="3" stroke-width="1.8"/><path d="M3 20v-2a5 5 0 0 1 5-5h2a5 5 0 0 1 5 5v2M17 8h4M19 6v4" stroke-linecap="round" stroke-linejoin="round" stroke-width="1.8"/></svg><span>Quản lý người dùng</span></button>
+        <button class="ti-nav-btn" id="tiSidebarAdmin" hidden style="display:none" type="button" data-ti-view="feedbacks" onclick="tiNavigate('feedbacks',this)"><svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><path d="M5 5h14v11H9l-4 3V5Z" stroke-linejoin="round" stroke-width="1.8"/><path d="M8.5 9h7M8.5 12h4" stroke-linecap="round" stroke-linejoin="round" stroke-width="1.8"/><circle cx="18" cy="18" r="3" fill="currentColor" stroke="none"/></svg><span>Phản hồi người dùng</span></button>
         <button class="ti-nav-btn" type="button" onclick="openFeedbackModal();tiCloseSidebar()"><svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><path d="M4 5h16v12H9l-5 4V5Z" stroke-linejoin="round" stroke-width="2"/><path d="M8 9h8M8 13h5" stroke-linecap="round" stroke-width="2"/></svg><span>Góp ý hệ thống</span></button>
     </nav>
     <div class="ti-sidebar-footer"><div class="ti-version-card"><div class="ti-version-copy"><span class="ti-version-label">Phiên bản</span><strong class="ti-version-number">3.0</strong></div></div></div>
@@ -2357,8 +2365,10 @@ function tiToggleSidebar(){var s=document.getElementById('tiSidebar');if(s)s.cla
 function tiCloseAccountMenu(){var menu=document.getElementById('tiAccountMenu');var trigger=document.getElementById('tiAccountTrigger');if(menu)menu.classList.remove('open');if(trigger)trigger.setAttribute('aria-expanded','false')}
 function tiToggleAccountMenu(event){if(event)event.stopPropagation();var menu=document.getElementById('tiAccountMenu');var trigger=document.getElementById('tiAccountTrigger');if(!menu||!trigger)return;var willOpen=!menu.classList.contains('open');menu.classList.toggle('open',willOpen);trigger.setAttribute('aria-expanded',willOpen?'true':'false')}
 var tiSidebarMotionTimers=[];
+var tiSidebarMotionFrame=0;
 function tiClearSidebarMotion(){
     tiSidebarMotionTimers.forEach(function(timer){clearTimeout(timer)});tiSidebarMotionTimers=[];
+    if(tiSidebarMotionFrame){cancelAnimationFrame(tiSidebarMotionFrame);tiSidebarMotionFrame=0}
 }
 function tiSetSidebarCollapsed(collapsed,persist){
     var app=document.getElementById('mainApp');var button=document.getElementById('tiSidebarCollapse');
@@ -2372,14 +2382,18 @@ function tiSetSidebarCollapsed(collapsed,persist){
         app.classList.toggle('ti-sidebar-collapsed',collapsed);
     }else if(current!==collapsed){
         app.classList.add('ti-sidebar-animating','ti-sidebar-hide-copy');
-        if(collapsed){
-            tiSidebarMotionTimers.push(setTimeout(function(){app.classList.add('ti-sidebar-collapsed')},80));
-            tiSidebarMotionTimers.push(setTimeout(function(){app.classList.remove('ti-sidebar-hide-copy','ti-sidebar-animating');tiSidebarMotionTimers=[]},390));
-        }else{
-            app.classList.remove('ti-sidebar-collapsed');
-            tiSidebarMotionTimers.push(setTimeout(function(){app.classList.remove('ti-sidebar-hide-copy')},250));
-            tiSidebarMotionTimers.push(setTimeout(function(){app.classList.remove('ti-sidebar-animating');tiSidebarMotionTimers=[]},340));
+        // Chuyển trạng thái ngay ở frame kế tiếp: không còn độ trễ 80 ms gây
+        // cảm giác nút không phản hồi, đồng thời chỉ giữ tối đa hai timer nhẹ.
+        tiSidebarMotionFrame=requestAnimationFrame(function(){
+            tiSidebarMotionFrame=0;
+            app.classList.toggle('ti-sidebar-collapsed',collapsed);
+        });
+        if(!collapsed){
+            tiSidebarMotionTimers.push(setTimeout(function(){app.classList.remove('ti-sidebar-hide-copy')},135));
         }
+        tiSidebarMotionTimers.push(setTimeout(function(){
+            app.classList.remove('ti-sidebar-hide-copy','ti-sidebar-animating');tiSidebarMotionTimers=[];
+        },235));
     }
     if(button){button.setAttribute('aria-label',collapsed?'Mở rộng thanh điều hướng':'Thu gọn thanh điều hướng');button.setAttribute('aria-expanded',collapsed?'false':'true');button.title=collapsed?'Mở rộng thanh điều hướng':'Thu gọn thanh điều hướng'}
     if(persist!==false){try{localStorage.setItem('tasco.parts.sidebar.collapsed',collapsed?'1':'0')}catch(error){}}
@@ -2463,9 +2477,26 @@ html.dark .ti-live-time{color:#f8fafc}
     padding:0 28px!important;
     box-sizing:border-box;
     z-index:400!important;
+    will-change:left;
+    transition:left .22s cubic-bezier(.4,0,.2,1)!important;
 }
 #mainApp.ti-sidebar-collapsed>.app-topbar{
     left:78px!important;
+}
+@media(min-width:1024px){
+    #mainApp.ti-sidebar-animating>.app-topbar{backdrop-filter:none!important;background:rgba(255,255,255,.98)!important}
+    html.dark #mainApp.ti-sidebar-animating>.app-topbar{background:rgba(15,23,42,.98)!important}
+    /* Trang báo giá có nhiều bảng/grid và animation nền. Không nội suy lại
+       toàn bộ layout theo từng frame; chỉ cập nhật kích thước một lần rồi để
+       sidebar/header chạy animation độc lập. */
+    body.ti-quote-view #mainApp.main-container{transition:none!important}
+    body.ti-quote-view #mainApp.ti-sidebar-animating #quotePriceSection{pointer-events:none}
+    body.ti-quote-view #mainApp.ti-sidebar-animating #quotePriceSection *,
+    body.ti-quote-view #mainApp.ti-sidebar-animating #quotePriceSection *::before,
+    body.ti-quote-view #mainApp.ti-sidebar-animating #quotePriceSection *::after{
+        animation-play-state:paused!important;
+        transition:none!important;
+    }
 }
 @media(max-width:1023px){
     #mainApp.main-container{
@@ -2479,7 +2510,11 @@ html.dark .ti-live-time{color:#f8fafc}
         margin:0!important;
         padding-left:68px!important;
         padding-right:16px!important;
+        transition:none!important;
     }
+}
+@media(prefers-reduced-motion:reduce){
+    #mainApp>.app-topbar{transition:none!important}
 }
 </style>
 
@@ -3928,6 +3963,37 @@ html.dark #quotePriceSection #quoteResultBody .premium-empty-orbit::before,html.
 <section class="ti-learning-shell" id="userManagementSection" aria-label="Quản lý người dùng và phân quyền">
 <iframe class="ti-learning-frame" id="userManagementFrame" title="Quản lý người dùng và phân quyền" data-embedded-key="users"></iframe>
 </section>
+<section class="ti-learning-shell" id="feedbackManagementSection" aria-label="Quản lý phản hồi người dùng">
+<iframe class="ti-learning-frame" id="feedbackManagementFrame" title="Quản lý phản hồi người dùng" data-embedded-key="feedbacks"></iframe>
+</section>
+<template id="feedbackManagementTemplate">
+<!doctype html><html lang="vi"><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Phản hồi người dùng</title>
+<style>
+:root{--navy:#101828;--blue:#2563eb;--muted:#667085;--line:#dfe6f0;--canvas:#f3f6fb;--card:#fff;--green:#0f9f6e;--amber:#d97706;--red:#e11d48;--shadow:0 22px 55px -35px rgba(15,23,42,.38)}*{box-sizing:border-box}html,body{margin:0;min-height:100%;font-family:'Plus Jakarta Sans','Segoe UI',sans-serif;color:var(--navy);background:var(--canvas)}button,input,select{font:inherit}.page{min-height:100vh;padding:20px}.hero{border:1px solid #d9e5f5;border-radius:22px;background:radial-gradient(circle at 92% 0,rgba(37,99,235,.12),transparent 31%),linear-gradient(135deg,#fff,#f6f9ff);padding:23px;box-shadow:var(--shadow)}.hero-head{display:flex;align-items:center;justify-content:space-between;gap:22px}.hero-copy{min-width:260px}.eyebrow{font-size:9px;font-weight:900;letter-spacing:.15em;text-transform:uppercase;color:#4f72d7}.hero h1{font-size:25px;line-height:1.08;letter-spacing:-.04em;margin:8px 0 7px}.hero p{margin:0;color:var(--muted);font-size:11px;font-weight:600;line-height:1.65}.tools{display:flex;align-items:center;justify-content:flex-end;gap:8px;flex:1}.refresh{height:42px;padding:0 15px;border:0;border-radius:11px;background:linear-gradient(135deg,#3b82f6,#1d4ed8);color:#fff;font-size:10px;font-weight:850;cursor:pointer;display:flex;align-items:center;gap:8px;box-shadow:0 14px 24px -16px #2563eb;transition:.18s;white-space:nowrap}.refresh:hover{transform:translateY(-1px);box-shadow:0 18px 28px -16px #1d4ed8}.refresh svg{width:16px}.refresh.loading svg{animation:spin .8s linear infinite}.search{position:relative}.search svg{position:absolute;left:12px;top:50%;width:15px;color:#91a0b4;transform:translateY(-50%)}.search input,.filter{height:42px;border:1px solid #d7e2f1;border-radius:11px;background:rgba(255,255,255,.94);color:#344054;font-size:10px;font-weight:700;outline:none;box-shadow:0 10px 24px -22px rgba(15,23,42,.6)}.search input{width:250px;padding:0 12px 0 36px}.filter{padding:0 31px 0 12px;cursor:pointer}.search input:focus,.filter:focus{border-color:#8eb0f5;background:#fff;box-shadow:0 0 0 3px #edf3ff}.stats{display:grid;grid-template-columns:repeat(5,minmax(0,1fr));gap:10px;margin-top:20px}.stat{position:relative;overflow:hidden;min-height:68px;padding:12px;border:1px solid #dce5f1;border-radius:13px;background:rgba(255,255,255,.92);display:flex;align-items:center;gap:11px}.stat:after{content:'';position:absolute;right:-17px;top:-22px;width:58px;height:58px;border-radius:50%;background:rgba(37,99,235,.09)}.stat:nth-child(2){border-color:#cdebdc}.stat:nth-child(2):after{background:rgba(16,185,129,.12)}.stat:nth-child(3){border-color:#ddd4fe}.stat:nth-child(3):after{background:rgba(139,92,246,.11)}.stat:nth-child(4){border-color:#fed7aa}.stat:nth-child(4):after{background:rgba(249,115,22,.11)}.stat:nth-child(5){border-color:#fde0a8}.stat:nth-child(5):after{background:rgba(245,158,11,.12)}.stat-icon{width:36px;height:36px;flex:none;border-radius:10px;display:grid;place-items:center;background:#edf4ff;color:#2563eb}.stat-icon svg{width:17px}.stat:nth-child(2) .stat-icon{background:#eafaf4;color:#0f9f6e}.stat:nth-child(3) .stat-icon{background:#f2edff;color:#7c3aed}.stat:nth-child(4) .stat-icon{background:#fff0f3;color:#e11d48}.stat:nth-child(5) .stat-icon{background:#fff7e8;color:#d97706}.stat strong{display:block;font-size:18px;line-height:1}.stat span{display:block;margin-top:5px;color:#8491a5;font-size:8px;font-weight:800;letter-spacing:.02em}.panel{margin-top:18px;border:1px solid #dfe6f0;border-radius:19px;background:#fff;box-shadow:var(--shadow);overflow:hidden}.panel-head{padding:17px 19px;border-bottom:1px solid #e8edf4;display:flex;align-items:center;justify-content:space-between;gap:16px}.panel-title{font-size:14px;font-weight:850}.panel-sub{margin-top:4px;color:#8a96a8;font-size:9px;font-weight:650}.pager{display:flex;align-items:center;gap:7px}.page-btn{width:34px;height:34px;border:1px solid #dce5f0;border-radius:9px;background:#fff;color:#607089;font-size:10px;font-weight:850;cursor:pointer}.page-btn.active{border-color:#2563eb;background:#2563eb;color:#fff;box-shadow:0 10px 20px -13px #2563eb}.page-btn:disabled{opacity:.4;cursor:not-allowed}.page-size{height:34px;padding:0 10px;border:1px solid #dce5f0;border-radius:9px;background:#fff;color:#55657c;font-size:9px;font-weight:750}.table-wrap{overflow:auto}.table{width:100%;min-width:980px;border-collapse:collapse}.table th{height:43px;padding:0 16px;text-align:left;background:#f8fafc;color:#7c8ba1;font-size:8.5px;font-weight:900;letter-spacing:.08em;text-transform:uppercase}.table td{padding:14px 16px;border-top:1px solid #eef1f5;vertical-align:middle;font-size:10.5px}.table tr:hover td{background:#fbfdff}.user{display:flex;align-items:center;gap:10px}.avatar{width:34px;height:34px;flex:none;border-radius:10px;display:grid;place-items:center;background:linear-gradient(145deg,#edf4ff,#dce9ff);color:#285bc4;font-size:10px;font-weight:900}.user strong{display:block;font-size:10.5px}.user small{display:block;margin-top:4px;color:#8b98aa;font-size:8.5px}.badge{display:inline-flex;align-items:center;gap:5px;padding:6px 9px;border-radius:999px;font-size:8.5px;font-weight:850;white-space:nowrap}.badge.bug{background:#fff0f3;color:#c81e4d}.badge.idea{background:#fff7e8;color:#ad6305}.badge.other{background:#edf4ff;color:#285bc4}.status{display:inline-flex;align-items:center;gap:6px;padding:6px 9px;border-radius:8px;font-size:8.5px;font-weight:850;white-space:nowrap}.status:before{content:'';width:6px;height:6px;border-radius:50%;background:currentColor}.status.pending{background:#fff7e8;color:#bd6c08}.status.resolved{background:#eafaf4;color:#087c56}.content{max-width:390px;color:#4a5870;font-size:10px;font-weight:650;line-height:1.55;display:-webkit-box;-webkit-box-orient:vertical;-webkit-line-clamp:3;overflow:hidden;cursor:pointer}.content:hover{color:#2456bd}.date{color:#667085;font-size:9px;font-weight:700;white-space:nowrap}.actions{display:flex;gap:6px}.icon-btn{width:32px;height:32px;border:1px solid #dde5ef;border-radius:9px;background:#fff;color:#607089;display:grid;place-items:center;cursor:pointer;transition:.16s}.icon-btn svg{width:15px}.icon-btn:hover{border-color:#a9c3f5;background:#f3f7ff;color:#2563eb}.icon-btn.done{color:#0f9f6e}.icon-btn.delete{color:#d34b66}.icon-btn.delete:hover{border-color:#fecdd6;background:#fff4f6;color:#e11d48}.empty{padding:70px 20px;text-align:center;color:#8794a8}.empty svg{width:48px;color:#bfd0e8}.empty strong{display:block;margin-top:12px;color:#3b4960;font-size:12px}.empty span{display:block;margin-top:6px;font-size:9.5px}.footer{padding:12px 18px;border-top:1px solid #edf1f5;color:#8a96a8;font-size:9px;font-weight:700}.modal-backdrop{position:fixed;inset:0;z-index:20;display:none;align-items:center;justify-content:center;padding:20px;background:rgba(8,17,32,.58);backdrop-filter:blur(7px)}.modal-backdrop.open{display:flex}.modal{width:min(600px,100%);border:1px solid #dce5f0;border-radius:20px;background:#fff;box-shadow:0 35px 90px -28px rgba(3,12,29,.75);overflow:hidden}.modal-head{padding:18px 20px;border-bottom:1px solid #e8edf4;display:flex;justify-content:space-between;gap:16px}.modal-head h2{margin:0;font-size:16px}.modal-head p{margin:5px 0 0;color:#8290a4;font-size:9px}.close{width:34px;height:34px;border:1px solid #e0e7f0;border-radius:9px;background:#fff;color:#7d8ba0;cursor:pointer}.modal-body{padding:21px}.modal-meta{display:flex;flex-wrap:wrap;gap:8px;margin-bottom:14px}.modal-content{padding:16px;border:1px solid #e0e7f0;border-radius:13px;background:#f8fafc;color:#35445b;font-size:11px;font-weight:650;line-height:1.75;white-space:pre-wrap;max-height:44vh;overflow:auto}.toast{position:fixed;right:22px;bottom:22px;z-index:40;padding:12px 15px;border-radius:11px;background:#101828;color:#fff;font-size:10px;font-weight:750;box-shadow:0 20px 45px -18px #000;opacity:0;transform:translateY(16px);pointer-events:none;transition:.25s}.toast.show{opacity:1;transform:none}@keyframes spin{to{transform:rotate(360deg)}}@media(max-width:1100px){.hero-head{align-items:flex-start;flex-direction:column}.tools{width:100%;justify-content:flex-start}.stats{grid-template-columns:repeat(3,1fr)}}@media(max-width:760px){.stats{grid-template-columns:repeat(2,1fr)}.panel-head{align-items:flex-start;flex-direction:column}.tools{flex-wrap:wrap}.search{flex:1 1 100%}.search input{width:100%}}@media(max-width:560px){.page{padding:12px}.hero{padding:18px}.stats{grid-template-columns:1fr 1fr}.tools{display:grid;grid-template-columns:1fr 1fr}.search{grid-column:1/-1}.refresh{justify-content:center}}
+</style></head><body><main class="page"><section class="hero"><div class="hero-head"><div><div class="eyebrow">Feedback Management Center</div><h1>Phản hồi người dùng</h1><p>Tiếp nhận, phân loại và theo dõi tiến độ xử lý phản hồi trong toàn hệ thống.</p></div><button class="refresh" id="refreshBtn" onclick="requestData()"><svg fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M20 11a8 8 0 1 0-2.3 5.7M20 4v7h-7" stroke-linecap="round" stroke-linejoin="round"/></svg>Làm mới dữ liệu</button></div><div class="stats"><div class="stat"><div class="stat-icon"><svg fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M5 5h14v11H9l-4 3V5Z" stroke-linejoin="round"/></svg></div><div><strong id="totalCount">0</strong><span>Tổng phản hồi</span></div></div><div class="stat"><div class="stat-icon"><svg fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 2" stroke-linecap="round"/></svg></div><div><strong id="pendingCount">0</strong><span>Chờ xử lý</span></div></div><div class="stat"><div class="stat-icon"><svg fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><path d="m8 12 3 3 5-6" stroke-linecap="round" stroke-linejoin="round"/></svg></div><div><strong id="resolvedCount">0</strong><span>Đã xử lý</span></div></div><div class="stat"><div class="stat-icon"><svg fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M12 9v4M12 17h.01" stroke-linecap="round"/><path d="M10.3 4.8 3.5 17a2 2 0 0 0 1.75 3h13.5a2 2 0 0 0 1.75-3L13.7 4.8a2 2 0 0 0-3.4 0Z" stroke-linejoin="round"/></svg></div><div><strong id="bugCount">0</strong><span>Báo lỗi</span></div></div></div></section><section class="panel"><div class="panel-head"><div><div class="panel-title">Danh sách phản hồi</div><div class="panel-sub">Hiển thị các góp ý được gửi từ người dùng hệ thống</div></div><div class="tools"><label class="search"><svg fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><circle cx="11" cy="11" r="7"/><path d="m20 20-4-4" stroke-linecap="round"/></svg><input id="searchInput" placeholder="Tìm người gửi, nội dung..." oninput="render()"></label><select class="filter" id="typeFilter" onchange="render()"><option value="all">Tất cả phân loại</option><option value="Báo lỗi (Bug)">Báo lỗi</option><option value="Góp ý phát triển">Góp ý phát triển</option><option value="Khác">Khác</option></select><select class="filter" id="statusFilter" onchange="render()"><option value="all">Tất cả trạng thái</option><option value="pending">Chờ xử lý</option><option value="resolved">Đã xử lý</option></select></div></div><div class="table-wrap"><table class="table"><thead><tr><th>Người gửi</th><th>Phân loại</th><th>Nội dung phản hồi</th><th>Thời gian</th><th>Trạng thái</th><th>Thao tác</th></tr></thead><tbody id="feedbackRows"></tbody></table><div class="empty" id="emptyState"><svg fill="none" stroke="currentColor" stroke-width="1.6" viewBox="0 0 24 24"><path d="M5 5h14v11H9l-4 3V5Z" stroke-linejoin="round"/><path d="M8 9h8M8 12h5" stroke-linecap="round"/></svg><strong>Đang tải phản hồi...</strong><span>Dữ liệu sẽ được đồng bộ từ hệ thống.</span></div></div><div class="footer" id="resultInfo">Đang đồng bộ dữ liệu...</div></section></main><div class="modal-backdrop" id="detailModal" onclick="if(event.target===this)closeDetail()"><div class="modal"><div class="modal-head"><div><h2 id="detailTitle">Chi tiết phản hồi</h2><p id="detailUser"></p></div><button class="close" onclick="closeDetail()">✕</button></div><div class="modal-body"><div class="modal-meta" id="detailMeta"></div><div class="modal-content" id="detailContent"></div></div></div></div><div class="toast" id="toast"></div>
+<script>
+const feedbackFontLink=document.createElement('link');feedbackFontLink.rel='stylesheet';feedbackFontLink.href='https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap';document.head.appendChild(feedbackFontLink);const feedbackTypeStyle=document.createElement('style');feedbackTypeStyle.textContent="html,body,button,input,select{font-family:'Plus Jakarta Sans','Segoe UI',sans-serif!important}.page{padding:22px 24px 38px!important}.hero h1{font-size:25px!important;line-height:1.15!important;font-weight:800!important;letter-spacing:-.045em!important}.eyebrow{font-size:9px!important;font-weight:800!important;letter-spacing:.14em!important}.hero p{font-size:11.5px!important;line-height:1.65!important;font-weight:500!important}.search input,.filter,.refresh{font-size:11.5px!important;font-weight:700!important}.stat strong{font-size:19px!important;line-height:1.05!important;font-weight:800!important}.stat span{font-size:9.5px!important;line-height:1.25!important;font-weight:700!important}.panel-title{font-size:16px!important;line-height:1.3!important;font-weight:800!important;letter-spacing:-.015em!important}.panel-sub{font-size:11px!important;line-height:1.55!important;font-weight:500!important}.table th{font-size:10.5px!important;line-height:1.3!important;font-weight:800!important}.table td{font-size:12.5px!important;line-height:1.5!important}.user strong{font-size:12.5px!important;font-weight:800!important}.user small{font-size:10px!important;line-height:1.45!important;font-weight:500!important}.badge,.status{font-size:10px!important;line-height:1.25!important;font-weight:700!important}.content{font-size:12px!important;line-height:1.5!important;font-weight:600!important}.date{font-size:11px!important;line-height:1.4!important;font-weight:600!important}.page-btn,.page-size{font-size:10.5px!important;font-weight:700!important}.empty strong{font-size:13.5px!important;line-height:1.4!important;font-weight:800!important}.empty span,.footer{font-size:10.5px!important;line-height:1.5!important;font-weight:500!important}.modal-head h2{font-size:17px!important;line-height:1.3!important;font-weight:800!important}.modal-head p{font-size:10.5px!important;line-height:1.5!important}.modal-content{font-size:12.5px!important;line-height:1.65!important;font-weight:500!important}@media(max-width:760px){.page{padding:16px!important}}";document.head.appendChild(feedbackTypeStyle);
+const feedbackDropdownStyle=document.createElement('style');feedbackDropdownStyle.textContent=".premium-dropdown{position:relative;min-width:142px}.premium-dropdown.open{z-index:60}.premium-dropdown-trigger{width:100%;height:42px;padding:0 11px 0 13px;display:flex;align-items:center;justify-content:space-between;gap:12px;border:1px solid #d7e2f1;border-radius:11px;background:rgba(255,255,255,.96);color:#344054;font-size:11.5px;font-weight:700;text-align:left;cursor:pointer;outline:none;box-shadow:0 10px 24px -22px rgba(15,23,42,.6);transition:border-color .18s ease,box-shadow .18s ease,background .18s ease}.premium-dropdown-trigger:hover,.premium-dropdown.open .premium-dropdown-trigger{border-color:#8eaff0;background:#fff;box-shadow:0 0 0 3px rgba(37,99,235,.075),0 14px 24px -20px rgba(37,99,235,.55)}.premium-dropdown-label{overflow:hidden;text-overflow:ellipsis;white-space:nowrap}.premium-dropdown-chevron{width:15px;height:15px;flex:none;color:#8394ac;transition:transform .2s ease,color .2s ease}.premium-dropdown.open .premium-dropdown-chevron{color:#2563eb;transform:rotate(180deg)}.premium-dropdown-menu{position:absolute;z-index:70;left:0;right:0;top:calc(100% + 7px);padding:6px;border:1px solid #dce5f1;border-radius:13px;background:rgba(255,255,255,.99);box-shadow:0 22px 48px -22px rgba(15,23,42,.48),0 10px 22px -18px rgba(37,99,235,.34);opacity:0;visibility:hidden;transform:translateY(-5px) scale(.985);transform-origin:top;transition:opacity .16s ease,transform .16s ease,visibility .16s;backdrop-filter:blur(14px)}.premium-dropdown.open .premium-dropdown-menu{opacity:1;visibility:visible;transform:none}.premium-dropdown-option{position:relative;width:100%;min-height:39px;padding:8px 31px 8px 10px;border:0;border-radius:9px;background:transparent;color:#475569;font-size:11px;font-weight:650;text-align:left;cursor:pointer;transition:background .15s ease,color .15s ease}.premium-dropdown-option:hover{background:#f1f6ff;color:#2456bd}.premium-dropdown-option.selected{background:#edf4ff;color:#1d4ed8;font-weight:800}.premium-dropdown-option-check{position:absolute;right:10px;top:50%;width:14px;height:14px;opacity:0;transform:translateY(-50%) scale(.8);transition:.15s}.premium-dropdown-option.selected .premium-dropdown-option-check{opacity:1;transform:translateY(-50%) scale(1)}.premium-dropdown.compact{min-width:138px}.premium-dropdown.compact .premium-dropdown-trigger{height:34px;border-radius:9px;font-size:10.5px}.premium-dropdown.compact .premium-dropdown-menu{top:calc(100% + 6px)}.premium-dropdown.compact .premium-dropdown-option{min-height:34px;font-size:10.5px}.premium-dropdown select{display:none!important}@media(max-width:560px){.premium-dropdown{min-width:0;width:100%}.premium-dropdown.compact{width:auto;min-width:138px}}";document.head.appendChild(feedbackDropdownStyle);
+let feedbackItems=[],currentPage=1,pageSize=10;const rows=document.getElementById('feedbackRows'),empty=document.getElementById('emptyState');const heroHead=document.querySelector('.hero-head'),heroTools=document.querySelector('.tools'),refreshButton=document.getElementById('refreshBtn');heroHead.firstElementChild.classList.add('hero-copy');heroTools.appendChild(refreshButton);heroHead.appendChild(heroTools);document.querySelector('.stats').insertAdjacentHTML('beforeend','<div class="stat"><div class="stat-icon"><svg fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M12 3v18M3 12h18" stroke-linecap="round"/><circle cx="12" cy="12" r="9"/></svg></div><div><strong id="ideaCount">0</strong><span>Góp ý phát triển</span></div></div>');document.querySelector('.panel-head').insertAdjacentHTML('beforeend','<div class="pager"><button class="page-btn" id="prevPage" onclick="changePage(-1)">‹</button><span id="pageButtons"></span><button class="page-btn" id="nextPage" onclick="changePage(1)">›</button><select class="page-size" id="pageSize" onchange="setPageSize(this.value)"><option value="10">Hiển thị 10 dòng</option><option value="20">Hiển thị 20 dòng</option><option value="50">Hiển thị 50 dòng</option></select></div>');document.getElementById('searchInput').oninput=resetPageAndRender;document.getElementById('typeFilter').onchange=resetPageAndRender;document.getElementById('statusFilter').onchange=resetPageAndRender;
+function closePremiumDropdowns(except){document.querySelectorAll('.premium-dropdown.open').forEach(dropdown=>{if(dropdown!==except){dropdown.classList.remove('open');dropdown.querySelector('.premium-dropdown-trigger')?.setAttribute('aria-expanded','false')}})}
+function enhancePremiumDropdown(select){if(!select||select.dataset.premium==='1')return;select.dataset.premium='1';const dropdown=document.createElement('div');dropdown.className='premium-dropdown'+(select.id==='pageSize'?' compact':'');const trigger=document.createElement('button');trigger.type='button';trigger.className='premium-dropdown-trigger';trigger.setAttribute('aria-haspopup','listbox');trigger.setAttribute('aria-expanded','false');const label=document.createElement('span');label.className='premium-dropdown-label';const chevron=document.createElementNS('http://www.w3.org/2000/svg','svg');chevron.setAttribute('class','premium-dropdown-chevron');chevron.setAttribute('viewBox','0 0 24 24');chevron.setAttribute('fill','none');chevron.setAttribute('stroke','currentColor');chevron.setAttribute('stroke-width','2');chevron.innerHTML='<path d="m7 10 5 5 5-5" stroke-linecap="round" stroke-linejoin="round"/>';trigger.append(label,chevron);const menu=document.createElement('div');menu.className='premium-dropdown-menu';menu.setAttribute('role','listbox');const update=()=>{const selected=select.options[select.selectedIndex];label.textContent=selected?.textContent||'';menu.querySelectorAll('.premium-dropdown-option').forEach(option=>{const active=option.dataset.value===select.value;option.classList.toggle('selected',active);option.setAttribute('aria-selected',String(active))})};Array.from(select.options).forEach(nativeOption=>{const option=document.createElement('button');option.type='button';option.className='premium-dropdown-option';option.dataset.value=nativeOption.value;option.setAttribute('role','option');option.innerHTML='<span>'+nativeOption.textContent+'</span><svg class="premium-dropdown-option-check" fill="none" stroke="currentColor" stroke-width="2.4" viewBox="0 0 24 24"><path d="m6 12 4 4 8-9" stroke-linecap="round" stroke-linejoin="round"/></svg>';option.addEventListener('click',event=>{event.stopPropagation();select.value=nativeOption.value;update();dropdown.classList.remove('open');trigger.setAttribute('aria-expanded','false');select.dispatchEvent(new Event('change',{bubbles:true}))});menu.appendChild(option)});trigger.addEventListener('click',event=>{event.stopPropagation();const willOpen=!dropdown.classList.contains('open');closePremiumDropdowns(dropdown);dropdown.classList.toggle('open',willOpen);trigger.setAttribute('aria-expanded',String(willOpen))});select.parentNode.insertBefore(dropdown,select);dropdown.append(trigger,menu,select);update()}
+['typeFilter','statusFilter','pageSize'].forEach(id=>enhancePremiumDropdown(document.getElementById(id)));document.addEventListener('click',()=>closePremiumDropdowns());document.addEventListener('keydown',event=>{if(event.key==='Escape')closePremiumDropdowns()});
+const esc=value=>String(value??'').replace(/[&<>"']/g,char=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[char]));
+const initials=value=>String(value||'U').trim().split(/\s+/).slice(-2).map(part=>part[0]||'').join('').toUpperCase();
+const typeInfo=type=>type==='Báo lỗi (Bug)'?{label:'Báo lỗi',cls:'bug'}:type==='Góp ý phát triển'?{label:'Góp ý phát triển',cls:'idea'}:{label:'Khác',cls:'other'};
+const formatDate=value=>value?new Date(value).toLocaleString('vi-VN'):'—';
+function updateStats(){document.getElementById('totalCount').textContent=feedbackItems.length;document.getElementById('pendingCount').textContent=feedbackItems.filter(item=>item.status!=='resolved').length;document.getElementById('resolvedCount').textContent=feedbackItems.filter(item=>item.status==='resolved').length;document.getElementById('bugCount').textContent=feedbackItems.filter(item=>item.type==='Báo lỗi (Bug)').length;document.getElementById('ideaCount').textContent=feedbackItems.filter(item=>item.type==='Góp ý phát triển').length}
+function render(){const query=document.getElementById('searchInput').value.trim().toLowerCase(),type=document.getElementById('typeFilter').value,status=document.getElementById('statusFilter').value;const filtered=feedbackItems.filter(item=>{const haystack=[item.fullName,item.email,item.content].join(' ').toLowerCase();return(!query||haystack.includes(query))&&(type==='all'||item.type===type)&&(status==='all'||(status==='pending'?item.status!=='resolved':item.status==='resolved'))});const totalPages=Math.max(1,Math.ceil(filtered.length/pageSize));currentPage=Math.min(currentPage,totalPages);const start=(currentPage-1)*pageSize,paged=filtered.slice(start,start+pageSize);rows.innerHTML=paged.map(item=>{const info=typeInfo(item.type),resolved=item.status==='resolved';return `<tr><td><div class="user"><div class="avatar">${esc(initials(item.fullName||item.email))}</div><div><strong>${esc(item.fullName||'Thành viên')}</strong><small>${esc(item.email||'Ẩn danh')}</small></div></div></td><td><span class="badge ${info.cls}">${info.label}</span></td><td><div class="content" onclick="openDetail('${esc(item.id)}')">${esc(item.content||'')}</div></td><td><span class="date">${esc(formatDate(item.timestamp))}</span></td><td><span class="status ${resolved?'resolved':'pending'}">${resolved?'Đã xử lý':'Chờ xử lý'}</span></td><td><div class="actions"><button class="icon-btn done" title="${resolved?'Đánh dấu chờ xử lý':'Đánh dấu đã xử lý'}" onclick="toggleStatus('${esc(item.id)}','${resolved?'resolved':'pending'}')"><svg fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">${resolved?'<path d="M9 7 4 12l5 5M4 12h16" stroke-linecap="round" stroke-linejoin="round"/>':'<path d="m6 12 4 4 8-9" stroke-linecap="round" stroke-linejoin="round"/>'}</svg></button><button class="icon-btn delete" title="Xóa phản hồi" onclick="deleteItem('${esc(item.id)}')"><svg fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M4 7h16M9 7V4h6v3m-9 0 1 13h10l1-13M10 11v5M14 11v5" stroke-linecap="round" stroke-linejoin="round"/></svg></button></div></td></tr>`}).join('');empty.style.display=paged.length?'none':'block';rows.style.display=paged.length?'table-row-group':'none';document.getElementById('prevPage').disabled=currentPage<=1;document.getElementById('nextPage').disabled=currentPage>=totalPages;const pageButtons=document.getElementById('pageButtons');pageButtons.innerHTML=Array.from({length:Math.min(totalPages,5)},(_,index)=>{let page=totalPages<=5?index+1:Math.min(Math.max(currentPage-2,1)+index,totalPages);return `<button class="page-btn ${page===currentPage?'active':''}" onclick="goToPage(${page})">${page}</button>`}).join('');const shownFrom=filtered.length?start+1:0,shownTo=Math.min(start+pageSize,filtered.length);document.getElementById('resultInfo').textContent=`Hiển thị ${shownFrom}–${shownTo} trong ${filtered.length} phản hồi`;updateStats()}
+function resetPageAndRender(){currentPage=1;render()}function goToPage(page){currentPage=page;render()}function changePage(step){currentPage+=step;render()}function setPageSize(value){pageSize=Number(value)||10;currentPage=1;render()}
+function requestData(){document.getElementById('refreshBtn').classList.add('loading');window.parent.postMessage({type:'kgpt:feedback-request'},'*')}
+function toggleStatus(id,status){window.parent.postMessage({type:'kgpt:feedback-toggle',payload:{id,status}},'*')}
+function deleteItem(id){window.parent.postMessage({type:'kgpt:feedback-delete',payload:{id}},'*')}
+function openDetail(id){const item=feedbackItems.find(entry=>entry.id===id);if(!item)return;const info=typeInfo(item.type),resolved=item.status==='resolved';document.getElementById('detailTitle').textContent='Chi tiết phản hồi';document.getElementById('detailUser').textContent=`${item.fullName||'Thành viên'} · ${item.email||'Ẩn danh'}`;document.getElementById('detailMeta').innerHTML=`<span class="badge ${info.cls}">${info.label}</span><span class="status ${resolved?'resolved':'pending'}">${resolved?'Đã xử lý':'Chờ xử lý'}</span><span class="date">${esc(formatDate(item.timestamp))}</span>`;document.getElementById('detailContent').textContent=item.content||'';document.getElementById('detailModal').classList.add('open')}
+function closeDetail(){document.getElementById('detailModal').classList.remove('open')}
+function showToast(message){const toast=document.getElementById('toast');toast.textContent=message;toast.classList.add('show');clearTimeout(window.toastTimer);window.toastTimer=setTimeout(()=>toast.classList.remove('show'),2600)}
+window.addEventListener('message',event=>{const data=event.data||{};if(data.type==='kgpt:feedback-list'){feedbackItems=Array.isArray(data.items)?data.items:[];document.getElementById('refreshBtn').classList.remove('loading');empty.querySelector('strong').textContent=feedbackItems.length?'Không tìm thấy phản hồi phù hợp':'Chưa có phản hồi nào';empty.querySelector('span').textContent=feedbackItems.length?'Hãy thay đổi từ khóa hoặc bộ lọc đang chọn.':'Các phản hồi mới từ người dùng sẽ xuất hiện tại đây.';currentPage=1;render()}if(data.type==='kgpt:feedback-operation-result'){document.getElementById('refreshBtn').classList.remove('loading');showToast(data.message||'Đã cập nhật')}});document.addEventListener('keydown',event=>{if(event.key==='Escape')closeDetail()});requestData();
+</script></body></html>
+</template>
 
 <div class="fixed inset-0 z-[100] hidden flex items-center justify-center p-4 bg-slate-900/60 backdrop-blur-sm" id="modalAddUser">
 <div class="bg-white dark:bg-slate-900 rounded-[2.5rem] shadow-2xl w-full max-w-md overflow-hidden border border-slate-100 dark:border-slate-800 transition-all duration-300">
@@ -4261,53 +4327,79 @@ html.dark #quotePriceSection #quoteResultBody .premium-empty-orbit::before,html.
 </div>
 </div>
 
-<div class="fixed inset-0 z-[100] hidden flex items-center justify-center p-4 bg-slate-900/60 backdrop-blur-sm" id="modalFeedback">
-<div class="bg-white dark:bg-slate-900 rounded-[2.5rem] shadow-2xl w-full max-w-md overflow-hidden border border-slate-100 dark:border-slate-800 transition-all duration-300 transform scale-100">
-
-<div class="p-6 border-b border-slate-100 dark:border-slate-800/80 flex items-center justify-between bg-slate-50/50 dark:bg-slate-800/20">
-<div class="flex items-center gap-3.5">
-<div class="w-11 h-11 bg-emerald-50 dark:bg-emerald-950/40 text-emerald-600 dark:text-emerald-400 rounded-2xl flex items-center justify-center shadow-inner">
-<svg class="w-6 h-6" fill="none" stroke="currentColor" stroke-width="2.5" viewbox="0 0 24 24">
-<path d="M7.5 8.25h9s.012 0 .012.008v5.25a.008.008 0 01-.008.008h-9a.008.008 0 01-.008-.008v-5.25a.008.008 0 01.008-.008zM15 11.25a.75.75 0 11-1.5 0 .75.75 0 011.5 0zM10.5 11.25a.75.75 0 11-1.5 0 .75.75 0 011.5 0zM2.25 12c0 5.385 4.365 9.75 9.75 9.75s9.75-4.365 9.75-9.75S17.385 2.25 12 2.25 2.25 6.615 2.25 12z" stroke-linecap="round" stroke-linejoin="round"></path>
-</svg>
+<style id="feedbackModalPremiumStyle">
+#modalFeedback{z-index:900!important;background:rgba(7,16,32,.66)!important;backdrop-filter:blur(9px) saturate(.8);animation:feedbackBackdropIn .2s ease-out}
+#modalFeedback.hidden{display:none!important}
+#modalFeedback .feedback-dialog{position:relative;width:min(520px,calc(100vw - 28px));overflow:visible;border:1px solid rgba(203,213,225,.9);border-radius:26px;background:linear-gradient(180deg,#fff 0%,#fbfdff 100%);box-shadow:0 38px 90px -34px rgba(2,6,23,.72),0 16px 36px -26px rgba(37,99,235,.5);animation:feedbackDialogIn .32s cubic-bezier(.2,.8,.2,1)}
+#modalFeedback .feedback-head{position:relative;display:flex;align-items:center;justify-content:space-between;gap:20px;padding:25px 26px 23px;border-bottom:1px solid #e9eef5;background:radial-gradient(circle at 9% 0,rgba(59,130,246,.09),transparent 34%),linear-gradient(180deg,#fff,#fbfdff);border-radius:26px 26px 0 0;overflow:hidden}
+#modalFeedback .feedback-head-main{display:flex;align-items:center;gap:14px;min-width:0}
+#modalFeedback .feedback-icon{position:relative;width:46px;height:46px;flex:0 0 46px;display:grid;place-items:center;border:1px solid #cfe0ff;border-radius:14px;color:#2563eb;background:linear-gradient(145deg,#f4f8ff,#e8f1ff);box-shadow:0 12px 24px -18px rgba(37,99,235,.72),inset 0 1px #fff}
+#modalFeedback .feedback-icon:after{content:"";position:absolute;right:4px;bottom:4px;width:7px;height:7px;border:2px solid #edf4ff;border-radius:50%;background:#10b981}
+#modalFeedback .feedback-icon svg{width:22px;height:22px}
+#modalFeedback .feedback-kicker{margin-bottom:5px;color:#2563eb;font-size:8px;font-weight:900;letter-spacing:.16em;text-transform:uppercase}
+#modalFeedback .feedback-title{margin:0;color:#142038;font-size:15px;font-weight:950;line-height:1.2;letter-spacing:-.025em;text-transform:uppercase}
+#modalFeedback .feedback-subtitle{margin:5px 0 0;color:#8795a9;font-size:9px;font-weight:700;line-height:1.45}
+#modalFeedback .feedback-close{width:38px;height:38px;flex:0 0 38px;display:grid;place-items:center;border:1px solid #e1e8f2;border-radius:11px;background:#fff;color:#8a98ac;cursor:pointer;box-shadow:0 6px 16px -13px rgba(15,23,42,.5);transition:all .18s ease}
+#modalFeedback .feedback-close:hover{border-color:#fecaca;background:#fff5f5;color:#e11d48;transform:rotate(4deg)}#modalFeedback .feedback-close svg{width:17px;height:17px}
+#modalFeedback .feedback-body{padding:25px 26px 27px}
+#modalFeedback .feedback-intro{display:flex;align-items:flex-start;gap:10px;margin-bottom:21px;padding:11px 12px;border:1px solid #dbeafe;border-radius:12px;background:linear-gradient(135deg,#f8fbff,#f0f6ff);color:#52657f;font-size:10px;font-weight:650;line-height:1.55}
+#modalFeedback .feedback-intro svg{width:16px;height:16px;flex:none;margin-top:1px;color:#3b82f6}
+#modalFeedback .feedback-field+.feedback-field{margin-top:20px}
+#modalFeedback .feedback-label{display:flex;align-items:center;gap:7px;margin:0 0 8px 2px;color:#5f6f85;font-size:9px;font-weight:900;letter-spacing:.115em;text-transform:uppercase}
+#modalFeedback .feedback-label:before{content:"";width:5px;height:5px;border-radius:50%;background:#3b82f6;box-shadow:0 0 0 4px rgba(59,130,246,.09)}
+#modalFeedback .feedback-select{position:relative}
+#modalFeedback .feedback-select-trigger{width:100%;min-height:58px;padding:9px 46px 9px 10px;display:flex;align-items:center;gap:11px;border:1px solid #d9e3f0;border-radius:13px;background:#f8fafc;color:#1e293b;text-align:left;cursor:pointer;outline:none;box-shadow:0 8px 20px -22px rgba(15,23,42,.45);transition:border-color .18s ease,background .18s ease,box-shadow .18s ease}
+#modalFeedback .feedback-select-trigger:hover,#modalFeedback .feedback-select.open .feedback-select-trigger{border-color:#8db4ff;background:#fff;box-shadow:0 0 0 4px rgba(37,99,235,.075),0 15px 28px -24px rgba(37,99,235,.58)}
+#modalFeedback .feedback-select-icon{width:36px;height:36px;flex:0 0 36px;display:grid;place-items:center;border-radius:10px;color:#2563eb;background:#eaf2ff}#modalFeedback .feedback-select-icon svg{width:17px;height:17px}
+#modalFeedback .feedback-select-copy{min-width:0;display:block}#modalFeedback .feedback-select-title{display:block;color:#24324a;font-size:11px;font-weight:850;line-height:1.25}#modalFeedback .feedback-select-desc{display:block;margin-top:4px;color:#94a3b8;font-size:8.5px;font-weight:650;line-height:1.25}
+#modalFeedback .feedback-select-chevron{position:absolute;right:15px;top:50%;width:17px;height:17px;color:#8ca0ba;transform:translateY(-50%);transition:transform .2s ease,color .2s ease}#modalFeedback .feedback-select.open .feedback-select-chevron{color:#2563eb;transform:translateY(-50%) rotate(180deg)}
+#modalFeedback .feedback-select-menu{position:absolute;z-index:20;left:0;right:0;top:calc(100% + 8px);padding:7px;border:1px solid #dce5f1;border-radius:15px;background:rgba(255,255,255,.98);box-shadow:0 24px 55px -24px rgba(15,23,42,.48),0 12px 24px -20px rgba(37,99,235,.35);backdrop-filter:blur(16px);opacity:0;visibility:hidden;transform:translateY(-6px) scale(.985);transform-origin:top;transition:opacity .16s ease,transform .16s ease,visibility .16s}
+#modalFeedback .feedback-select.open .feedback-select-menu{opacity:1;visibility:visible;transform:none}
+#modalFeedback .feedback-option{position:relative;width:100%;min-height:54px;padding:8px 38px 8px 10px;display:flex;align-items:center;gap:10px;border:0;border-radius:10px;background:transparent;text-align:left;cursor:pointer;transition:background .16s ease,color .16s ease}
+#modalFeedback .feedback-option:hover{background:#f1f6ff}#modalFeedback .feedback-option-mark{width:32px;height:32px;flex:0 0 32px;display:grid;place-items:center;border-radius:9px;color:#64748b;background:#f1f5f9}#modalFeedback .feedback-option-mark svg{width:15px;height:15px}#modalFeedback .feedback-option[data-value="Báo lỗi (Bug)"] .feedback-option-mark{color:#e11d48;background:#fff1f2}#modalFeedback .feedback-option[data-value="Góp ý phát triển"] .feedback-option-mark{color:#2563eb;background:#eaf2ff}#modalFeedback .feedback-option[data-value="Khác"] .feedback-option-mark{color:#0891b2;background:#ecfeff}
+#modalFeedback .feedback-option-copy strong{display:block;color:#26354c;font-size:10.5px;font-weight:850}#modalFeedback .feedback-option-copy small{display:block;margin-top:3px;color:#94a3b8;font-size:8.5px;font-weight:650}#modalFeedback .feedback-option-check{position:absolute;right:13px;top:50%;width:17px;height:17px;color:#2563eb;opacity:0;transform:translateY(-50%) scale(.8)}#modalFeedback .feedback-option.selected{background:#f4f8ff}#modalFeedback .feedback-option.selected .feedback-option-check{opacity:1;transform:translateY(-50%) scale(1)}
+#modalFeedback #feedbackType{display:none!important}
+#modalFeedback .feedback-textarea-wrap{position:relative}
+#modalFeedback #feedbackContent{width:100%;min-height:142px;padding:15px 16px 34px;border:1px solid #d9e3f0;border-radius:13px;background:#f8fafc;color:#172033;font-size:11.5px;font-weight:650;line-height:1.65;resize:none;outline:none;box-shadow:0 8px 20px -22px rgba(15,23,42,.45);transition:border-color .18s ease,background .18s ease,box-shadow .18s ease}
+#modalFeedback #feedbackContent::placeholder{color:#9ba9bb;font-weight:600}#modalFeedback #feedbackContent:hover{border-color:#c5d3e4;background:#fbfdff}#modalFeedback #feedbackContent:focus{border-color:#6c9eff;background:#fff;box-shadow:0 0 0 4px rgba(37,99,235,.075),0 15px 28px -24px rgba(37,99,235,.5)}
+#modalFeedback .feedback-counter{position:absolute;right:13px;bottom:10px;color:#9aa8b9;font-size:8.5px;font-weight:800;font-variant-numeric:tabular-nums}
+#modalFeedback .feedback-foot{display:grid;grid-template-columns:.78fr 1.32fr;gap:11px;padding:18px 26px 22px;border-top:1px solid #e8edf4;background:linear-gradient(180deg,#fbfdff,#f7faff);border-radius:0 0 26px 26px}
+#modalFeedback .feedback-cancel,#modalFeedback .feedback-submit{height:48px;border-radius:12px;font-size:10px;font-weight:900;letter-spacing:.075em;text-transform:uppercase;cursor:pointer;transition:all .18s ease}
+#modalFeedback .feedback-cancel{border:1px solid #dce4ef;background:#fff;color:#64748b}#modalFeedback .feedback-cancel:hover{border-color:#c5d3e4;background:#f8fafc;color:#334155}
+#modalFeedback .feedback-submit{position:relative;overflow:hidden;display:flex;align-items:center;justify-content:center;gap:9px;border:1px solid rgba(255,255,255,.16);background:linear-gradient(135deg,#3b82f6,#2563eb 55%,#1d4ed8);color:#fff;box-shadow:0 16px 27px -16px rgba(37,99,235,.82),inset 0 1px rgba(255,255,255,.24)}#modalFeedback .feedback-submit:hover{transform:translateY(-1px);box-shadow:0 20px 32px -17px rgba(37,99,235,.95),inset 0 1px rgba(255,255,255,.3)}#modalFeedback .feedback-submit:active{transform:scale(.985)}#modalFeedback .feedback-submit:disabled{opacity:.7;cursor:wait;transform:none}#modalFeedback .feedback-submit svg{width:16px;height:16px}#modalFeedback .feedback-submit.is-loading svg{animation:feedbackSendPulse .8s ease-in-out infinite alternate}
+html.dark #modalFeedback .feedback-dialog{border-color:#334155;background:linear-gradient(180deg,#111827,#0f172a)}html.dark #modalFeedback .feedback-head{border-color:#263248;background:radial-gradient(circle at 9% 0,rgba(59,130,246,.14),transparent 34%),#111827}html.dark #modalFeedback .feedback-title{color:#f8fafc}html.dark #modalFeedback .feedback-close{border-color:#334155;background:#172033;color:#94a3b8}html.dark #modalFeedback .feedback-intro,html.dark #modalFeedback .feedback-select-trigger,html.dark #modalFeedback #feedbackContent{border-color:#334155;background:#172033;color:#e5edf8}html.dark #modalFeedback .feedback-select-title{color:#e5edf8}html.dark #modalFeedback .feedback-select-menu{border-color:#334155;background:rgba(15,23,42,.98)}html.dark #modalFeedback .feedback-option-copy strong{color:#e5edf8}html.dark #modalFeedback .feedback-option:hover,html.dark #modalFeedback .feedback-option.selected{background:#1e3150}html.dark #modalFeedback .feedback-foot{border-color:#263248;background:#0c1424}html.dark #modalFeedback .feedback-cancel{border-color:#334155;background:#172033;color:#cbd5e1}
+@keyframes feedbackBackdropIn{from{opacity:0}to{opacity:1}}@keyframes feedbackDialogIn{from{opacity:0;transform:translateY(12px) scale(.975)}to{opacity:1;transform:none}}@keyframes feedbackSendPulse{to{transform:translateX(3px)}}
+@media(max-width:560px){#modalFeedback{padding:12px!important;align-items:flex-end!important}#modalFeedback .feedback-dialog{width:100%;border-radius:22px}#modalFeedback .feedback-head{padding:21px 20px;border-radius:22px 22px 0 0}#modalFeedback .feedback-body{padding:21px 20px 23px}#modalFeedback .feedback-foot{padding:16px 20px 20px;border-radius:0 0 22px 22px}#modalFeedback .feedback-subtitle{display:none}}
+@media(prefers-reduced-motion:reduce){#modalFeedback,#modalFeedback .feedback-dialog,#modalFeedback *{animation:none!important;transition:none!important}}
+</style>
+<div class="fixed inset-0 hidden flex items-center justify-center p-4" id="modalFeedback" onclick="if(event.target===this) closeModal('modalFeedback')">
+<div class="feedback-dialog" role="dialog" aria-modal="true" aria-labelledby="feedbackDialogTitle">
+<div class="feedback-head">
+<div class="feedback-head-main">
+<div class="feedback-icon"><svg fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M5 5.5h14v10H9l-4 3v-13Z" stroke-linejoin="round"/><path d="M8.5 9h7M8.5 12h4" stroke-linecap="round"/></svg></div>
+<div><div class="feedback-kicker">Feedback Center</div><h3 class="feedback-title" id="feedbackDialogTitle">Gửi phản hồi hệ thống</h3><p class="feedback-subtitle">Ý kiến của bạn giúp kho dữ liệu ngày càng chính xác và hữu ích.</p></div>
 </div>
-<div>
-<h3 class="text-sm font-black text-slate-900 dark:text-white uppercase tracking-tight">Gửi phản hồi hệ thống</h3>
-<p class="text-[9px] text-slate-400 dark:text-slate-500 font-bold uppercase tracking-wider mt-0.5">Ý kiến đóng góp giúp hoàn thiện KHO GIÁ PHỤ TÙNG</p>
+<button class="feedback-close" type="button" aria-label="Đóng hộp thoại phản hồi" onclick="closeModal('modalFeedback')"><svg fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M7 7l10 10M17 7 7 17" stroke-linecap="round"/></svg></button>
 </div>
-</div>
-<button class="p-2 text-slate-400 hover:text-red-500 hover:bg-red-50 dark:hover:bg-red-950/30 transition-all rounded-lg" onclick="closeModal('modalFeedback')">
-<svg class="w-5 h-5" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M6 18L18 6M6 6l12 12" stroke-linecap="round" stroke-linejoin="round"></path></svg>
+<div class="feedback-body">
+<div class="feedback-intro"><svg fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><path d="M12 11v5M12 8h.01" stroke-linecap="round"/></svg><span>Mô tả rõ tình huống hoặc đề xuất để đội ngũ quản trị có thể hỗ trợ bạn nhanh hơn.</span></div>
+<div class="feedback-field"><label class="feedback-label" id="feedbackTypeLabel">Loại phản hồi</label>
+<div class="feedback-select" id="feedbackSelect">
+<button class="feedback-select-trigger" id="feedbackSelectTrigger" type="button" aria-haspopup="listbox" aria-expanded="false" aria-labelledby="feedbackTypeLabel feedbackSelectedTitle" onclick="toggleFeedbackTypeMenu(event)">
+<span class="feedback-select-icon"><svg fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M12 9v4M12 17h.01" stroke-linecap="round"/><path d="M10.3 4.8 3.5 17a2 2 0 0 0 1.75 3h13.5a2 2 0 0 0 1.75-3L13.7 4.8a2 2 0 0 0-3.4 0Z" stroke-linejoin="round"/></svg></span>
+<span class="feedback-select-copy"><strong class="feedback-select-title" id="feedbackSelectedTitle">Báo lỗi tính năng / Sai dữ liệu</strong><small class="feedback-select-desc" id="feedbackSelectedDesc">Thông báo lỗi hoặc dữ liệu cần kiểm tra</small></span>
+<svg class="feedback-select-chevron" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="m7 10 5 5 5-5" stroke-linecap="round" stroke-linejoin="round"/></svg>
 </button>
+<div class="feedback-select-menu" id="feedbackTypeMenu" role="listbox" aria-labelledby="feedbackTypeLabel">
+<button class="feedback-option selected" type="button" role="option" aria-selected="true" data-value="Báo lỗi (Bug)" onclick="selectFeedbackType('Báo lỗi (Bug)',this)"><span class="feedback-option-mark"><svg fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M12 9v4M12 17h.01" stroke-linecap="round"/><path d="M10.3 4.8 3.5 17a2 2 0 0 0 1.75 3h13.5a2 2 0 0 0 1.75-3L13.7 4.8a2 2 0 0 0-3.4 0Z" stroke-linejoin="round"/></svg></span><span class="feedback-option-copy"><strong>Báo lỗi / Sai dữ liệu</strong><small>Sự cố tính năng hoặc dữ liệu chưa đúng</small></span><svg class="feedback-option-check" fill="none" stroke="currentColor" stroke-width="2.4" viewBox="0 0 24 24"><path d="m6 12 4 4 8-9" stroke-linecap="round" stroke-linejoin="round"/></svg></button>
+<button class="feedback-option" type="button" role="option" aria-selected="false" data-value="Góp ý phát triển" onclick="selectFeedbackType('Góp ý phát triển',this)"><span class="feedback-option-mark"><svg fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M12 3v18M3 12h18" stroke-linecap="round"/><circle cx="12" cy="12" r="9"/></svg></span><span class="feedback-option-copy"><strong>Đề xuất tính năng mới</strong><small>Ý tưởng giúp quy trình thuận tiện hơn</small></span><svg class="feedback-option-check" fill="none" stroke="currentColor" stroke-width="2.4" viewBox="0 0 24 24"><path d="m6 12 4 4 8-9" stroke-linecap="round" stroke-linejoin="round"/></svg></button>
+<button class="feedback-option" type="button" role="option" aria-selected="false" data-value="Khác" onclick="selectFeedbackType('Khác',this)"><span class="feedback-option-mark"><svg fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><path d="M8 12h.01M12 12h.01M16 12h.01" stroke-linecap="round"/></svg></span><span class="feedback-option-copy"><strong>Yêu cầu hỗ trợ khác</strong><small>Nội dung cần trao đổi với quản trị viên</small></span><svg class="feedback-option-check" fill="none" stroke="currentColor" stroke-width="2.4" viewBox="0 0 24 24"><path d="m6 12 4 4 8-9" stroke-linecap="round" stroke-linejoin="round"/></svg></button>
 </div>
-
-<div class="p-8 space-y-5">
-<div class="relative">
-<label class="text-[9px] font-black text-slate-400 dark:text-slate-500 uppercase tracking-widest block mb-2 px-1">Loại phản hồi</label>
-<div class="relative">
-<select class="w-full h-12 bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700/80 rounded-xl px-4 pr-10 text-xs font-bold text-slate-700 dark:text-slate-200 outline-none focus:border-emerald-500 focus:ring-4 focus:ring-emerald-500/10 transition-all cursor-pointer appearance-none !bg-none" id="feedbackType">
-<option value="Báo lỗi (Bug)">Báo lỗi tính năng / Sai dữ liệu</option>
-<option value="Góp ý phát triển">Đề xuất tính năng mới</option>
-<option value="Khác">Yêu cầu hỗ trợ khác</option>
-</select>
-<div class="pointer-events-none absolute inset-y-0 right-0 flex items-center px-4 text-slate-400">
-<svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2.5" viewbox="0 0 24 24"><path d="M19.5 8.25l-7.5 7.5-7.5-7.5" stroke-linecap="round" stroke-linejoin="round"></path></svg>
+<select id="feedbackType" tabindex="-1" aria-hidden="true"><option value="Báo lỗi (Bug)">Báo lỗi tính năng / Sai dữ liệu</option><option value="Góp ý phát triển">Đề xuất tính năng mới</option><option value="Khác">Yêu cầu hỗ trợ khác</option></select>
+</div></div>
+<div class="feedback-field"><label class="feedback-label" for="feedbackContent">Nội dung chi tiết</label><div class="feedback-textarea-wrap"><textarea id="feedbackContent" maxlength="1000" placeholder="Mô tả vấn đề, dữ liệu liên quan hoặc đề xuất của bạn..."></textarea><span class="feedback-counter"><span id="feedbackCharCount">0</span>/1000</span></div></div>
 </div>
-</div>
-</div>
-<div>
-<label class="text-[9px] font-black text-slate-400 dark:text-slate-500 uppercase tracking-widest block mb-2 px-1">Nội dung chi tiết</label>
-<textarea class="w-full bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700/80 rounded-xl p-4 text-xs font-bold text-slate-700 dark:text-slate-200 outline-none focus:border-emerald-500 focus:ring-4 focus:ring-emerald-500/10 min-h-[140px] transition-all placeholder-slate-400 dark:placeholder-slate-500" id="feedbackContent" placeholder="Nhập nội dung phản hồi tại đây..." style="resize:none"></textarea>
-</div>
-</div>
-
-<div class="p-6 bg-slate-50/50 dark:bg-slate-800/30 border-t border-slate-100 dark:border-slate-800/80 flex gap-3.5">
-<button class="flex-1 h-12 text-slate-500 dark:text-slate-400 hover:bg-slate-100 dark:hover:bg-slate-800 font-bold rounded-xl text-xs uppercase tracking-wider transition-all duration-200" onclick="closeModal('modalFeedback')">Hủy</button>
-<button class="flex-1 h-12 bg-gradient-to-r from-emerald-500 to-teal-600 hover:from-emerald-600 hover:to-teal-700 text-white font-black rounded-xl shadow-lg shadow-emerald-500/20 uppercase text-xs tracking-wider transition-all duration-200 active:scale-95 flex items-center justify-center gap-2" id="btnSubmitFeedback">
-<svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2.5" viewbox="0 0 24 24"><path d="M6 12L3.269 3.126A59.768 59.768 0 0121.485 12 59.77 59.77 0 013.27 20.876L5.999 12zm0 0h7.5" stroke-linecap="round" stroke-linejoin="round"></path></svg>
-                    Gửi ý kiến
-                </button>
-</div>
+<div class="feedback-foot"><button class="feedback-cancel" type="button" onclick="closeModal('modalFeedback')">Hủy bỏ</button><button class="feedback-submit" type="button" id="btnSubmitFeedback"><svg fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M6 12 3.5 4A54 54 0 0 1 20.5 12 54 54 0 0 1 3.5 20L6 12Zm0 0h7" stroke-linecap="round" stroke-linejoin="round"/></svg><span id="feedbackSubmitLabel">Gửi phản hồi</span></button></div>
 </div>
 </div>
 
@@ -4587,11 +4679,8 @@ html.dark #quotePriceSection #quoteResultBody .premium-empty-orbit::before,html.
             },
             user_feedbacks: {
                 uid: 'user_id',
-                fullName: 'full_name',
-                adminNote: 'admin_note',
                 timestamp: 'created_at',
-                createdAt: 'created_at',
-                updatedAt: 'updated_at'
+                createdAt: 'created_at'
             },
             metadata: {
                 updatedAt: 'updated_at'
@@ -4720,7 +4809,15 @@ html.dark #quotePriceSection #quoteResultBody .premium-empty-orbit::before,html.
                 if (isUuid(uid)) payload.user_id = uid;
                 else delete payload.user_id;
                 payload.created_at = payload.created_at || new Date().toISOString();
-                payload.updated_at = payload.updated_at || payload.created_at;
+                // Schema user_feedbacks hiện tại chỉ lưu dữ liệu phản hồi cốt lõi.
+                // Không gửi các trường hiển thị (fullName/adminNote/updatedAt) để tránh
+                // PostgREST từ chối toàn bộ bản ghi khi cột chưa tồn tại trong schema.
+                const supportedFeedbackColumns = new Set([
+                    'id', 'user_id', 'email', 'type', 'content', 'status', 'created_at'
+                ]);
+                Object.keys(payload).forEach(key => {
+                    if (!supportedFeedbackColumns.has(key)) delete payload[key];
+                });
             } else if (collectionName === 'LichSuBaoGia') {
                 payload.id = refId;
                 payload.updated_at = payload.updated_at || new Date().toISOString();
@@ -4762,7 +4859,9 @@ html.dark #quotePriceSection #quoteResultBody .premium-empty-orbit::before,html.
                 data.exactSourceDocId = row.exact_source_doc_id ?? row.exactSourceDocId ?? '';
             } else if (collectionName === 'user_feedbacks') {
                 data.uid = row.user_id ?? row.uid ?? '';
-                data.fullName = row.full_name ?? row.fullName ?? 'Thành viên';
+                // Để màn hình quản trị đối chiếu tên thật từ user_profiles.
+                // Không gán sớm giá trị dự phòng vì nó sẽ che mất kết quả đối chiếu.
+                data.fullName = row.full_name ?? row.fullName ?? '';
                 data.adminNote = row.admin_note ?? row.adminNote ?? '';
                 data.timestamp = dateToFirestoreLike(row.created_at ?? row.timestamp);
                 data.createdAt = dateToFirestoreLike(row.created_at ?? row.createdAt);
@@ -4997,18 +5096,18 @@ html.dark #quotePriceSection #quoteResultBody .premium-empty-orbit::before,html.
         let activeAdminTab = 'dashboard';
         let activeMainLookupTab = localStorage.getItem('tasco_main_lookup_tab') || 'parts';
         const requestedMainView = new URLSearchParams(window.location.search).get('view');
-        if (['parts', 'quote', 'teacher', 'student', 'users'].includes(requestedMainView)) activeMainLookupTab = requestedMainView;
+        if (['parts', 'quote', 'teacher', 'student', 'users', 'feedbacks'].includes(requestedMainView)) activeMainLookupTab = requestedMainView;
         if (activeMainLookupTab === 'home') activeMainLookupTab = 'parts';
         let ADMIN_USER_CACHE = [];
         let ADMIN_USER_STATUS_FILTER = 'all';
         let ADMIN_USAGE_LOGS = [];
-        const APP_PERMISSION_KEYS = ['parts', 'quote', 'teacher', 'student', 'users'];
+        const APP_PERMISSION_KEYS = ['parts', 'quote', 'teacher', 'student', 'users', 'feedbacks'];
         function getDefaultUserPermissions(role = 'user') {
             const allow = (view = false, edit = false, remove = false) => ({ view, edit, delete: remove });
             if (role === 'admin') return Object.fromEntries(APP_PERMISSION_KEYS.map(key => [key, allow(true, true, true)]));
-            if (role === 'teacher') return { parts: allow(true), quote: allow(true), teacher: allow(true, true, true), student: allow(true), users: allow() };
-            if (role === 'user_no_quote') return { parts: allow(true), quote: allow(), teacher: allow(), student: allow(true), users: allow() };
-            return { parts: allow(true), quote: allow(true), teacher: allow(), student: allow(true), users: allow() };
+            if (role === 'teacher') return { parts: allow(true), quote: allow(true), teacher: allow(true, true, true), student: allow(true), users: allow(), feedbacks: allow() };
+            if (role === 'user_no_quote') return { parts: allow(true), quote: allow(), teacher: allow(), student: allow(true), users: allow(), feedbacks: allow() };
+            return { parts: allow(true), quote: allow(true), teacher: allow(), student: allow(true), users: allow(), feedbacks: allow() };
         }
         function normalizeUserPermissions(value, role = 'user') {
             if (role === 'admin') return getDefaultUserPermissions('admin');
@@ -5019,6 +5118,7 @@ html.dark #quotePriceSection #quoteResultBody .premium-empty-orbit::before,html.
                 normalized[key] = { view: item.view === true, edit: item.edit === true, delete: item.delete === true };
             });
             normalized.users = { view: false, edit: false, delete: false };
+            normalized.feedbacks = { view: false, edit: false, delete: false };
             return normalized;
         }
         function canCurrentUserAccessPage(page, action = 'view') {
@@ -5520,7 +5620,7 @@ html.dark #quotePriceSection #quoteResultBody .premium-empty-orbit::before,html.
         });
         // CHUYỂN TAB TRA CỨU CHÍNH
         window.switchMainLookupTab = function(tab = 'home', persist = true) {
-            const requestedTab = ['quote', 'parts', 'teacher', 'student', 'users'].includes(tab) ? tab : 'parts';
+            const requestedTab = ['quote', 'parts', 'teacher', 'student', 'users', 'feedbacks'].includes(tab) ? tab : 'parts';
             if (requestedTab !== 'student' && window.isStudentQuizInProgress?.()) {
                 customAlert('Bài làm đang diễn ra. Bạn không thể chuyển sang trang khác trước khi nộp bài.', 'warning');
                 return false;
@@ -5535,6 +5635,10 @@ html.dark #quotePriceSection #quoteResultBody .premium-empty-orbit::before,html.
             }
             if (tab === 'users' && currentUserProfile && currentUserProfile.role !== 'admin') {
                 customAlert("Chỉ quản trị viên mới có quyền truy cập Quản lý người dùng.", "warning");
+                return false;
+            }
+            if (tab === 'feedbacks' && currentUserProfile && currentUserProfile.role !== 'admin') {
+                customAlert("Chỉ quản trị viên mới có quyền xem phản hồi người dùng.", "warning");
                 return false;
             }
             activeMainLookupTab = requestedTab;
@@ -5560,25 +5664,29 @@ html.dark #quotePriceSection #quoteResultBody .premium-empty-orbit::before,html.
             const teacherLearningSection = document.getElementById('teacherLearningSection');
             const studentLearningSection = document.getElementById('studentLearningSection');
             const userManagementSection = document.getElementById('userManagementSection');
+            const feedbackManagementSection = document.getElementById('feedbackManagementSection');
             const isHomeTab = activeMainLookupTab === 'home';
             const isQuoteTab = activeMainLookupTab === 'quote';
             const isPartsTab = activeMainLookupTab === 'parts';
             const isTeacherTab = activeMainLookupTab === 'teacher';
             const isStudentTab = activeMainLookupTab === 'student';
             const isUsersTab = activeMainLookupTab === 'users';
+            const isFeedbacksTab = activeMainLookupTab === 'feedbacks';
             const pageContextMap = {
                 parts: { kicker: 'Tra cứu nghiệp vụ', title: 'Tra cứu theo dòng xe' },
                 quote: { kicker: 'Tra cứu nghiệp vụ', title: 'Tra cứu theo báo giá' },
                 teacher: { kicker: 'Đào tạo nghiệp vụ', title: 'Quản lý bài tập' },
                 student: { kicker: 'Đào tạo nghiệp vụ', title: 'Bài tập của tôi' },
-                users: { kicker: 'Công cụ hệ thống', title: 'Quản lý người dùng' }
+                users: { kicker: 'Công cụ hệ thống', title: 'Quản lý người dùng' },
+                feedbacks: { kicker: 'Công cụ hệ thống', title: 'Phản hồi người dùng' }
             };
             const pageContext = pageContextMap[activeMainLookupTab] || pageContextMap.parts;
             const pageContextKicker = document.getElementById('tiPageContextKicker');
             const pageContextTitle = document.getElementById('tiPageContextTitle');
             if (pageContextKicker) pageContextKicker.textContent = pageContext.kicker;
             if (pageContextTitle) pageContextTitle.textContent = pageContext.title;
-            document.body.classList.toggle('ti-embedded-view', isTeacherTab || isStudentTab || isUsersTab);
+            document.body.classList.toggle('ti-embedded-view', isTeacherTab || isStudentTab || isUsersTab || isFeedbacksTab);
+            document.body.classList.toggle('ti-quote-view', isQuoteTab);
             if (heroPanel) heroPanel.style.display = 'none';
             if (homeDashboardContent) homeDashboardContent.style.display = isHomeTab ? 'block' : 'none';
             if (searchPanel) searchPanel.style.display = isPartsTab ? 'block' : 'none';
@@ -5587,6 +5695,7 @@ html.dark #quotePriceSection #quoteResultBody .premium-empty-orbit::before,html.
             if (teacherLearningSection) teacherLearningSection.style.display = isTeacherTab ? 'block' : 'none';
             if (studentLearningSection) studentLearningSection.style.display = isStudentTab ? 'block' : 'none';
             if (userManagementSection) userManagementSection.style.display = isUsersTab ? 'block' : 'none';
+            if (feedbackManagementSection) feedbackManagementSection.style.display = isFeedbacksTab ? 'block' : 'none';
             const partsHeroArtwork = searchPanel?.querySelector('.parts-hero-watermark');
             if (partsHeroArtwork) {
                 partsHeroArtwork.classList.remove('parts-hero-animate');
@@ -5595,10 +5704,11 @@ html.dark #quotePriceSection #quoteResultBody .premium-empty-orbit::before,html.
                     partsHeroArtwork.classList.add('parts-hero-animate');
                 }
             }
-            if (isTeacherTab || isStudentTab || isUsersTab) {
-                const frame = document.getElementById(isTeacherTab ? 'teacherLearningFrame' : isStudentTab ? 'studentLearningFrame' : 'userManagementFrame');
+            if (isTeacherTab || isStudentTab || isUsersTab || isFeedbacksTab) {
+                const frame = document.getElementById(isTeacherTab ? 'teacherLearningFrame' : isStudentTab ? 'studentLearningFrame' : isUsersTab ? 'userManagementFrame' : 'feedbackManagementFrame');
                 if (frame) window.__loadEmbeddedPage(frame, frame.dataset.embeddedKey);
             }
+            if (isFeedbacksTab) setTimeout(() => window.loadFeedbackManagementData?.(), 80);
             if (headerPartsBtn) {
                 headerPartsBtn.classList.toggle('active', isPartsTab);
                 headerPartsBtn.setAttribute('aria-pressed', String(isPartsTab));
@@ -5607,7 +5717,7 @@ html.dark #quotePriceSection #quoteResultBody .premium-empty-orbit::before,html.
                 headerQuoteBtn.classList.toggle('active', isQuoteTab);
                 headerQuoteBtn.setAttribute('aria-pressed', String(isQuoteTab));
             }
-            document.querySelectorAll('.ti-nav-btn[data-ti-view]').forEach(function(item){
+            document.querySelectorAll('.ti-nav-btn').forEach(function(item){
                 item.classList.toggle('active', item.dataset.tiView === activeMainLookupTab);
             });
             if (isQuoteTab) {
@@ -5636,6 +5746,7 @@ html.dark #quotePriceSection #quoteResultBody .premium-empty-orbit::before,html.
             const teacherLearningSection = document.getElementById('teacherLearningSection');
             const studentLearningSection = document.getElementById('studentLearningSection');
             const userManagementSection = document.getElementById('userManagementSection');
+            const feedbackManagementSection = document.getElementById('feedbackManagementSection');
             if (view === 'login') {
                 overlay.style.display = 'flex'; main.style.display = 'none';
                 const lp = document.getElementById('loginPass'); if (lp) lp.type = 'password';
@@ -5655,6 +5766,7 @@ html.dark #quotePriceSection #quoteResultBody .premium-empty-orbit::before,html.
                 window.initHomeActivityFeed?.();
             } else if (view === 'admin') {
                 overlay.style.display = 'none'; main.style.display = 'block';
+                document.body.classList.remove('ti-embedded-view', 'ti-quote-view');
                 const lp = document.getElementById('loginPass'); if (lp) { lp.value = ''; lp.type = 'text'; }
                 sysMgr.style.display = 'block';
                 if (heroPanel) heroPanel.style.display = 'none';
@@ -5666,6 +5778,7 @@ html.dark #quotePriceSection #quoteResultBody .premium-empty-orbit::before,html.
                 if (teacherLearningSection) teacherLearningSection.style.display = 'none';
                 if (studentLearningSection) studentLearningSection.style.display = 'none';
                 if (userManagementSection) userManagementSection.style.display = 'none';
+                if (feedbackManagementSection) feedbackManagementSection.style.display = 'none';
                 if (userUsage) userUsage.classList.add('hidden');
                 switchAdminTab(activeAdminTab);
             }
@@ -5690,6 +5803,12 @@ html.dark #quotePriceSection #quoteResultBody .premium-empty-orbit::before,html.
             document.getElementById('userDisplayName').innerText = fullName || email;
             const userManagementNav = document.getElementById('tiUserManagementNav');
             if (userManagementNav) userManagementNav.style.display = canCurrentUserAccessPage('users', 'view') ? 'flex' : 'none';
+            const feedbackAdminNav = document.getElementById('tiSidebarAdmin');
+            if (feedbackAdminNav) {
+                const canViewFeedbacks = role === 'admin';
+                feedbackAdminNav.hidden = !canViewFeedbacks;
+                feedbackAdminNav.style.display = canViewFeedbacks ? 'flex' : 'none';
+            }
             if (!canCurrentUserAccessPage(activeMainLookupTab, 'view')) activeMainLookupTab = firstAllowedMainPage() || 'parts';
             
             // PHÂN QUYỀN TRUY CẬP TAB QUOTE
@@ -5764,7 +5883,7 @@ html.dark #quotePriceSection #quoteResultBody .premium-empty-orbit::before,html.
                 if (main) main.style.display = 'block';
                 if (sysMgr) sysMgr.style.display = 'none';
                 if (headerTabs) headerTabs.style.display = 'flex';
-                ['searchPanel', 'dataSection', 'quotePriceSection', 'teacherLearningSection', 'studentLearningSection', 'userManagementSection'].forEach(id => {
+                ['searchPanel', 'dataSection', 'quotePriceSection', 'teacherLearningSection', 'studentLearningSection', 'userManagementSection', 'feedbackManagementSection'].forEach(id => {
                     const section = document.getElementById(id);
                     if (section) section.style.display = 'none';
                 });
@@ -5779,6 +5898,11 @@ html.dark #quotePriceSection #quoteResultBody .premium-empty-orbit::before,html.
         function hideApp() {
             updateView('login');
             clearQuoteApiInputsForPrivacy?.();
+            const feedbackAdminNav = document.getElementById('tiSidebarAdmin');
+            if (feedbackAdminNav) {
+                feedbackAdminNav.hidden = true;
+                feedbackAdminNav.style.display = 'none';
+            }
             currentUserProfile = null;
             window.currentUserProfile = null;
             window.resetTrainingDatabaseSync?.('');
@@ -11864,10 +11988,73 @@ ${text}` });
         // ============================================================
         // LOGIC XỬ LÝ FEEDBACK
         // ============================================================
+        const FEEDBACK_TYPE_META = {
+            'Báo lỗi (Bug)': {
+                title: 'Báo lỗi tính năng / Sai dữ liệu',
+                desc: 'Thông báo lỗi hoặc dữ liệu cần kiểm tra',
+                icon: '<svg fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M12 9v4M12 17h.01" stroke-linecap="round"/><path d="M10.3 4.8 3.5 17a2 2 0 0 0 1.75 3h13.5a2 2 0 0 0 1.75-3L13.7 4.8a2 2 0 0 0-3.4 0Z" stroke-linejoin="round"/></svg>'
+            },
+            'Góp ý phát triển': {
+                title: 'Đề xuất tính năng mới',
+                desc: 'Ý tưởng giúp quy trình thuận tiện hơn',
+                icon: '<svg fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M12 5v14M5 12h14" stroke-linecap="round"/><circle cx="12" cy="12" r="9"/></svg>'
+            },
+            'Khác': {
+                title: 'Yêu cầu hỗ trợ khác',
+                desc: 'Trao đổi trực tiếp với quản trị viên',
+                icon: '<svg fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><path d="M8 12h.01M12 12h.01M16 12h.01" stroke-linecap="round"/></svg>'
+            }
+        };
+        function closeFeedbackTypeMenu() {
+            const select = document.getElementById('feedbackSelect');
+            const trigger = document.getElementById('feedbackSelectTrigger');
+            select?.classList.remove('open');
+            trigger?.setAttribute('aria-expanded', 'false');
+        }
+        window.toggleFeedbackTypeMenu = function(event) {
+            event?.stopPropagation();
+            const select = document.getElementById('feedbackSelect');
+            const trigger = document.getElementById('feedbackSelectTrigger');
+            if (!select || !trigger) return;
+            const open = !select.classList.contains('open');
+            select.classList.toggle('open', open);
+            trigger.setAttribute('aria-expanded', String(open));
+        };
+        window.selectFeedbackType = function(value, optionButton) {
+            const meta = FEEDBACK_TYPE_META[value] || FEEDBACK_TYPE_META['Báo lỗi (Bug)'];
+            const nativeSelect = document.getElementById('feedbackType');
+            const title = document.getElementById('feedbackSelectedTitle');
+            const desc = document.getElementById('feedbackSelectedDesc');
+            const icon = document.querySelector('#feedbackSelect .feedback-select-icon');
+            if (nativeSelect) nativeSelect.value = value;
+            if (title) title.textContent = meta.title;
+            if (desc) desc.textContent = meta.desc;
+            if (icon) icon.innerHTML = meta.icon;
+            document.querySelectorAll('#feedbackTypeMenu .feedback-option').forEach(button => {
+                const selected = button === optionButton || (!optionButton && button.dataset.value === value);
+                button.classList.toggle('selected', selected);
+                button.setAttribute('aria-selected', String(selected));
+            });
+            closeFeedbackTypeMenu();
+        };
+        document.addEventListener('click', function(event) {
+            const select = document.getElementById('feedbackSelect');
+            if (select && !select.contains(event.target)) closeFeedbackTypeMenu();
+        });
+        document.addEventListener('keydown', function(event) {
+            if (event.key === 'Escape') closeFeedbackTypeMenu();
+        });
+        document.getElementById('feedbackContent')?.addEventListener('input', function() {
+            const counter = document.getElementById('feedbackCharCount');
+            if (counter) counter.textContent = String(this.value.length);
+        });
         window.openFeedbackModal = function() {
             document.getElementById('feedbackContent').value = '';
-            document.getElementById('feedbackType').selectedIndex = 0;
+            const counter = document.getElementById('feedbackCharCount');
+            if (counter) counter.textContent = '0';
+            window.selectFeedbackType('Báo lỗi (Bug)');
             openModal('modalFeedback');
+            setTimeout(() => document.getElementById('feedbackContent')?.focus(), 180);
         };
         document.getElementById('btnSubmitFeedback').onclick = async () => {
             const type = document.getElementById('feedbackType').value;
@@ -11876,18 +12063,20 @@ ${text}` });
             if (!content) {
                 return customAlert("Vui lòng không để trống nội dung phản hồi!");
             }
-            btn.innerText = "ĐANG GỬI...";
+            const submitLabel = document.getElementById('feedbackSubmitLabel');
+            if (submitLabel) submitLabel.textContent = 'Đang gửi...';
+            btn.classList.add('is-loading');
             btn.disabled = true;
             try {
                 // Lưu phản hồi trực tiếp vào Firestore collection 'user_feedbacks'
                 await addDoc(collection(db, "user_feedbacks"), {
                     uid: currentUserProfile ? currentUserProfile.uid : 'N/A',
                     email: currentUserProfile ? currentUserProfile.email : 'Ẩn danh',
-                    fullName: currentUserProfile ? currentUserProfile.fullName : 'Thành viên',
                     type: type,
                     content: sanitize(content), // Chống tấn công XSS Script injection
-                    timestamp: serverTimestamp(),
-                    status: 'pending' // Trạng thái xử lý cho Admin tiện quản lý (pending/resolved)
+                    timestamp: serverTimestamp()
+                    // Không truyền status khi tạo mới: Supabase sẽ dùng giá trị mặc định
+                    // đã được khai báo và được phép bởi user_feedbacks_status_check.
                 });
                 // Ghi nhận log hoạt động hệ thống
                 if (currentUserProfile) {
@@ -11904,13 +12093,114 @@ ${text}` });
                 console.error("Lỗi gửi feedback:", error);
                 customAlert("Không thể gửi phản hồi lúc này: " + error.message);
             } finally {
-                btn.innerText = "GỬI Ý KIẾN";
+                if (submitLabel) submitLabel.textContent = 'Gửi phản hồi';
+                btn.classList.remove('is-loading');
                 btn.disabled = false;
             }
         };
         // ============================================================
         // LOGIC QUẢN TRỊ FEEDBACK (ADMIN)
         // ============================================================
+        function postFeedbackManagementMessage(message) {
+            const frame = document.getElementById('feedbackManagementFrame');
+            frame?.contentWindow?.postMessage(message, '*');
+        }
+        function isFeedbackResolvedStatus(status) {
+            return ['resolved', 'closed', 'processed', 'done'].includes(String(status || '').toLowerCase());
+        }
+        window.loadFeedbackManagementData = async function() {
+            if (currentUserProfile?.role !== 'admin') return;
+            try {
+                const feedbackQuery = query(collection(db, 'user_feedbacks'), orderBy('timestamp', 'desc'));
+                const [snapshot, profileSnapshot] = await Promise.all([
+                    getDocs(feedbackQuery),
+                    getDocs(collection(db, 'user_profiles')).catch(() => null)
+                ]);
+                const profileNameByUid = new Map();
+                const profileNameByEmail = new Map();
+                const registerProfileName = (profile = {}, fallbackUid = '') => {
+                    const name = String(profile.fullName || '').trim();
+                    const uid = String(profile.uid || fallbackUid || '').trim();
+                    const email = String(profile.email || '').trim().toLowerCase();
+                    if (name && uid) profileNameByUid.set(uid, name);
+                    if (name && email) profileNameByEmail.set(email, name);
+                };
+                profileSnapshot?.docs?.forEach(profileDoc => {
+                    registerProfileName(profileDoc.data() || {}, profileDoc.id);
+                });
+                (Array.isArray(ADMIN_USER_CACHE) ? ADMIN_USER_CACHE : []).forEach(profile => registerProfileName(profile));
+                registerProfileName(currentUserProfile || {});
+                const items = snapshot.docs.map(docSnap => {
+                    const data = docSnap.data() || {};
+                    const uid = String(data.uid || '').trim();
+                    const email = String(data.email || '').trim();
+                    const storedName = String(data.fullName || '').trim();
+                    const resolvedName = profileNameByUid.get(uid)
+                        || profileNameByEmail.get(email.toLowerCase())
+                        || (storedName && storedName !== 'Thành viên' ? storedName : '')
+                        || (email && email !== 'Ẩn danh' ? email.split('@')[0] : 'Thành viên');
+                    const timestamp = data.timestamp?.toDate
+                        ? data.timestamp.toDate().getTime()
+                        : Number(data.timestamp?.seconds || 0) * 1000;
+                    return {
+                        id: docSnap.id,
+                        uid,
+                        fullName: resolvedName,
+                        email: email || 'Ẩn danh',
+                        type: data.type || 'Khác',
+                        content: data.content || '',
+                        status: isFeedbackResolvedStatus(data.status) ? 'resolved' : 'pending',
+                        timestamp
+                    };
+                });
+                postFeedbackManagementMessage({ type: 'kgpt:feedback-list', items });
+            } catch (error) {
+                console.error('Lỗi tải phản hồi người dùng:', error);
+                postFeedbackManagementMessage({ type: 'kgpt:feedback-list', items: [] });
+                postFeedbackManagementMessage({ type: 'kgpt:feedback-operation-result', ok: false, message: 'Không thể tải danh sách phản hồi.' });
+            }
+        };
+        window.addEventListener('message', function(event) {
+            const frame = document.getElementById('feedbackManagementFrame');
+            if (!frame?.contentWindow || event.source !== frame.contentWindow) return;
+            const message = event.data || {};
+            if (!String(message.type || '').startsWith('kgpt:feedback-')) return;
+            if (currentUserProfile?.role !== 'admin') {
+                postFeedbackManagementMessage({ type: 'kgpt:feedback-operation-result', ok: false, message: 'Bạn không có quyền quản lý phản hồi.' });
+                return;
+            }
+            if (message.type === 'kgpt:feedback-request') {
+                window.loadFeedbackManagementData();
+                return;
+            }
+            const id = String(message.payload?.id || '');
+            if (!id) return;
+            if (message.type === 'kgpt:feedback-toggle') {
+                const currentStatus = message.payload?.status === 'resolved' ? 'resolved' : 'pending';
+                const nextStatus = currentStatus === 'resolved' ? 'new' : 'resolved';
+                customConfirm(nextStatus === 'resolved' ? 'Đánh dấu phản hồi này là ĐÃ XỬ LÝ?' : 'Chuyển phản hồi này về trạng thái CHỜ XỬ LÝ?', async () => {
+                    try {
+                        await updateDoc(doc(db, 'user_feedbacks', id), { status: nextStatus });
+                        await window.loadFeedbackManagementData();
+                        postFeedbackManagementMessage({ type: 'kgpt:feedback-operation-result', ok: true, message: 'Đã cập nhật trạng thái phản hồi.' });
+                    } catch (error) {
+                        postFeedbackManagementMessage({ type: 'kgpt:feedback-operation-result', ok: false, message: 'Không thể cập nhật phản hồi.' });
+                    }
+                });
+                return;
+            }
+            if (message.type === 'kgpt:feedback-delete') {
+                customConfirm('Bạn có chắc chắn muốn xóa phản hồi này khỏi hệ thống?', async () => {
+                    try {
+                        await deleteDoc(doc(db, 'user_feedbacks', id));
+                        await window.loadFeedbackManagementData();
+                        postFeedbackManagementMessage({ type: 'kgpt:feedback-operation-result', ok: true, message: 'Đã xóa phản hồi.' });
+                    } catch (error) {
+                        postFeedbackManagementMessage({ type: 'kgpt:feedback-operation-result', ok: false, message: 'Không thể xóa phản hồi.' });
+                    }
+                });
+            }
+        });
         window.switchAdminTab = function(tab) {
             activeAdminTab = tab;
             const activeClass = "pb-3 text-xs font-black uppercase tracking-wider border-b-2 border-blue-600 text-blue-600 transition-all flex items-center gap-2";
@@ -11999,7 +12289,7 @@ ${text}` });
                     } else {
                         typeBadge = '<span class="badge-pro bg-blue-100 text-blue-600 border border-blue-200 dark:bg-blue-950/30 dark:text-blue-400 dark:border-blue-800 font-bold">Khác</span>';
                     }
-                    const isResolved = fb.status === 'resolved';
+                    const isResolved = isFeedbackResolvedStatus(fb.status);
                     const statusBadge = isResolved
                         ? '<span class="px-2 py-1 bg-green-100 text-green-600 rounded-md font-bold text-[10px] uppercase">Đã xử lý</span>'
                         : '<span class="px-2 py-1 bg-yellow-100 text-yellow-600 rounded-md font-bold text-[10px] uppercase">Chờ xử lý</span>';
@@ -12043,7 +12333,7 @@ ${text}` });
             }
         };
         window.toggleFeedbackStatus = async function(id, currentStatus) {
-            const newStatus = currentStatus === 'resolved' ? 'pending' : 'resolved';
+            const newStatus = currentStatus === 'resolved' ? 'new' : 'resolved';
             const confirmMsg = newStatus === 'resolved'
                 ? 'Bạn muốn đánh dấu phản hồi này là ĐÃ XỬ LÝ?'
                 : 'Bạn muốn đánh dấu phản hồi này là CHƯA XỬ LÝ?';
