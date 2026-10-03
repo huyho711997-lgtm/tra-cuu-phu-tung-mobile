@@ -217,6 +217,29 @@ html.dark .premium-hero-panel,html.dark .control-panel,html.dark .data-section{b
 html.dark .ti-sidebar-collapse{border-color:#334155;background:linear-gradient(180deg,#1e293b,#172033);color:#94a3b8;box-shadow:none}html.dark .ti-sidebar-collapse:hover{border-color:#4f6fa8;background:#202d44;color:#93c5fd}
 .ti-learning-shell{display:none;position:relative;width:100%;height:calc(100vh - 96px);min-height:680px;overflow:hidden;border:1px solid #dbe5f1;border-radius:20px;background:#f3f6fb;box-shadow:0 26px 58px -42px rgba(15,23,42,.58)}
 .ti-learning-frame{display:block;width:100%;height:100%;border:0;background:#f3f6fb}
+.competition-shell{display:none;width:100%;padding:0 0 34px;color:#13213b;font-family:'Plus Jakarta Sans','Segoe UI',sans-serif}
+.competition-shell *{box-sizing:border-box}.competition-shell button,.competition-shell input,.competition-shell select{font:inherit}
+.competition-hero{position:relative;isolation:isolate;overflow:hidden;padding:28px 30px 24px;border:1px solid rgba(123,157,224,.32);border-radius:24px;background:radial-gradient(circle at 87% 12%,rgba(96,165,250,.34),transparent 25%),radial-gradient(circle at 62% 120%,rgba(79,70,229,.3),transparent 38%),linear-gradient(135deg,#101b3d 0%,#183777 55%,#1f63d7 100%);box-shadow:0 30px 62px -38px rgba(20,55,125,.72);color:#fff}
+.competition-hero:before{content:'';position:absolute;z-index:-1;inset:0;opacity:.32;background-image:linear-gradient(rgba(255,255,255,.1) 1px,transparent 1px),linear-gradient(90deg,rgba(255,255,255,.1) 1px,transparent 1px);background-size:34px 34px;mask-image:linear-gradient(90deg,transparent,black 58%,black)}
+.competition-hero:after{content:'';position:absolute;z-index:-1;right:-86px;top:-122px;width:360px;height:360px;border:1px solid rgba(255,255,255,.16);border-radius:50%;box-shadow:0 0 0 42px rgba(255,255,255,.035),0 0 0 88px rgba(255,255,255,.025)}
+.competition-hero-head{display:flex;align-items:flex-start;justify-content:space-between;gap:28px}.competition-hero-copy{max-width:690px}.competition-eyebrow{display:flex;align-items:center;gap:8px;margin-bottom:8px;color:#bfdbfe;font-size:10px;font-weight:850;letter-spacing:.17em;text-transform:uppercase}.competition-eyebrow:before{content:'';width:7px;height:7px;border-radius:50%;background:#60a5fa;box-shadow:0 0 0 5px rgba(96,165,250,.16)}
+.competition-hero h1{margin:0;font-size:30px;line-height:1.16;font-weight:850;letter-spacing:-.045em}.competition-hero-copy>p{max-width:620px;margin:9px 0 0;color:#dbeafe;font-size:13px;font-weight:550;line-height:1.7}
+.competition-refresh{position:relative;overflow:hidden;width:42px;height:42px;padding:0;border:1px solid rgba(219,234,254,.3);border-radius:12px;background:linear-gradient(180deg,rgba(255,255,255,.15),rgba(255,255,255,.08));color:#dbeafe;display:grid;place-items:center;cursor:pointer;backdrop-filter:blur(16px);box-shadow:0 14px 28px -24px rgba(2,8,23,.92),inset 0 1px 0 rgba(255,255,255,.17);transition:transform .17s ease,box-shadow .17s ease,border-color .17s ease,background .17s ease}.competition-refresh:before{content:'';position:absolute;inset:0;background:linear-gradient(110deg,transparent 18%,rgba(255,255,255,.1) 50%,transparent 82%);transform:translateX(-120%);transition:transform .45s ease}.competition-refresh:hover{border-color:rgba(219,234,254,.52);background:linear-gradient(180deg,rgba(255,255,255,.22),rgba(255,255,255,.12));color:#fff;transform:translateY(-1px);box-shadow:0 18px 34px -25px rgba(2,8,23,.96),inset 0 1px 0 rgba(255,255,255,.24)}.competition-refresh:hover:before{transform:translateX(120%)}.competition-refresh:active{transform:translateY(0)}.competition-refresh:disabled{opacity:.64;cursor:wait;transform:none}.competition-refresh svg{position:relative;z-index:1;width:18px;height:18px;fill:none;stroke:currentColor;flex:none;transition:transform .18s ease}.competition-refresh:hover svg{transform:rotate(16deg)}.competition-refresh.is-loading svg{animation:competitionSpin .8s linear infinite}
+.competition-metrics{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:10px;margin-top:24px}.competition-metric{min-height:76px;padding:14px 15px;border:1px solid rgba(255,255,255,.17);border-radius:15px;background:rgba(255,255,255,.105);display:flex;align-items:center;gap:12px;backdrop-filter:blur(9px)}.competition-metric-icon{width:38px;height:38px;flex:none;border-radius:11px;display:grid;place-items:center;background:rgba(255,255,255,.13);color:#dbeafe}.competition-metric-icon svg{width:18px;height:18px}.competition-metric strong{display:block;color:#fff;font-size:21px;line-height:1;font-weight:850;letter-spacing:-.03em}.competition-metric span{display:block;margin-top:6px;color:#c9ddff;font-size:10px;font-weight:700}
+.competition-metric-icon{position:relative;border:1px solid rgba(255,255,255,.13);box-shadow:inset 0 1px 0 rgba(255,255,255,.12),0 10px 24px -17px currentColor;transition:transform .2s ease,box-shadow .2s ease}.competition-metric:hover .competition-metric-icon{transform:translateY(-1px);box-shadow:inset 0 1px 0 rgba(255,255,255,.2),0 13px 26px -15px currentColor}.competition-metric:nth-child(1) .competition-metric-icon{border-color:rgba(147,197,253,.27);background:linear-gradient(145deg,rgba(96,165,250,.22),rgba(59,130,246,.1));color:#bfdbfe}.competition-metric:nth-child(2) .competition-metric-icon{border-color:rgba(196,181,253,.28);background:linear-gradient(145deg,rgba(167,139,250,.23),rgba(124,58,237,.1));color:#ddd6fe}.competition-metric:nth-child(3) .competition-metric-icon{border-color:rgba(110,231,183,.27);background:linear-gradient(145deg,rgba(52,211,153,.22),rgba(5,150,105,.1));color:#a7f3d0}.competition-metric:nth-child(4) .competition-metric-icon{border-color:rgba(252,211,77,.27);background:linear-gradient(145deg,rgba(251,191,36,.22),rgba(217,119,6,.1));color:#fde68a}.competition-refresh{border-color:rgba(125,211,252,.34);background:linear-gradient(180deg,rgba(56,189,248,.18),rgba(37,99,235,.1));color:#e0f2fe}.competition-refresh:hover{border-color:rgba(186,230,253,.58);background:linear-gradient(180deg,rgba(56,189,248,.26),rgba(37,99,235,.16));box-shadow:0 18px 34px -24px rgba(14,165,233,.8),inset 0 1px 0 rgba(255,255,255,.26)}
+.competition-layout{display:grid;grid-template-columns:minmax(0,1.42fr) minmax(300px,.58fr);gap:18px;margin-top:18px}.competition-card{border:1px solid #dce6f3;border-radius:20px;background:#fff;box-shadow:0 26px 58px -44px rgba(15,23,42,.62);overflow:hidden}.competition-card-head{padding:19px 21px 16px;border-bottom:1px solid #edf1f6;display:flex;align-items:center;justify-content:space-between;gap:14px}.competition-card-head h2{margin:0;color:#15213a;font-size:17px;font-weight:850;letter-spacing:-.025em}.competition-card-head p{margin:5px 0 0;color:#7a889d;font-size:11px;font-weight:600;line-height:1.5}.competition-live{display:inline-flex;align-items:center;gap:7px;padding:7px 10px;border-radius:999px;background:#e9f8f1;color:#078456;font-size:9.5px;font-weight:850;white-space:nowrap}.competition-live:before{content:'';width:6px;height:6px;border-radius:50%;background:#10b981;box-shadow:0 0 0 4px rgba(16,185,129,.13)}
+.competition-podium{min-height:246px;padding:29px 20px 22px;display:grid;grid-template-columns:repeat(3,minmax(0,1fr));align-items:end;gap:12px;background:radial-gradient(circle at 50% 34%,#f4f8ff,transparent 46%),linear-gradient(180deg,#fff,#f8faff)}.competition-podium-empty{grid-column:1/-1;align-self:center;padding:36px 18px;text-align:center;color:#7a889d}.competition-podium-empty svg{width:42px;color:#abc0e6}.competition-podium-empty strong{display:block;margin-top:11px;color:#334155;font-size:14px}.competition-podium-empty span{display:block;margin-top:6px;font-size:11px;line-height:1.55}
+.competition-podium.count-1{grid-template-columns:minmax(180px,240px);justify-content:center}.competition-podium.count-1 .first{order:1}.competition-podium.count-2{grid-template-columns:repeat(2,minmax(150px,240px));justify-content:center}.competition-podium.count-2 .first{order:1}.competition-podium.count-2 .second{order:2}
+.competition-podium-item{position:relative;text-align:center}.competition-podium-item.first{order:2}.competition-podium-item.second{order:1}.competition-podium-item.third{order:3}.competition-podium-avatar{position:relative;width:58px;height:58px;margin:0 auto 10px;border:4px solid #fff;border-radius:18px;display:grid;place-items:center;background:linear-gradient(145deg,#dbeafe,#c7d8ff);color:#2455b9;font-size:17px;font-weight:900;box-shadow:0 15px 28px -17px rgba(37,99,235,.65)}.competition-podium-item.first .competition-podium-avatar{width:68px;height:68px;border-radius:21px;background:linear-gradient(145deg,#fff4bf,#ffd96c);color:#8a5800;box-shadow:0 17px 34px -16px rgba(245,158,11,.64)}.competition-rank-badge{position:absolute;right:-5px;bottom:-5px;width:24px;height:24px;border:3px solid #fff;border-radius:50%;display:grid;place-items:center;background:#95a7c3;color:#fff;font-size:9px;font-weight:900}.first .competition-rank-badge{width:27px;height:27px;background:#f5a800}.third .competition-rank-badge{background:#c47a4c}.competition-podium-name{overflow:hidden;text-overflow:ellipsis;white-space:nowrap;color:#1f2c45;font-size:12.5px;font-weight:850}.competition-podium-score{margin-top:5px;color:#2563eb;font-size:10.5px;font-weight:800}.competition-podium-base{margin-top:13px;padding:12px 7px 10px;border:1px solid #d9e4f4;border-radius:14px 14px 9px 9px;background:linear-gradient(180deg,#edf4ff,#e4edfb);color:#718198;font-size:9px;font-weight:750}.first .competition-podium-base{padding-top:20px;background:linear-gradient(180deg,#fff7d8,#ffedab);border-color:#f4d575;color:#926317}.second .competition-podium-base{padding-top:14px}.third .competition-podium-base{padding-top:9px}
+.competition-insight{padding:19px 20px}.competition-insight-title{display:flex;align-items:center;gap:9px;color:#17233d;font-size:13px;font-weight:850}.competition-insight-title svg{width:18px;color:#2563eb}.competition-progress{margin-top:18px}.competition-progress-head{display:flex;justify-content:space-between;gap:12px;color:#66758b;font-size:10.5px;font-weight:700}.competition-progress-head strong{color:#1e3a8a}.competition-progress-track{height:9px;margin-top:9px;border-radius:999px;background:#edf2f8;overflow:hidden}.competition-progress-fill{display:block;width:0;height:100%;border-radius:inherit;background:linear-gradient(90deg,#3b82f6,#2456dd);box-shadow:0 6px 14px -7px #2563eb;transition:width .45s ease}.competition-current{margin-top:18px;padding:14px;border:1px solid #dce8f8;border-radius:14px;background:linear-gradient(135deg,#f4f8ff,#fbfdff)}.competition-current-kicker{color:#6b7f9d;font-size:9px;font-weight:850;letter-spacing:.11em;text-transform:uppercase}.competition-current-row{display:flex;align-items:center;gap:11px;margin-top:10px}.competition-current-rank{width:38px;height:38px;flex:none;border-radius:11px;display:grid;place-items:center;background:#2563eb;color:#fff;font-size:12px;font-weight:900;box-shadow:0 11px 20px -12px #2563eb}.competition-current-copy{min-width:0;flex:1}.competition-current-copy strong,.competition-current-copy span{display:block;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}.competition-current-copy strong{font-size:12px}.competition-current-copy span{margin-top:4px;color:#77869a;font-size:10px}.competition-method{margin:16px 0 0;padding-top:14px;border-top:1px solid #edf1f6;color:#7b899c;font-size:10px;font-weight:600;line-height:1.65}.competition-method b{color:#40516b}
+.competition-table-card{margin-top:18px}.competition-table-toolbar{padding:18px 20px;border-bottom:1px solid #edf1f6;display:flex;align-items:center;justify-content:space-between;gap:20px}.competition-table-title{min-width:245px}.competition-table-title h2{margin:0;color:#15213a;font-size:17px;font-weight:850;letter-spacing:-.025em}.competition-table-title p{margin:5px 0 0;color:#7c899c;font-size:11px;font-weight:600}.competition-filters{display:flex;align-items:center;justify-content:flex-end;gap:8px;flex-wrap:nowrap;padding:7px;border:1px solid #e1e9f4;border-radius:17px;background:linear-gradient(145deg,rgba(248,251,255,.98),rgba(241,246,253,.94));box-shadow:0 14px 30px -25px rgba(15,23,42,.68),inset 0 1px 0 #fff}.competition-search{position:relative;flex:none}.competition-search:before{content:'';position:absolute;z-index:1;left:9px;top:50%;width:30px;height:30px;border-radius:9px;background:linear-gradient(145deg,#edf4ff,#e1ecff);transform:translateY(-50%);box-shadow:inset 0 1px 0 #fff}.competition-search svg{position:absolute;z-index:2;left:16px;top:50%;width:16px;color:#3970d4;transform:translateY(-50%)}.competition-search input,.competition-select{height:48px;border:1px solid #d6e1ef;border-radius:13px;background:linear-gradient(180deg,#fff,#fbfdff);color:#344258;font-size:12px;font-weight:700;outline:none;box-shadow:0 8px 20px -20px rgba(15,23,42,.72),inset 0 1px 0 #fff;transition:border-color .17s ease,box-shadow .17s ease,background .17s ease}.competition-search input{width:230px;padding:0 13px 0 49px}.competition-search input::placeholder{color:#8a9ab0;font-weight:650}.competition-select{padding:0 31px 0 12px;cursor:pointer}.competition-search input:hover,.competition-select:hover{border-color:#a8c0ea;background:#fff}.competition-search input:focus,.competition-select:focus{border-color:#79a3ef;background:#fff;box-shadow:0 0 0 3px rgba(37,99,235,.09),0 15px 26px -22px rgba(37,99,235,.7)}
+.competition-table-wrap{overflow:auto}.competition-table{width:100%;min-width:880px;border-collapse:collapse}.competition-table th{height:45px;padding:0 18px;text-align:left;background:#f7f9fc;color:#73839a;font-size:9.5px;font-weight:850;letter-spacing:.08em;text-transform:uppercase}.competition-table td{padding:14px 18px;border-top:1px solid #edf1f5;color:#46566e;font-size:11.5px;font-weight:650}.competition-table tbody tr{transition:background .15s}.competition-table tbody tr:hover td{background:#f9fbff}.competition-table tbody tr.is-current td{background:#f2f7ff}.competition-table tbody tr.is-current td:first-child{box-shadow:inset 3px 0 #2563eb}.competition-rank-cell{display:flex;align-items:center;gap:9px}.competition-rank-number{width:30px;height:30px;border-radius:9px;display:grid;place-items:center;background:#edf2f8;color:#526278;font-size:10px;font-weight:900}.competition-rank-number.top-1{background:#fff2bd;color:#9a6600}.competition-rank-number.top-2{background:#e9eef5;color:#66758b}.competition-rank-number.top-3{background:#fae4d6;color:#a6592c}.competition-person{display:flex;align-items:center;gap:10px;min-width:190px}.competition-person-avatar{width:38px;height:38px;flex:none;border-radius:11px;display:grid;place-items:center;background:linear-gradient(145deg,#edf4ff,#dbe7fb);color:#2859bd;font-size:11px;font-weight:900}.competition-person-copy{min-width:0}.competition-person-copy strong,.competition-person-copy small{display:block;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}.competition-person-copy strong{color:#1b2942;font-size:11.5px}.competition-person-copy small{margin-top:4px;color:#8795a8;font-size:9.5px}.competition-score{color:#1d4ed8;font-size:14px;font-weight:900}.competition-score small{color:#91a0b4;font-size:9px;font-weight:700}.competition-complete{display:inline-flex;padding:6px 9px;border-radius:8px;background:#edf4ff;color:#2859bd;font-size:10px;font-weight:800}.competition-pass{display:inline-flex;align-items:center;gap:6px;padding:6px 9px;border-radius:999px;background:#eaf9f2;color:#087b54;font-size:9.5px;font-weight:850}.competition-pass.low{background:#fff4e5;color:#b76508}.competition-pass:before{content:'';width:6px;height:6px;border-radius:50%;background:currentColor}.competition-updated{white-space:nowrap;color:#6f7f95}.competition-table-empty{padding:58px 20px;text-align:center;color:#8795a9}.competition-table-empty svg{width:44px;color:#b4c7e7}.competition-table-empty strong{display:block;margin-top:12px;color:#37475f;font-size:14px}.competition-table-empty span{display:block;margin-top:6px;font-size:11px}.competition-table-foot{padding:13px 19px;border-top:1px solid #edf1f5;color:#7b899d;font-size:10px;font-weight:650}
+@keyframes competitionSpin{to{transform:rotate(360deg)}}
+html.dark .competition-shell{color:#e5edf8}html.dark .competition-card{border-color:#26344a;background:#101827;box-shadow:none}html.dark .competition-card-head,html.dark .competition-table-toolbar{border-color:#26344a}html.dark .competition-card-head h2,html.dark .competition-table-title h2,html.dark .competition-insight-title,html.dark .competition-current-copy strong,html.dark .competition-podium-empty strong,html.dark .competition-table-empty strong{color:#f3f7fd}html.dark .competition-card-head p,html.dark .competition-table-title p{color:#8fa0b8}html.dark .competition-podium{background:radial-gradient(circle at 50% 34%,rgba(37,99,235,.16),transparent 46%),linear-gradient(180deg,#101827,#0e1624)}html.dark .competition-podium-name{color:#eef4ff}html.dark .competition-podium-base{border-color:#33435b;background:linear-gradient(180deg,#1b283c,#172235);color:#9aabc1}html.dark .competition-podium-item.first .competition-podium-base{border-color:#7b6226;background:linear-gradient(180deg,#493d20,#342d1c);color:#f1cf71}html.dark .competition-current{border-color:#2a446b;background:linear-gradient(135deg,#17233a,#121c2d)}html.dark .competition-method{border-color:#27344a;color:#91a1b8}html.dark .competition-progress-track{background:#253249}html.dark .competition-search input,html.dark .competition-select{border-color:#334155;background:#162033;color:#dce6f4}html.dark .competition-table th{background:#172235;color:#92a2ba}html.dark .competition-table td{border-color:#243147;color:#aebdd0}html.dark .competition-table tbody tr:hover td{background:#141f32}html.dark .competition-table tbody tr.is-current td{background:#162746}html.dark .competition-person-copy strong{color:#eef4ff}html.dark .competition-table-foot{border-color:#26344a}
+html.dark .competition-filters{border-color:#2b3a50;background:linear-gradient(145deg,#151f30,#111a29);box-shadow:inset 0 1px 0 rgba(255,255,255,.025)}html.dark .competition-search:before{background:linear-gradient(145deg,#243653,#1d2d47);box-shadow:inset 0 1px 0 rgba(255,255,255,.04)}html.dark .competition-search svg{color:#93c5fd}
+@media(max-width:1180px){.competition-layout{grid-template-columns:1fr}.competition-insight{display:grid;grid-template-columns:1fr 1fr;gap:0 22px}.competition-insight-title,.competition-method{grid-column:1/-1}.competition-current{margin-top:18px}}
+@media(max-width:1180px){.competition-table-toolbar{align-items:flex-start;flex-direction:column}.competition-filters{width:100%;justify-content:flex-start}.competition-search{flex:1;min-width:220px}.competition-search input{width:100%}}@media(max-width:900px){.competition-metrics{grid-template-columns:repeat(2,minmax(0,1fr))}}
+@media(max-width:640px){.competition-hero{padding:22px 18px}.competition-hero-head{flex-direction:column}.competition-hero h1{font-size:25px}.competition-refresh{width:100%;justify-content:center}.competition-metrics{grid-template-columns:1fr 1fr}.competition-metric{padding:12px 10px}.competition-metric-icon{display:none}.competition-podium{padding-left:10px;padding-right:10px;gap:6px}.competition-podium-avatar{width:48px;height:48px}.competition-podium-item.first .competition-podium-avatar{width:58px;height:58px}.competition-insight{display:block}.competition-filters{display:grid;grid-template-columns:1fr}.competition-search{min-width:0}.competition-select{width:100%}}
 html.dark .ti-learning-shell{border-color:#263248;background:#0b1220}
 /* Khóa cuộn trang tổng khi hiển thị các module iframe; nội dung tự cuộn trong iframe. */
 html:has(body.ti-embedded-view),body.ti-embedded-view{height:100%;overflow:hidden!important;overscroll-behavior:none}
@@ -824,7 +847,7 @@ html.dark #dataSection .price-reference-badge{border-color:#31558e;background:#1
         const style = doc.createElement('style');
         style.id = 'kgpt-premium-users-ui';
         style.textContent = `
-            .page{padding:22px 24px 38px}
+            .page{width:100%!important;max-width:none!important;margin:0!important;padding:22px 24px 38px;box-sizing:border-box!important}
             .hero{position:relative;overflow:visible;padding:20px 22px 18px;border:1px solid #d8e4f8;border-radius:18px;background:radial-gradient(circle at 88% 5%,rgba(96,165,250,.13),transparent 27%),linear-gradient(112deg,#fff 0%,#fbfdff 53%,#edf3ff 100%);box-shadow:0 22px 52px -38px rgba(37,99,235,.48);isolation:isolate}
             .hero:before{content:"";position:absolute;inset:0;border-radius:inherit;background:linear-gradient(120deg,rgba(255,255,255,.58),transparent 42%);z-index:-1;pointer-events:none}
             .hero-row{align-items:flex-start;gap:22px}
@@ -1411,7 +1434,7 @@ html.dark #dataSection .price-reference-badge{border-color:#31558e;background:#1
             .premium-time-inputs{display:flex;align-items:center;gap:5px}
             .premium-time-dropdown{position:relative;width:64px}
             .premium-time-native{position:absolute!important;width:1px!important;height:1px!important;opacity:0!important;pointer-events:none!important;overflow:hidden!important}
-            .premium-time-trigger{position:relative;width:64px;height:34px;padding:0 25px 0 10px;border:1px solid #cedbef;border-radius:9px;background:linear-gradient(180deg,#fff,#f8fbff);color:#20304a;display:flex;align-items:center;justify-content:center;font-family:inherit;font-size:11px;font-weight:900;letter-spacing:.04em;cursor:pointer;outline:none;box-shadow:0 6px 14px -13px rgba(15,23,42,.7),inset 0 1px 0 #fff;transition:border-color .16s ease,box-shadow .16s ease,background .16s ease,transform .16s ease}
+            .premium-time-trigger{position:relative;width:64px;height:34px;padding:0 25px 0 10px;border:1px solid #cedbef;border-radius:9px;background:linear-gradient(180deg,#fff,#f8fbff);color:#20304a;display:flex;align-items:center;justify-content:center;font-family:inherit;font-size:12px;font-weight:850;letter-spacing:.03em;cursor:pointer;outline:none;box-shadow:0 6px 14px -13px rgba(15,23,42,.7),inset 0 1px 0 #fff;transition:border-color .16s ease,box-shadow .16s ease,background .16s ease,transform .16s ease}
             .premium-time-trigger:hover{border-color:#9db9e9;background:#fff;transform:translateY(-1px)}
             .premium-time-dropdown.open .premium-time-trigger,.premium-time-trigger:focus-visible{border-color:#79a4f1;background:#fff;box-shadow:0 0 0 3px rgba(59,130,246,.1),0 9px 18px -14px rgba(37,99,235,.72)}
             .premium-time-chevron{position:absolute;right:7px;top:50%;width:13px;height:13px;transform:translateY(-50%);fill:none;stroke:#7185a5;stroke-width:2;stroke-linecap:round;stroke-linejoin:round;transition:transform .17s ease,stroke .17s ease}
@@ -1419,7 +1442,7 @@ html.dark #dataSection .price-reference-badge{border-color:#31558e;background:#1
             .premium-time-menu{position:absolute;z-index:40;left:0;right:0;bottom:calc(100% + 7px);max-height:190px;padding:5px;border:1px solid #d4e0ef;border-radius:11px;background:rgba(255,255,255,.99);box-shadow:0 22px 48px -23px rgba(15,23,42,.58),0 9px 20px -16px rgba(37,99,235,.28);backdrop-filter:blur(16px);overflow-y:auto;overscroll-behavior:contain;scrollbar-width:thin;scrollbar-color:#b8c9e3 transparent;opacity:0;visibility:hidden;transform:translateY(5px) scale(.98);transform-origin:bottom;transition:opacity .16s ease,visibility .16s ease,transform .16s ease}
             .premium-time-dropdown.open .premium-time-menu{opacity:1;visibility:visible;transform:translateY(0) scale(1)}
             .premium-time-menu::-webkit-scrollbar{width:5px}.premium-time-menu::-webkit-scrollbar-track{background:transparent}.premium-time-menu::-webkit-scrollbar-thumb{border-radius:999px;background:#b8c9e3}
-            .premium-time-option{width:100%;height:31px;padding:0;border:0;border-radius:7px;background:transparent;color:#53637a;display:grid;place-items:center;font-family:inherit;font-size:10.5px;font-weight:750;cursor:pointer;transition:background .14s ease,color .14s ease,transform .14s ease}
+            .premium-time-option{width:100%;height:32px;padding:0;border:0;border-radius:7px;background:transparent;color:#53637a;display:grid;place-items:center;font-family:inherit;font-size:11.5px;font-weight:700;cursor:pointer;transition:background .14s ease,color .14s ease,transform .14s ease}
             .premium-time-option:hover,.premium-time-option:focus-visible{outline:none;background:#eef5ff;color:#1d4ed8;transform:translateX(1px)}
             .premium-time-option[aria-selected="true"]{background:linear-gradient(145deg,#4a84ef,#2563eb);color:#fff;font-weight:900;box-shadow:0 7px 14px -10px rgba(37,99,235,.9)}
             .premium-time-separator{color:#70819b;font-size:13px;font-weight:900}
@@ -2352,6 +2375,7 @@ html.dark #dataSection .price-reference-badge{border-color:#31558e;background:#1
         <div class="ti-nav-label ti-nav-label-spaced">Đào tạo nghiệp vụ</div>
         <button class="ti-nav-btn" type="button" data-ti-view="teacher" onclick="tiNavigate('teacher',this)"><svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><path d="M4 5h16v14H4zM8 3v4M16 3v4M4 9h16" stroke-linecap="round" stroke-linejoin="round" stroke-width="1.8"/><path d="M8 13h4M8 16h7" stroke-linecap="round" stroke-width="1.8"/></svg><span>Quản lý bài tập</span></button>
         <button class="ti-nav-btn" type="button" data-ti-view="student" onclick="tiNavigate('student',this)"><svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><path d="M4 4h11l5 5v11H4z" stroke-linejoin="round" stroke-width="1.8"/><path d="M15 4v5h5M8 13h8M8 16h5" stroke-linecap="round" stroke-width="1.8"/></svg><span>Bài tập của tôi</span></button>
+        <button class="ti-nav-btn" id="tiCompetitionNav" type="button" data-ti-view="ranking" onclick="tiNavigate('ranking',this)"><svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><path d="M8 4h8v3.5a4 4 0 0 1-8 0V4Z" stroke-linejoin="round" stroke-width="1.8"/><path d="M8 6H5v1.5A3.5 3.5 0 0 0 8.5 11M16 6h3v1.5a3.5 3.5 0 0 1-3.5 3.5M12 12v4m-3 4h6m-7 0h8" stroke-linecap="round" stroke-linejoin="round" stroke-width="1.8"/></svg><span>Bảng xếp hạng</span></button>
         <div class="ti-nav-label ti-nav-label-spaced">Công cụ hệ thống</div>
         <button class="ti-nav-btn" id="tiUserManagementNav" style="display:none" type="button" data-ti-view="users" onclick="tiNavigate('users',this)"><svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><circle cx="9" cy="8" r="3" stroke-width="1.8"/><path d="M3 20v-2a5 5 0 0 1 5-5h2a5 5 0 0 1 5 5v2M17 8h4M19 6v4" stroke-linecap="round" stroke-linejoin="round" stroke-width="1.8"/></svg><span>Quản lý người dùng</span></button>
         <button class="ti-nav-btn" id="tiSidebarAdmin" hidden style="display:none" type="button" data-ti-view="feedbacks" onclick="tiNavigate('feedbacks',this)"><svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><path d="M5 5h14v11H9l-4 3V5Z" stroke-linejoin="round" stroke-width="1.8"/><path d="M8.5 9h7M8.5 12h4" stroke-linecap="round" stroke-linejoin="round" stroke-width="1.8"/><circle cx="18" cy="18" r="3" fill="currentColor" stroke="none"/></svg><span>Phản hồi người dùng</span></button>
@@ -3954,6 +3978,22 @@ html.dark #quotePriceSection #quoteResultBody .premium-empty-orbit::before,html.
 </div>
 </div>
 
+<section class="competition-shell" id="trainingRankingSection" aria-label="Bảng xếp hạng thi đua trắc nghiệm">
+<div class="competition-hero">
+<div class="competition-hero-head">
+<div class="competition-hero-copy"><div class="competition-eyebrow">Training Excellence</div><h1>Bảng xếp hạng thi đua</h1><p>Ghi nhận thành tích làm bài trắc nghiệm dựa trên điểm tốt nhất của mỗi bài. Hoàn thành đều đặn để nâng hạng và chinh phục vị trí dẫn đầu.</p></div>
+<button class="competition-refresh" id="competitionRefreshButton" type="button" onclick="refreshTrainingLeaderboard()" aria-label="Đồng bộ dữ liệu xếp hạng mới nhất" title="Đồng bộ dữ liệu xếp hạng mới nhất"><svg fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M20 11a8 8 0 1 0-2.3 5.7M20 4v7h-7" stroke-linecap="round" stroke-linejoin="round"/></svg></button>
+</div>
+<div class="competition-metrics">
+<div class="competition-metric"><div class="competition-metric-icon"><svg fill="none" stroke="currentColor" stroke-width="1.9" viewBox="0 0 24 24"><path d="M16 20v-1.5a4.5 4.5 0 0 0-4.5-4.5h-4A4.5 4.5 0 0 0 3 18.5V20M9.5 10a3.5 3.5 0 1 0 0-7 3.5 3.5 0 0 0 0 7ZM17 11a3 3 0 0 1 4 2.8V16" stroke-linecap="round"/></svg></div><div><strong id="competitionParticipantCount">0</strong><span>Học viên tham gia</span></div></div>
+<div class="competition-metric"><div class="competition-metric-icon"><svg fill="none" stroke="currentColor" stroke-width="1.9" viewBox="0 0 24 24"><path d="M4 19V9m6 10V5m6 14v-7m4 7H2" stroke-linecap="round"/></svg></div><div><strong id="competitionAverageScore">0.0</strong><span>Điểm trung bình</span></div></div>
+<div class="competition-metric"><div class="competition-metric-icon"><svg fill="none" stroke="currentColor" stroke-width="1.9" viewBox="0 0 24 24"><path d="M12 3 4 7v5c0 5 3.4 8 8 9 4.6-1 8-4 8-9V7l-8-4Z" stroke-linejoin="round"/><path d="m9 12 2 2 4-4" stroke-linecap="round" stroke-linejoin="round"/></svg></div><div><strong id="competitionPassRate">0%</strong><span>Tỷ lệ bài đạt</span></div></div>
+<div class="competition-metric"><div class="competition-metric-icon"><svg fill="none" stroke="currentColor" stroke-width="1.9" viewBox="0 0 24 24"><path d="M5 4h14v16H5z" stroke-linejoin="round"/><path d="M8 9h8M8 13h8M8 17h5" stroke-linecap="round"/></svg></div><div><strong id="competitionCompletionCount">0</strong><span>Lượt bài hoàn thành</span></div></div>
+</div>
+</div>
+<section class="competition-card competition-table-card"><div class="competition-table-toolbar"><div class="competition-table-title"><h2>Thứ hạng toàn bộ học viên</h2><p id="competitionTableSubtitle">Xếp hạng theo kết quả bài tập đã đồng bộ</p></div><div class="competition-filters"><label class="competition-search"><svg fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><circle cx="11" cy="11" r="7"/><path d="m20 20-4-4" stroke-linecap="round"/></svg><input id="competitionSearchInput" type="search" placeholder="Tìm tên học viên..." oninput="renderTrainingLeaderboard()"/></label><select class="competition-select" id="competitionTaskFilter" onchange="renderTrainingLeaderboard()"><option value="all">Tất cả bài tập</option></select><select class="competition-select" id="competitionPeriodFilter" onchange="renderTrainingLeaderboard()"><option value="all">Toàn bộ thời gian</option><option value="30">30 ngày gần đây</option><option value="7">7 ngày gần đây</option></select></div></div><div class="competition-table-wrap"><table class="competition-table"><thead><tr><th>Hạng</th><th>Học viên</th><th>Điểm TB</th><th>Hoàn thành</th><th>Điểm cao nhất</th><th>Tỷ lệ đạt</th><th>Cập nhật</th></tr></thead><tbody id="competitionRankingRows"></tbody></table><div class="competition-table-empty" id="competitionTableEmpty"><svg fill="none" stroke="currentColor" stroke-width="1.6" viewBox="0 0 24 24"><path d="M8 4h8v3.5a4 4 0 0 1-8 0V4ZM8 6H5v1.5A3.5 3.5 0 0 0 8.5 11M16 6h3v1.5a3.5 3.5 0 0 1-3.5 3.5M12 12v4m-3 4h6" stroke-linecap="round" stroke-linejoin="round"/></svg><strong>Chưa có kết quả phù hợp</strong><span>Thử thay đổi bộ lọc hoặc hoàn thành bài trắc nghiệm đầu tiên.</span></div></div><div class="competition-table-foot" id="competitionResultInfo">Đang chờ đồng bộ kết quả...</div></section>
+</section>
+
 <section class="ti-learning-shell" id="teacherLearningSection" aria-label="Quản lý bài tập dành cho giảng viên">
 <iframe class="ti-learning-frame" id="teacherLearningFrame" title="Quản lý bài tập dành cho giảng viên" data-embedded-key="teacher"></iframe>
 </section>
@@ -3974,6 +4014,7 @@ html.dark #quotePriceSection #quoteResultBody .premium-empty-orbit::before,html.
 <script>
 const feedbackFontLink=document.createElement('link');feedbackFontLink.rel='stylesheet';feedbackFontLink.href='https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap';document.head.appendChild(feedbackFontLink);const feedbackTypeStyle=document.createElement('style');feedbackTypeStyle.textContent="html,body,button,input,select{font-family:'Plus Jakarta Sans','Segoe UI',sans-serif!important}.page{padding:22px 24px 38px!important}.hero h1{font-size:25px!important;line-height:1.15!important;font-weight:800!important;letter-spacing:-.045em!important}.eyebrow{font-size:9px!important;font-weight:800!important;letter-spacing:.14em!important}.hero p{font-size:11.5px!important;line-height:1.65!important;font-weight:500!important}.search input,.filter,.refresh{font-size:11.5px!important;font-weight:700!important}.stat strong{font-size:19px!important;line-height:1.05!important;font-weight:800!important}.stat span{font-size:9.5px!important;line-height:1.25!important;font-weight:700!important}.panel-title{font-size:16px!important;line-height:1.3!important;font-weight:800!important;letter-spacing:-.015em!important}.panel-sub{font-size:11px!important;line-height:1.55!important;font-weight:500!important}.table th{font-size:10.5px!important;line-height:1.3!important;font-weight:800!important}.table td{font-size:12.5px!important;line-height:1.5!important}.user strong{font-size:12.5px!important;font-weight:800!important}.user small{font-size:10px!important;line-height:1.45!important;font-weight:500!important}.badge,.status{font-size:10px!important;line-height:1.25!important;font-weight:700!important}.content{font-size:12px!important;line-height:1.5!important;font-weight:600!important}.date{font-size:11px!important;line-height:1.4!important;font-weight:600!important}.page-btn,.page-size{font-size:10.5px!important;font-weight:700!important}.empty strong{font-size:13.5px!important;line-height:1.4!important;font-weight:800!important}.empty span,.footer{font-size:10.5px!important;line-height:1.5!important;font-weight:500!important}.modal-head h2{font-size:17px!important;line-height:1.3!important;font-weight:800!important}.modal-head p{font-size:10.5px!important;line-height:1.5!important}.modal-content{font-size:12.5px!important;line-height:1.65!important;font-weight:500!important}@media(max-width:760px){.page{padding:16px!important}}";document.head.appendChild(feedbackTypeStyle);
 const feedbackDropdownStyle=document.createElement('style');feedbackDropdownStyle.textContent=".premium-dropdown{position:relative;min-width:142px}.premium-dropdown.open{z-index:60}.premium-dropdown-trigger{width:100%;height:42px;padding:0 11px 0 13px;display:flex;align-items:center;justify-content:space-between;gap:12px;border:1px solid #d7e2f1;border-radius:11px;background:rgba(255,255,255,.96);color:#344054;font-size:11.5px;font-weight:700;text-align:left;cursor:pointer;outline:none;box-shadow:0 10px 24px -22px rgba(15,23,42,.6);transition:border-color .18s ease,box-shadow .18s ease,background .18s ease}.premium-dropdown-trigger:hover,.premium-dropdown.open .premium-dropdown-trigger{border-color:#8eaff0;background:#fff;box-shadow:0 0 0 3px rgba(37,99,235,.075),0 14px 24px -20px rgba(37,99,235,.55)}.premium-dropdown-label{overflow:hidden;text-overflow:ellipsis;white-space:nowrap}.premium-dropdown-chevron{width:15px;height:15px;flex:none;color:#8394ac;transition:transform .2s ease,color .2s ease}.premium-dropdown.open .premium-dropdown-chevron{color:#2563eb;transform:rotate(180deg)}.premium-dropdown-menu{position:absolute;z-index:70;left:0;right:0;top:calc(100% + 7px);padding:6px;border:1px solid #dce5f1;border-radius:13px;background:rgba(255,255,255,.99);box-shadow:0 22px 48px -22px rgba(15,23,42,.48),0 10px 22px -18px rgba(37,99,235,.34);opacity:0;visibility:hidden;transform:translateY(-5px) scale(.985);transform-origin:top;transition:opacity .16s ease,transform .16s ease,visibility .16s;backdrop-filter:blur(14px)}.premium-dropdown.open .premium-dropdown-menu{opacity:1;visibility:visible;transform:none}.premium-dropdown-option{position:relative;width:100%;min-height:39px;padding:8px 31px 8px 10px;border:0;border-radius:9px;background:transparent;color:#475569;font-size:11px;font-weight:650;text-align:left;cursor:pointer;transition:background .15s ease,color .15s ease}.premium-dropdown-option:hover{background:#f1f6ff;color:#2456bd}.premium-dropdown-option.selected{background:#edf4ff;color:#1d4ed8;font-weight:800}.premium-dropdown-option-check{position:absolute;right:10px;top:50%;width:14px;height:14px;opacity:0;transform:translateY(-50%) scale(.8);transition:.15s}.premium-dropdown-option.selected .premium-dropdown-option-check{opacity:1;transform:translateY(-50%) scale(1)}.premium-dropdown.compact{min-width:138px}.premium-dropdown.compact .premium-dropdown-trigger{height:34px;border-radius:9px;font-size:10.5px}.premium-dropdown.compact .premium-dropdown-menu{top:calc(100% + 6px)}.premium-dropdown.compact .premium-dropdown-option{min-height:34px;font-size:10.5px}.premium-dropdown select{display:none!important}@media(max-width:560px){.premium-dropdown{min-width:0;width:100%}.premium-dropdown.compact{width:auto;min-width:138px}}";document.head.appendChild(feedbackDropdownStyle);
+const feedbackDropdownTypographyStyle=document.createElement('style');feedbackDropdownTypographyStyle.textContent=".premium-dropdown:not(.compact) .premium-dropdown-trigger{height:42px!important;font-size:12px!important}.premium-dropdown:not(.compact) .premium-dropdown-option{min-height:41px!important;font-size:12px!important}";document.head.appendChild(feedbackDropdownTypographyStyle);
 let feedbackItems=[],currentPage=1,pageSize=10;const rows=document.getElementById('feedbackRows'),empty=document.getElementById('emptyState');const heroHead=document.querySelector('.hero-head'),heroTools=document.querySelector('.tools'),refreshButton=document.getElementById('refreshBtn');heroHead.firstElementChild.classList.add('hero-copy');heroTools.appendChild(refreshButton);heroHead.appendChild(heroTools);document.querySelector('.stats').insertAdjacentHTML('beforeend','<div class="stat"><div class="stat-icon"><svg fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M12 3v18M3 12h18" stroke-linecap="round"/><circle cx="12" cy="12" r="9"/></svg></div><div><strong id="ideaCount">0</strong><span>Góp ý phát triển</span></div></div>');document.querySelector('.panel-head').insertAdjacentHTML('beforeend','<div class="pager"><button class="page-btn" id="prevPage" onclick="changePage(-1)">‹</button><span id="pageButtons"></span><button class="page-btn" id="nextPage" onclick="changePage(1)">›</button><select class="page-size" id="pageSize" onchange="setPageSize(this.value)"><option value="10">Hiển thị 10 dòng</option><option value="20">Hiển thị 20 dòng</option><option value="50">Hiển thị 50 dòng</option></select></div>');document.getElementById('searchInput').oninput=resetPageAndRender;document.getElementById('typeFilter').onchange=resetPageAndRender;document.getElementById('statusFilter').onchange=resetPageAndRender;
 function closePremiumDropdowns(except){document.querySelectorAll('.premium-dropdown.open').forEach(dropdown=>{if(dropdown!==except){dropdown.classList.remove('open');dropdown.querySelector('.premium-dropdown-trigger')?.setAttribute('aria-expanded','false')}})}
 function enhancePremiumDropdown(select){if(!select||select.dataset.premium==='1')return;select.dataset.premium='1';const dropdown=document.createElement('div');dropdown.className='premium-dropdown'+(select.id==='pageSize'?' compact':'');const trigger=document.createElement('button');trigger.type='button';trigger.className='premium-dropdown-trigger';trigger.setAttribute('aria-haspopup','listbox');trigger.setAttribute('aria-expanded','false');const label=document.createElement('span');label.className='premium-dropdown-label';const chevron=document.createElementNS('http://www.w3.org/2000/svg','svg');chevron.setAttribute('class','premium-dropdown-chevron');chevron.setAttribute('viewBox','0 0 24 24');chevron.setAttribute('fill','none');chevron.setAttribute('stroke','currentColor');chevron.setAttribute('stroke-width','2');chevron.innerHTML='<path d="m7 10 5 5 5-5" stroke-linecap="round" stroke-linejoin="round"/>';trigger.append(label,chevron);const menu=document.createElement('div');menu.className='premium-dropdown-menu';menu.setAttribute('role','listbox');const update=()=>{const selected=select.options[select.selectedIndex];label.textContent=selected?.textContent||'';menu.querySelectorAll('.premium-dropdown-option').forEach(option=>{const active=option.dataset.value===select.value;option.classList.toggle('selected',active);option.setAttribute('aria-selected',String(active))})};Array.from(select.options).forEach(nativeOption=>{const option=document.createElement('button');option.type='button';option.className='premium-dropdown-option';option.dataset.value=nativeOption.value;option.setAttribute('role','option');option.innerHTML='<span>'+nativeOption.textContent+'</span><svg class="premium-dropdown-option-check" fill="none" stroke="currentColor" stroke-width="2.4" viewBox="0 0 24 24"><path d="m6 12 4 4 8-9" stroke-linecap="round" stroke-linejoin="round"/></svg>';option.addEventListener('click',event=>{event.stopPropagation();select.value=nativeOption.value;update();dropdown.classList.remove('open');trigger.setAttribute('aria-expanded','false');select.dispatchEvent(new Event('change',{bubbles:true}))});menu.appendChild(option)});trigger.addEventListener('click',event=>{event.stopPropagation();const willOpen=!dropdown.classList.contains('open');closePremiumDropdowns(dropdown);dropdown.classList.toggle('open',willOpen);trigger.setAttribute('aria-expanded',String(willOpen))});select.parentNode.insertBefore(dropdown,select);dropdown.append(trigger,menu,select);update()}
@@ -4271,18 +4312,45 @@ window.addEventListener('message',event=>{const data=event.data||{};if(data.type
 </div>
 </div>
 
+<style id="customConfirmThemeSync">
+#modalCustomConfirm{background:rgba(15,23,42,.48)!important;backdrop-filter:blur(8px) saturate(.92)!important}
+#modalCustomConfirm .kgpt-confirm-dialog{position:relative;width:min(448px,calc(100vw - 32px))!important;max-width:none!important;overflow:hidden!important;border:1px solid rgba(219,229,241,.98)!important;border-radius:24px!important;background:#fff!important;box-shadow:0 34px 86px -30px rgba(15,23,42,.68),0 18px 38px -27px rgba(37,99,235,.26)!important;animation:kgptConfirmEnter .24s cubic-bezier(.2,.8,.2,1)}
+#modalCustomConfirm .kgpt-confirm-dialog:before{content:"";position:absolute;right:-70px;top:-86px;width:190px;height:190px;border-radius:50%;background:radial-gradient(circle,rgba(59,130,246,.12),transparent 68%);pointer-events:none}
+#modalCustomConfirm .kgpt-confirm-body{position:relative;display:flex!important;flex-direction:column;align-items:center;justify-content:center;padding:34px 34px 29px!important;text-align:center!important;background:linear-gradient(180deg,#fff 0%,#fff 72%,#fbfdff 100%)}
+#modalCustomConfirm .kgpt-confirm-icon{width:68px!important;height:68px!important;margin:0 0 19px!important;display:grid!important;place-items:center!important;border:1px solid #cfe0fb!important;border-radius:21px!important;background:linear-gradient(145deg,#f8fbff,#eaf3ff)!important;color:#2563eb!important;box-shadow:0 16px 30px -21px rgba(37,99,235,.72),inset 0 1px 0 #fff!important}
+#modalCustomConfirm .kgpt-confirm-icon svg{width:31px!important;height:31px!important;stroke-width:2.05!important}
+#modalCustomConfirm .kgpt-confirm-title{margin:0!important;color:#0f172a!important;font-size:20px!important;line-height:1.28!important;font-weight:850!important;letter-spacing:-.035em!important;text-transform:none!important}
+#modalCustomConfirm #confirmMessage{max-width:340px;margin:8px 0 0!important;padding:0!important;color:#64748b!important;font-size:12.5px!important;line-height:1.65!important;font-weight:600!important}
+#modalCustomConfirm .kgpt-confirm-actions{padding:16px 22px 22px!important;display:grid!important;grid-template-columns:1fr 1fr;gap:11px!important;border-top:1px solid #edf1f6!important;background:linear-gradient(180deg,#fbfcfe,#f8fafc)!important}
+#modalCustomConfirm .kgpt-confirm-cancel,#modalCustomConfirm .kgpt-confirm-ok{height:48px!important;border-radius:12px!important;font-size:11px!important;font-weight:850!important;letter-spacing:.045em!important;text-transform:uppercase!important;transition:transform .18s ease,border-color .18s ease,background .18s ease,color .18s ease,box-shadow .18s ease!important}
+#modalCustomConfirm .kgpt-confirm-cancel{border:1px solid #d8e2ef!important;background:#fff!important;color:#5f6f86!important;box-shadow:0 8px 18px -16px rgba(15,23,42,.55)!important}
+#modalCustomConfirm .kgpt-confirm-cancel:hover{border-color:#a9c3ef!important;background:#f4f8ff!important;color:#2456bd!important;transform:translateY(-1px)}
+#modalCustomConfirm .kgpt-confirm-ok{border:1px solid #1d4ed8!important;background:linear-gradient(145deg,#4380ee,#2563eb 58%,#1d4ed8)!important;color:#fff!important;box-shadow:0 14px 26px -15px rgba(37,99,235,.92),inset 0 1px 0 rgba(255,255,255,.28)!important}
+#modalCustomConfirm .kgpt-confirm-ok:hover{background:linear-gradient(145deg,#4d8af5,#2563eb 55%,#1e40af)!important;box-shadow:0 18px 30px -15px rgba(37,99,235,1),inset 0 1px 0 rgba(255,255,255,.32)!important;transform:translateY(-1px)}
+#modalCustomConfirm .kgpt-confirm-cancel:active,#modalCustomConfirm .kgpt-confirm-ok:active{transform:translateY(0) scale(.98)!important}
+html.dark #modalCustomConfirm .kgpt-confirm-dialog{border-color:#334155!important;background:#0f172a!important;box-shadow:0 34px 90px -30px rgba(0,0,0,.9)!important}
+html.dark #modalCustomConfirm .kgpt-confirm-body{background:linear-gradient(180deg,#111827,#111827 70%,#0f172a)!important}
+html.dark #modalCustomConfirm .kgpt-confirm-icon{border-color:#3b4f70!important;background:linear-gradient(145deg,#1e293b,#172033)!important;color:#60a5fa!important;box-shadow:none!important}
+html.dark #modalCustomConfirm .kgpt-confirm-title{color:#f8fafc!important}
+html.dark #modalCustomConfirm #confirmMessage{color:#94a3b8!important}
+html.dark #modalCustomConfirm .kgpt-confirm-actions{border-color:#273449!important;background:#0f172a!important}
+html.dark #modalCustomConfirm .kgpt-confirm-cancel{border-color:#334155!important;background:#172033!important;color:#cbd5e1!important}
+@keyframes kgptConfirmEnter{from{opacity:0;transform:translateY(14px) scale(.98)}to{opacity:1;transform:none}}
+@media(max-width:520px){#modalCustomConfirm .kgpt-confirm-body{padding:29px 21px 24px!important}#modalCustomConfirm .kgpt-confirm-icon{width:60px!important;height:60px!important;margin-bottom:17px!important;border-radius:18px!important}#modalCustomConfirm .kgpt-confirm-icon svg{width:28px!important;height:28px!important}#modalCustomConfirm .kgpt-confirm-title{font-size:18px!important}#modalCustomConfirm #confirmMessage{font-size:12px!important}#modalCustomConfirm .kgpt-confirm-actions{padding:14px 15px 17px!important}}
+@media(prefers-reduced-motion:reduce){#modalCustomConfirm .kgpt-confirm-dialog{animation:none!important}#modalCustomConfirm .kgpt-confirm-cancel,#modalCustomConfirm .kgpt-confirm-ok{transition:none!important}}
+</style>
 <div class="fixed inset-0 z-[200] hidden flex items-center justify-center p-4 bg-slate-900/60 backdrop-blur-sm" id="modalCustomConfirm">
-<div class="bg-white dark:bg-slate-900 rounded-[2.5rem] shadow-2xl w-full max-w-sm overflow-hidden border border-slate-100 dark:border-slate-800 transition-all duration-300">
-<div class="p-8 text-center pb-6">
-<div class="w-20 h-20 bg-orange-50 dark:bg-orange-950/40 text-orange-500 dark:text-orange-400 rounded-full flex items-center justify-center mx-auto mb-6 shadow-inner">
+<div class="kgpt-confirm-dialog bg-white dark:bg-slate-900 rounded-[2.5rem] shadow-2xl w-full max-w-sm overflow-hidden border border-slate-100 dark:border-slate-800 transition-all duration-300">
+<div class="kgpt-confirm-body p-8 text-center pb-6">
+<div class="kgpt-confirm-icon w-20 h-20 bg-orange-50 dark:bg-orange-950/40 text-orange-500 dark:text-orange-400 rounded-full flex items-center justify-center mx-auto mb-6 shadow-inner">
 <svg class="w-10 h-10" fill="none" stroke="currentColor" stroke-width="2.5" viewbox="0 0 24 24"><path d="M12 9v3.75m-9.303 3.376c-.866 1.5.217 3.374 1.948 3.374h14.71c1.73 0 2.813-1.874 1.948-3.374L13.949 3.378c-.866-1.5-3.032-1.5-3.898 0L2.697 16.126zM12 15.75h.007v.008H12v-.008z" stroke-linecap="round" stroke-linejoin="round"></path></svg>
 </div>
-<h3 class="text-lg font-black text-slate-900 dark:text-white mb-2 uppercase tracking-tight">Xác nhận</h3>
+<h3 class="kgpt-confirm-title text-lg font-black text-slate-900 dark:text-white mb-2 uppercase tracking-tight">Xác nhận thao tác</h3>
 <p class="text-slate-500 dark:text-slate-400 font-bold text-xs leading-relaxed px-4" id="confirmMessage"></p>
 </div>
-<div class="p-6 pt-0 flex gap-3 border-t border-slate-50 dark:border-slate-800/40 bg-slate-50/30 dark:bg-slate-800/10">
-<button class="flex-1 h-12 text-slate-500 dark:text-slate-400 hover:bg-slate-100 dark:hover:bg-slate-800 font-bold rounded-xl text-xs uppercase tracking-wider transition-all duration-200" onclick="closeModal('modalCustomConfirm')">Hủy bỏ</button>
-<button class="flex-1 h-12 bg-gradient-to-r from-orange-500 to-amber-600 hover:from-orange-600 hover:to-amber-700 text-white font-black rounded-xl shadow-lg shadow-orange-500/20 uppercase text-xs tracking-wider transition-all duration-200 active:scale-95" id="btnCustomConfirmOk">Đồng ý</button>
+<div class="kgpt-confirm-actions p-6 pt-0 flex gap-3 border-t border-slate-50 dark:border-slate-800/40 bg-slate-50/30 dark:bg-slate-800/10">
+<button class="kgpt-confirm-cancel flex-1 h-12 text-slate-500 dark:text-slate-400 hover:bg-slate-100 dark:hover:bg-slate-800 font-bold rounded-xl text-xs uppercase tracking-wider transition-all duration-200" onclick="closeModal('modalCustomConfirm')">Hủy bỏ</button>
+<button class="kgpt-confirm-ok flex-1 h-12 bg-gradient-to-r from-blue-500 to-blue-700 hover:from-blue-600 hover:to-blue-800 text-white font-black rounded-xl shadow-lg shadow-blue-500/20 uppercase text-xs tracking-wider transition-all duration-200 active:scale-95" id="btnCustomConfirmOk">Đồng ý</button>
 </div>
 </div>
 </div>
@@ -4330,44 +4398,60 @@ window.addEventListener('message',event=>{const data=event.data||{};if(data.type
 <style id="feedbackModalPremiumStyle">
 #modalFeedback{z-index:900!important;background:rgba(7,16,32,.66)!important;backdrop-filter:blur(9px) saturate(.8);animation:feedbackBackdropIn .2s ease-out}
 #modalFeedback.hidden{display:none!important}
-#modalFeedback .feedback-dialog{position:relative;width:min(520px,calc(100vw - 28px));overflow:visible;border:1px solid rgba(203,213,225,.9);border-radius:26px;background:linear-gradient(180deg,#fff 0%,#fbfdff 100%);box-shadow:0 38px 90px -34px rgba(2,6,23,.72),0 16px 36px -26px rgba(37,99,235,.5);animation:feedbackDialogIn .32s cubic-bezier(.2,.8,.2,1)}
+#modalFeedback .feedback-dialog{position:relative;width:min(580px,calc(100vw - 28px));overflow:visible;border:1px solid rgba(203,213,225,.9);border-radius:26px;background:linear-gradient(180deg,#fff 0%,#fbfdff 100%);box-shadow:0 38px 90px -34px rgba(2,6,23,.72),0 16px 36px -26px rgba(37,99,235,.5);animation:feedbackDialogIn .32s cubic-bezier(.2,.8,.2,1)}
 #modalFeedback .feedback-head{position:relative;display:flex;align-items:center;justify-content:space-between;gap:20px;padding:25px 26px 23px;border-bottom:1px solid #e9eef5;background:radial-gradient(circle at 9% 0,rgba(59,130,246,.09),transparent 34%),linear-gradient(180deg,#fff,#fbfdff);border-radius:26px 26px 0 0;overflow:hidden}
 #modalFeedback .feedback-head-main{display:flex;align-items:center;gap:14px;min-width:0}
-#modalFeedback .feedback-icon{position:relative;width:46px;height:46px;flex:0 0 46px;display:grid;place-items:center;border:1px solid #cfe0ff;border-radius:14px;color:#2563eb;background:linear-gradient(145deg,#f4f8ff,#e8f1ff);box-shadow:0 12px 24px -18px rgba(37,99,235,.72),inset 0 1px #fff}
+#modalFeedback .feedback-icon{position:relative;width:50px;height:50px;flex:0 0 50px;display:grid;place-items:center;border:1px solid #cfe0ff;border-radius:15px;color:#2563eb;background:linear-gradient(145deg,#f4f8ff,#e8f1ff);box-shadow:0 12px 24px -18px rgba(37,99,235,.72),inset 0 1px #fff}
 #modalFeedback .feedback-icon:after{content:"";position:absolute;right:4px;bottom:4px;width:7px;height:7px;border:2px solid #edf4ff;border-radius:50%;background:#10b981}
-#modalFeedback .feedback-icon svg{width:22px;height:22px}
-#modalFeedback .feedback-kicker{margin-bottom:5px;color:#2563eb;font-size:8px;font-weight:900;letter-spacing:.16em;text-transform:uppercase}
-#modalFeedback .feedback-title{margin:0;color:#142038;font-size:15px;font-weight:950;line-height:1.2;letter-spacing:-.025em;text-transform:uppercase}
-#modalFeedback .feedback-subtitle{margin:5px 0 0;color:#8795a9;font-size:9px;font-weight:700;line-height:1.45}
+#modalFeedback .feedback-icon svg{width:24px;height:24px}
+#modalFeedback .feedback-kicker{margin-bottom:5px;color:#2563eb;font-size:9.5px;font-weight:900;letter-spacing:.15em;text-transform:uppercase}
+#modalFeedback .feedback-title{margin:0;color:#142038;font-size:18px;font-weight:950;line-height:1.25;letter-spacing:-.025em;text-transform:uppercase}
+#modalFeedback .feedback-subtitle{margin:6px 0 0;color:#8795a9;font-size:11px;font-weight:650;line-height:1.5}
 #modalFeedback .feedback-close{width:38px;height:38px;flex:0 0 38px;display:grid;place-items:center;border:1px solid #e1e8f2;border-radius:11px;background:#fff;color:#8a98ac;cursor:pointer;box-shadow:0 6px 16px -13px rgba(15,23,42,.5);transition:all .18s ease}
 #modalFeedback .feedback-close:hover{border-color:#fecaca;background:#fff5f5;color:#e11d48;transform:rotate(4deg)}#modalFeedback .feedback-close svg{width:17px;height:17px}
 #modalFeedback .feedback-body{padding:25px 26px 27px}
-#modalFeedback .feedback-intro{display:flex;align-items:flex-start;gap:10px;margin-bottom:21px;padding:11px 12px;border:1px solid #dbeafe;border-radius:12px;background:linear-gradient(135deg,#f8fbff,#f0f6ff);color:#52657f;font-size:10px;font-weight:650;line-height:1.55}
+#modalFeedback .feedback-intro{display:flex;align-items:flex-start;gap:10px;margin-bottom:21px;padding:12px 13px;border:1px solid #dbeafe;border-radius:12px;background:linear-gradient(135deg,#f8fbff,#f0f6ff);color:#52657f;font-size:11.5px;font-weight:650;line-height:1.6}
 #modalFeedback .feedback-intro svg{width:16px;height:16px;flex:none;margin-top:1px;color:#3b82f6}
 #modalFeedback .feedback-field+.feedback-field{margin-top:20px}
-#modalFeedback .feedback-label{display:flex;align-items:center;gap:7px;margin:0 0 8px 2px;color:#5f6f85;font-size:9px;font-weight:900;letter-spacing:.115em;text-transform:uppercase}
+#modalFeedback .feedback-label{display:flex;align-items:center;gap:7px;margin:0 0 9px 2px;color:#5f6f85;font-size:10.5px;font-weight:900;letter-spacing:.105em;text-transform:uppercase}
 #modalFeedback .feedback-label:before{content:"";width:5px;height:5px;border-radius:50%;background:#3b82f6;box-shadow:0 0 0 4px rgba(59,130,246,.09)}
 #modalFeedback .feedback-select{position:relative}
 #modalFeedback .feedback-select-trigger{width:100%;min-height:58px;padding:9px 46px 9px 10px;display:flex;align-items:center;gap:11px;border:1px solid #d9e3f0;border-radius:13px;background:#f8fafc;color:#1e293b;text-align:left;cursor:pointer;outline:none;box-shadow:0 8px 20px -22px rgba(15,23,42,.45);transition:border-color .18s ease,background .18s ease,box-shadow .18s ease}
 #modalFeedback .feedback-select-trigger:hover,#modalFeedback .feedback-select.open .feedback-select-trigger{border-color:#8db4ff;background:#fff;box-shadow:0 0 0 4px rgba(37,99,235,.075),0 15px 28px -24px rgba(37,99,235,.58)}
 #modalFeedback .feedback-select-icon{width:36px;height:36px;flex:0 0 36px;display:grid;place-items:center;border-radius:10px;color:#2563eb;background:#eaf2ff}#modalFeedback .feedback-select-icon svg{width:17px;height:17px}
-#modalFeedback .feedback-select-copy{min-width:0;display:block}#modalFeedback .feedback-select-title{display:block;color:#24324a;font-size:11px;font-weight:850;line-height:1.25}#modalFeedback .feedback-select-desc{display:block;margin-top:4px;color:#94a3b8;font-size:8.5px;font-weight:650;line-height:1.25}
+#modalFeedback .feedback-select-copy{min-width:0;display:block}#modalFeedback .feedback-select-title{display:block;color:#24324a;font-size:13px;font-weight:850;line-height:1.3}#modalFeedback .feedback-select-desc{display:block;margin-top:4px;color:#94a3b8;font-size:10.5px;font-weight:650;line-height:1.35}
 #modalFeedback .feedback-select-chevron{position:absolute;right:15px;top:50%;width:17px;height:17px;color:#8ca0ba;transform:translateY(-50%);transition:transform .2s ease,color .2s ease}#modalFeedback .feedback-select.open .feedback-select-chevron{color:#2563eb;transform:translateY(-50%) rotate(180deg)}
 #modalFeedback .feedback-select-menu{position:absolute;z-index:20;left:0;right:0;top:calc(100% + 8px);padding:7px;border:1px solid #dce5f1;border-radius:15px;background:rgba(255,255,255,.98);box-shadow:0 24px 55px -24px rgba(15,23,42,.48),0 12px 24px -20px rgba(37,99,235,.35);backdrop-filter:blur(16px);opacity:0;visibility:hidden;transform:translateY(-6px) scale(.985);transform-origin:top;transition:opacity .16s ease,transform .16s ease,visibility .16s}
 #modalFeedback .feedback-select.open .feedback-select-menu{opacity:1;visibility:visible;transform:none}
 #modalFeedback .feedback-option{position:relative;width:100%;min-height:54px;padding:8px 38px 8px 10px;display:flex;align-items:center;gap:10px;border:0;border-radius:10px;background:transparent;text-align:left;cursor:pointer;transition:background .16s ease,color .16s ease}
 #modalFeedback .feedback-option:hover{background:#f1f6ff}#modalFeedback .feedback-option-mark{width:32px;height:32px;flex:0 0 32px;display:grid;place-items:center;border-radius:9px;color:#64748b;background:#f1f5f9}#modalFeedback .feedback-option-mark svg{width:15px;height:15px}#modalFeedback .feedback-option[data-value="Báo lỗi (Bug)"] .feedback-option-mark{color:#e11d48;background:#fff1f2}#modalFeedback .feedback-option[data-value="Góp ý phát triển"] .feedback-option-mark{color:#2563eb;background:#eaf2ff}#modalFeedback .feedback-option[data-value="Khác"] .feedback-option-mark{color:#0891b2;background:#ecfeff}
-#modalFeedback .feedback-option-copy strong{display:block;color:#26354c;font-size:10.5px;font-weight:850}#modalFeedback .feedback-option-copy small{display:block;margin-top:3px;color:#94a3b8;font-size:8.5px;font-weight:650}#modalFeedback .feedback-option-check{position:absolute;right:13px;top:50%;width:17px;height:17px;color:#2563eb;opacity:0;transform:translateY(-50%) scale(.8)}#modalFeedback .feedback-option.selected{background:#f4f8ff}#modalFeedback .feedback-option.selected .feedback-option-check{opacity:1;transform:translateY(-50%) scale(1)}
+#modalFeedback .feedback-option-copy strong{display:block;color:#26354c;font-size:12px;font-weight:850}#modalFeedback .feedback-option-copy small{display:block;margin-top:3px;color:#94a3b8;font-size:10px;font-weight:650;line-height:1.4}#modalFeedback .feedback-option-check{position:absolute;right:13px;top:50%;width:17px;height:17px;color:#2563eb;opacity:0;transform:translateY(-50%) scale(.8)}#modalFeedback .feedback-option.selected{background:#f4f8ff}#modalFeedback .feedback-option.selected .feedback-option-check{opacity:1;transform:translateY(-50%) scale(1)}
 #modalFeedback #feedbackType{display:none!important}
 #modalFeedback .feedback-textarea-wrap{position:relative}
-#modalFeedback #feedbackContent{width:100%;min-height:142px;padding:15px 16px 34px;border:1px solid #d9e3f0;border-radius:13px;background:#f8fafc;color:#172033;font-size:11.5px;font-weight:650;line-height:1.65;resize:none;outline:none;box-shadow:0 8px 20px -22px rgba(15,23,42,.45);transition:border-color .18s ease,background .18s ease,box-shadow .18s ease}
+#modalFeedback #feedbackContent{width:100%;min-height:160px;padding:16px 17px 36px;border:1px solid #d9e3f0;border-radius:13px;background:#f8fafc;color:#172033;font-size:13.5px;font-weight:600;line-height:1.65;resize:none;outline:none;box-shadow:0 8px 20px -22px rgba(15,23,42,.45);transition:border-color .18s ease,background .18s ease,box-shadow .18s ease}
 #modalFeedback #feedbackContent::placeholder{color:#9ba9bb;font-weight:600}#modalFeedback #feedbackContent:hover{border-color:#c5d3e4;background:#fbfdff}#modalFeedback #feedbackContent:focus{border-color:#6c9eff;background:#fff;box-shadow:0 0 0 4px rgba(37,99,235,.075),0 15px 28px -24px rgba(37,99,235,.5)}
-#modalFeedback .feedback-counter{position:absolute;right:13px;bottom:10px;color:#9aa8b9;font-size:8.5px;font-weight:800;font-variant-numeric:tabular-nums}
+#modalFeedback .feedback-counter{position:absolute;right:13px;bottom:10px;color:#9aa8b9;font-size:10px;font-weight:800;font-variant-numeric:tabular-nums}
+#modalFeedback .feedback-error-context{margin-bottom:18px;overflow:hidden;border:1px solid #fecaca;border-radius:15px;background:linear-gradient(145deg,#fff7f7,#fff);box-shadow:0 14px 30px -27px rgba(220,38,38,.48)}
+#modalFeedback .feedback-error-context.hidden{display:none!important}
+#modalFeedback .feedback-error-summary{padding:13px 14px;display:flex;align-items:flex-start;gap:11px}
+#modalFeedback .feedback-error-mark{width:36px;height:36px;flex:0 0 36px;display:grid;place-items:center;border:1px solid #fecaca;border-radius:11px;background:#fff;color:#dc2626;box-shadow:0 9px 18px -15px rgba(220,38,38,.62)}
+#modalFeedback .feedback-error-mark svg{width:18px;height:18px}
+#modalFeedback .feedback-error-copy{min-width:0;flex:1}
+#modalFeedback .feedback-error-heading{display:flex;align-items:center;justify-content:space-between;gap:10px;margin-bottom:5px}
+#modalFeedback .feedback-error-heading span{color:#b42318;font-size:10.5px;font-weight:900;letter-spacing:.085em;text-transform:uppercase}
+#modalFeedback .feedback-error-heading b{padding:4px 7px;border:1px solid #fecaca;border-radius:7px;background:#fff;color:#c2410c;font-size:9.5px;font-weight:900;letter-spacing:.07em;white-space:nowrap}
+#modalFeedback .feedback-error-copy p{margin:0;color:#6b3340;font-size:12.5px;font-weight:700;line-height:1.6;overflow-wrap:anywhere}
+#modalFeedback .feedback-error-details{border-top:1px solid #fee2e2;background:rgba(255,255,255,.66)}
+#modalFeedback .feedback-error-details summary{padding:10px 14px;color:#8a4b57;font-size:10.5px;font-weight:800;cursor:pointer;user-select:none}
+#modalFeedback .feedback-error-details pre{max-height:130px;margin:0;padding:0 14px 13px;overflow:auto;white-space:pre-wrap;overflow-wrap:anywhere;color:#64748b;font:500 10.5px/1.6 ui-monospace,SFMono-Regular,Consolas,monospace}
+#modalFeedback[data-mode="error"] .feedback-intro{border-color:#dbeafe;background:#f4f8ff;color:#315fc5}
+#modalFeedback[data-mode="error"] .feedback-icon{border-color:#fecaca;background:linear-gradient(145deg,#fff,#fff1f2);color:#dc2626}
 #modalFeedback .feedback-foot{display:grid;grid-template-columns:.78fr 1.32fr;gap:11px;padding:18px 26px 22px;border-top:1px solid #e8edf4;background:linear-gradient(180deg,#fbfdff,#f7faff);border-radius:0 0 26px 26px}
-#modalFeedback .feedback-cancel,#modalFeedback .feedback-submit{height:48px;border-radius:12px;font-size:10px;font-weight:900;letter-spacing:.075em;text-transform:uppercase;cursor:pointer;transition:all .18s ease}
+#modalFeedback .feedback-cancel,#modalFeedback .feedback-submit{height:50px;border-radius:12px;font-size:11.5px;font-weight:900;letter-spacing:.065em;text-transform:uppercase;cursor:pointer;transition:all .18s ease}
 #modalFeedback .feedback-cancel{border:1px solid #dce4ef;background:#fff;color:#64748b}#modalFeedback .feedback-cancel:hover{border-color:#c5d3e4;background:#f8fafc;color:#334155}
 #modalFeedback .feedback-submit{position:relative;overflow:hidden;display:flex;align-items:center;justify-content:center;gap:9px;border:1px solid rgba(255,255,255,.16);background:linear-gradient(135deg,#3b82f6,#2563eb 55%,#1d4ed8);color:#fff;box-shadow:0 16px 27px -16px rgba(37,99,235,.82),inset 0 1px rgba(255,255,255,.24)}#modalFeedback .feedback-submit:hover{transform:translateY(-1px);box-shadow:0 20px 32px -17px rgba(37,99,235,.95),inset 0 1px rgba(255,255,255,.3)}#modalFeedback .feedback-submit:active{transform:scale(.985)}#modalFeedback .feedback-submit:disabled{opacity:.7;cursor:wait;transform:none}#modalFeedback .feedback-submit svg{width:16px;height:16px}#modalFeedback .feedback-submit.is-loading svg{animation:feedbackSendPulse .8s ease-in-out infinite alternate}
 html.dark #modalFeedback .feedback-dialog{border-color:#334155;background:linear-gradient(180deg,#111827,#0f172a)}html.dark #modalFeedback .feedback-head{border-color:#263248;background:radial-gradient(circle at 9% 0,rgba(59,130,246,.14),transparent 34%),#111827}html.dark #modalFeedback .feedback-title{color:#f8fafc}html.dark #modalFeedback .feedback-close{border-color:#334155;background:#172033;color:#94a3b8}html.dark #modalFeedback .feedback-intro,html.dark #modalFeedback .feedback-select-trigger,html.dark #modalFeedback #feedbackContent{border-color:#334155;background:#172033;color:#e5edf8}html.dark #modalFeedback .feedback-select-title{color:#e5edf8}html.dark #modalFeedback .feedback-select-menu{border-color:#334155;background:rgba(15,23,42,.98)}html.dark #modalFeedback .feedback-option-copy strong{color:#e5edf8}html.dark #modalFeedback .feedback-option:hover,html.dark #modalFeedback .feedback-option.selected{background:#1e3150}html.dark #modalFeedback .feedback-foot{border-color:#263248;background:#0c1424}html.dark #modalFeedback .feedback-cancel{border-color:#334155;background:#172033;color:#cbd5e1}
+html.dark #modalFeedback .feedback-error-context{border-color:#7f1d1d;background:linear-gradient(145deg,rgba(127,29,29,.24),#111827)}html.dark #modalFeedback .feedback-error-mark,html.dark #modalFeedback .feedback-error-heading b{border-color:#7f1d1d;background:#172033;color:#fca5a5}html.dark #modalFeedback .feedback-error-copy p{color:#fecaca}html.dark #modalFeedback .feedback-error-details{border-color:#7f1d1d;background:rgba(15,23,42,.45)}html.dark #modalFeedback .feedback-error-details summary{color:#fda4af}html.dark #modalFeedback .feedback-error-details pre{color:#94a3b8}
 @keyframes feedbackBackdropIn{from{opacity:0}to{opacity:1}}@keyframes feedbackDialogIn{from{opacity:0;transform:translateY(12px) scale(.975)}to{opacity:1;transform:none}}@keyframes feedbackSendPulse{to{transform:translateX(3px)}}
 @media(max-width:560px){#modalFeedback{padding:12px!important;align-items:flex-end!important}#modalFeedback .feedback-dialog{width:100%;border-radius:22px}#modalFeedback .feedback-head{padding:21px 20px;border-radius:22px 22px 0 0}#modalFeedback .feedback-body{padding:21px 20px 23px}#modalFeedback .feedback-foot{padding:16px 20px 20px;border-radius:0 0 22px 22px}#modalFeedback .feedback-subtitle{display:none}}
 @media(prefers-reduced-motion:reduce){#modalFeedback,#modalFeedback .feedback-dialog,#modalFeedback *{animation:none!important;transition:none!important}}
@@ -4377,13 +4461,17 @@ html.dark #modalFeedback .feedback-dialog{border-color:#334155;background:linear
 <div class="feedback-head">
 <div class="feedback-head-main">
 <div class="feedback-icon"><svg fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M5 5.5h14v10H9l-4 3v-13Z" stroke-linejoin="round"/><path d="M8.5 9h7M8.5 12h4" stroke-linecap="round"/></svg></div>
-<div><div class="feedback-kicker">Feedback Center</div><h3 class="feedback-title" id="feedbackDialogTitle">Gửi phản hồi hệ thống</h3><p class="feedback-subtitle">Ý kiến của bạn giúp kho dữ liệu ngày càng chính xác và hữu ích.</p></div>
+<div><div class="feedback-kicker" id="feedbackDialogKicker">Feedback Center</div><h3 class="feedback-title" id="feedbackDialogTitle">Gửi phản hồi hệ thống</h3><p class="feedback-subtitle" id="feedbackDialogSubtitle">Ý kiến của bạn giúp kho dữ liệu ngày càng chính xác và hữu ích.</p></div>
 </div>
 <button class="feedback-close" type="button" aria-label="Đóng hộp thoại phản hồi" onclick="closeModal('modalFeedback')"><svg fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M7 7l10 10M17 7 7 17" stroke-linecap="round"/></svg></button>
 </div>
 <div class="feedback-body">
-<div class="feedback-intro"><svg fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><path d="M12 11v5M12 8h.01" stroke-linecap="round"/></svg><span>Mô tả rõ tình huống hoặc đề xuất để đội ngũ quản trị có thể hỗ trợ bạn nhanh hơn.</span></div>
-<div class="feedback-field"><label class="feedback-label" id="feedbackTypeLabel">Loại phản hồi</label>
+<div class="feedback-intro"><svg fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><path d="M12 11v5M12 8h.01" stroke-linecap="round"/></svg><span id="feedbackIntroText">Mô tả rõ tình huống hoặc đề xuất để đội ngũ quản trị có thể hỗ trợ bạn nhanh hơn.</span></div>
+<section class="feedback-error-context hidden" id="feedbackErrorContext" aria-live="polite">
+<div class="feedback-error-summary"><div class="feedback-error-mark"><svg fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M10.3 3.7 2.6 17a2 2 0 0 0 1.7 3h15.4a2 2 0 0 0 1.7-3L13.7 3.7a2 2 0 0 0-3.4 0Z" stroke-linejoin="round"/><path d="M12 9v4M12 17h.01" stroke-linecap="round"/></svg></div><div class="feedback-error-copy"><div class="feedback-error-heading"><span>Thông tin lỗi</span><b id="feedbackErrorCode">ERR-000000</b></div><p id="feedbackErrorMessage">Hệ thống vừa ghi nhận một lỗi chưa xác định.</p></div></div>
+<details class="feedback-error-details"><summary>Xem thông tin kỹ thuật</summary><pre id="feedbackErrorTechnical"></pre></details>
+</section>
+<div class="feedback-field" id="feedbackTypeField"><label class="feedback-label" id="feedbackTypeLabel">Loại phản hồi</label>
 <div class="feedback-select" id="feedbackSelect">
 <button class="feedback-select-trigger" id="feedbackSelectTrigger" type="button" aria-haspopup="listbox" aria-expanded="false" aria-labelledby="feedbackTypeLabel feedbackSelectedTitle" onclick="toggleFeedbackTypeMenu(event)">
 <span class="feedback-select-icon"><svg fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M12 9v4M12 17h.01" stroke-linecap="round"/><path d="M10.3 4.8 3.5 17a2 2 0 0 0 1.75 3h13.5a2 2 0 0 0 1.75-3L13.7 4.8a2 2 0 0 0-3.4 0Z" stroke-linejoin="round"/></svg></span>
@@ -4397,7 +4485,7 @@ html.dark #modalFeedback .feedback-dialog{border-color:#334155;background:linear
 </div>
 <select id="feedbackType" tabindex="-1" aria-hidden="true"><option value="Báo lỗi (Bug)">Báo lỗi tính năng / Sai dữ liệu</option><option value="Góp ý phát triển">Đề xuất tính năng mới</option><option value="Khác">Yêu cầu hỗ trợ khác</option></select>
 </div></div>
-<div class="feedback-field"><label class="feedback-label" for="feedbackContent">Nội dung chi tiết</label><div class="feedback-textarea-wrap"><textarea id="feedbackContent" maxlength="1000" placeholder="Mô tả vấn đề, dữ liệu liên quan hoặc đề xuất của bạn..."></textarea><span class="feedback-counter"><span id="feedbackCharCount">0</span>/1000</span></div></div>
+<div class="feedback-field"><label class="feedback-label" for="feedbackContent" id="feedbackContentLabel">Nội dung chi tiết</label><div class="feedback-textarea-wrap"><textarea id="feedbackContent" maxlength="1000" placeholder="Mô tả vấn đề, dữ liệu liên quan hoặc đề xuất của bạn..."></textarea><span class="feedback-counter"><span id="feedbackCharCount">0</span>/1000</span></div></div>
 </div>
 <div class="feedback-foot"><button class="feedback-cancel" type="button" onclick="closeModal('modalFeedback')">Hủy bỏ</button><button class="feedback-submit" type="button" id="btnSubmitFeedback"><svg fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M6 12 3.5 4A54 54 0 0 1 20.5 12 54 54 0 0 1 3.5 20L6 12Zm0 0h7" stroke-linecap="round" stroke-linejoin="round"/></svg><span id="feedbackSubmitLabel">Gửi phản hồi</span></button></div>
 </div>
@@ -5096,7 +5184,7 @@ html.dark #modalFeedback .feedback-dialog{border-color:#334155;background:linear
         let activeAdminTab = 'dashboard';
         let activeMainLookupTab = localStorage.getItem('tasco_main_lookup_tab') || 'parts';
         const requestedMainView = new URLSearchParams(window.location.search).get('view');
-        if (['parts', 'quote', 'teacher', 'student', 'users', 'feedbacks'].includes(requestedMainView)) activeMainLookupTab = requestedMainView;
+        if (['parts', 'quote', 'teacher', 'student', 'ranking', 'users', 'feedbacks'].includes(requestedMainView)) activeMainLookupTab = requestedMainView;
         if (activeMainLookupTab === 'home') activeMainLookupTab = 'parts';
         let ADMIN_USER_CACHE = [];
         let ADMIN_USER_STATUS_FILTER = 'all';
@@ -5126,10 +5214,11 @@ html.dark #modalFeedback .feedback-dialog{border-color:#334155;background:linear
             if (!currentUserProfile || currentUserProfile.status !== 'active') return false;
             if (currentUserProfile.role === 'admin') return true;
             if (page === 'users') return false;
+            if (page === 'ranking') return action === 'view' && (currentUserProfile.permissions?.student?.view === true || currentUserProfile.permissions?.teacher?.view === true);
             return currentUserProfile.permissions?.[page]?.[action] === true;
         }
         function firstAllowedMainPage() {
-            return ['parts', 'quote', 'teacher', 'student'].find(page => canCurrentUserAccessPage(page, 'view')) || null;
+            return ['parts', 'quote', 'teacher', 'student', 'ranking'].find(page => canCurrentUserAccessPage(page, 'view')) || null;
         }
         function applyCurrentUserPermissions() {
             if (!currentUserProfile) return;
@@ -5620,7 +5709,7 @@ html.dark #modalFeedback .feedback-dialog{border-color:#334155;background:linear
         });
         // CHUYỂN TAB TRA CỨU CHÍNH
         window.switchMainLookupTab = function(tab = 'home', persist = true) {
-            const requestedTab = ['quote', 'parts', 'teacher', 'student', 'users', 'feedbacks'].includes(tab) ? tab : 'parts';
+            const requestedTab = ['quote', 'parts', 'teacher', 'student', 'ranking', 'users', 'feedbacks'].includes(tab) ? tab : 'parts';
             if (requestedTab !== 'student' && window.isStudentQuizInProgress?.()) {
                 customAlert('Bài làm đang diễn ra. Bạn không thể chuyển sang trang khác trước khi nộp bài.', 'warning');
                 return false;
@@ -5663,6 +5752,7 @@ html.dark #modalFeedback .feedback-dialog{border-color:#334155;background:linear
             const headerQuoteBtn = document.getElementById('headerBtnQuoteLookup');
             const teacherLearningSection = document.getElementById('teacherLearningSection');
             const studentLearningSection = document.getElementById('studentLearningSection');
+            const trainingRankingSection = document.getElementById('trainingRankingSection');
             const userManagementSection = document.getElementById('userManagementSection');
             const feedbackManagementSection = document.getElementById('feedbackManagementSection');
             const isHomeTab = activeMainLookupTab === 'home';
@@ -5670,6 +5760,7 @@ html.dark #modalFeedback .feedback-dialog{border-color:#334155;background:linear
             const isPartsTab = activeMainLookupTab === 'parts';
             const isTeacherTab = activeMainLookupTab === 'teacher';
             const isStudentTab = activeMainLookupTab === 'student';
+            const isRankingTab = activeMainLookupTab === 'ranking';
             const isUsersTab = activeMainLookupTab === 'users';
             const isFeedbacksTab = activeMainLookupTab === 'feedbacks';
             const pageContextMap = {
@@ -5677,6 +5768,7 @@ html.dark #modalFeedback .feedback-dialog{border-color:#334155;background:linear
                 quote: { kicker: 'Tra cứu nghiệp vụ', title: 'Tra cứu theo báo giá' },
                 teacher: { kicker: 'Đào tạo nghiệp vụ', title: 'Quản lý bài tập' },
                 student: { kicker: 'Đào tạo nghiệp vụ', title: 'Bài tập của tôi' },
+                ranking: { kicker: 'Đào tạo nghiệp vụ', title: 'Bảng xếp hạng thi đua' },
                 users: { kicker: 'Công cụ hệ thống', title: 'Quản lý người dùng' },
                 feedbacks: { kicker: 'Công cụ hệ thống', title: 'Phản hồi người dùng' }
             };
@@ -5694,6 +5786,7 @@ html.dark #modalFeedback .feedback-dialog{border-color:#334155;background:linear
             if (quotePriceSection) quotePriceSection.style.display = isQuoteTab ? 'block' : 'none';
             if (teacherLearningSection) teacherLearningSection.style.display = isTeacherTab ? 'block' : 'none';
             if (studentLearningSection) studentLearningSection.style.display = isStudentTab ? 'block' : 'none';
+            if (trainingRankingSection) trainingRankingSection.style.display = isRankingTab ? 'block' : 'none';
             if (userManagementSection) userManagementSection.style.display = isUsersTab ? 'block' : 'none';
             if (feedbackManagementSection) feedbackManagementSection.style.display = isFeedbacksTab ? 'block' : 'none';
             const partsHeroArtwork = searchPanel?.querySelector('.parts-hero-watermark');
@@ -5709,6 +5802,7 @@ html.dark #modalFeedback .feedback-dialog{border-color:#334155;background:linear
                 if (frame) window.__loadEmbeddedPage(frame, frame.dataset.embeddedKey);
             }
             if (isFeedbacksTab) setTimeout(() => window.loadFeedbackManagementData?.(), 80);
+            if (isRankingTab) setTimeout(() => window.renderTrainingLeaderboard?.(), 40);
             if (headerPartsBtn) {
                 headerPartsBtn.classList.toggle('active', isPartsTab);
                 headerPartsBtn.setAttribute('aria-pressed', String(isPartsTab));
@@ -5745,6 +5839,7 @@ html.dark #modalFeedback .feedback-dialog{border-color:#334155;background:linear
             const userUsage = document.getElementById('currentUserUsageDashboard');
             const teacherLearningSection = document.getElementById('teacherLearningSection');
             const studentLearningSection = document.getElementById('studentLearningSection');
+            const trainingRankingSection = document.getElementById('trainingRankingSection');
             const userManagementSection = document.getElementById('userManagementSection');
             const feedbackManagementSection = document.getElementById('feedbackManagementSection');
             if (view === 'login') {
@@ -5777,6 +5872,7 @@ html.dark #modalFeedback .feedback-dialog{border-color:#334155;background:linear
                 if (quotePriceSection) quotePriceSection.style.display = 'none';
                 if (teacherLearningSection) teacherLearningSection.style.display = 'none';
                 if (studentLearningSection) studentLearningSection.style.display = 'none';
+                if (trainingRankingSection) trainingRankingSection.style.display = 'none';
                 if (userManagementSection) userManagementSection.style.display = 'none';
                 if (feedbackManagementSection) feedbackManagementSection.style.display = 'none';
                 if (userUsage) userUsage.classList.add('hidden');
@@ -5883,7 +5979,7 @@ html.dark #modalFeedback .feedback-dialog{border-color:#334155;background:linear
                 if (main) main.style.display = 'block';
                 if (sysMgr) sysMgr.style.display = 'none';
                 if (headerTabs) headerTabs.style.display = 'flex';
-                ['searchPanel', 'dataSection', 'quotePriceSection', 'teacherLearningSection', 'studentLearningSection', 'userManagementSection', 'feedbackManagementSection'].forEach(id => {
+                ['searchPanel', 'dataSection', 'quotePriceSection', 'teacherLearningSection', 'studentLearningSection', 'trainingRankingSection', 'userManagementSection', 'feedbackManagementSection'].forEach(id => {
                     const section = document.getElementById(id);
                     if (section) section.style.display = 'none';
                 });
@@ -10538,6 +10634,12 @@ ${text}` });
         window.openModal = (id) => document.getElementById(id).classList.remove('hidden');
         window.closeModal = (id) => document.getElementById(id).classList.add('hidden');
         window.customAlert = function(message, type = 'error') {
+            const alertText = String(message ?? '');
+            const isReportableSystemError = type === 'error' && /(lỗi|không thể|thất bại|error|failed)/i.test(alertText);
+            if (isReportableSystemError && !window.__kgptErrorReportBusy && typeof window.openSystemErrorReport === 'function') {
+                window.openSystemErrorReport(new Error(alertText), { source: 'Thông báo hệ thống' });
+                return;
+            }
             const titleEl = document.getElementById('alertTitle');
             const msgEl = document.getElementById('alertMessage');
             const iconContainer = document.getElementById('alertIconContainer');
@@ -12048,17 +12150,182 @@ ${text}` });
             const counter = document.getElementById('feedbackCharCount');
             if (counter) counter.textContent = String(this.value.length);
         });
-        window.openFeedbackModal = function() {
-            document.getElementById('feedbackContent').value = '';
+        let pendingSystemErrorReport = null;
+        let lastSystemErrorSignature = '';
+        let lastSystemErrorAt = 0;
+        const FEEDBACK_DEFAULT_ICON = '<svg fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M5 5.5h14v10H9l-4 3v-13Z" stroke-linejoin="round"/><path d="M8.5 9h7M8.5 12h4" stroke-linecap="round"/></svg>';
+        const FEEDBACK_ERROR_ICON = '<svg fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M10.3 3.7 2.6 17a2 2 0 0 0 1.7 3h15.4a2 2 0 0 0 1.7-3L13.7 3.7a2 2 0 0 0-3.4 0Z" stroke-linejoin="round"/><path d="M12 9v4M12 17h.01" stroke-linecap="round"/></svg>';
+
+        function redactSystemErrorText(value, limit = 700) {
+            let text = String(value ?? '').trim();
+            text = text.replace(/(authorization|bearer|token|api[_-]?key|password|secret)\s*[:=]\s*[^\s,;]+/gi, '$1=[ĐÃ ẨN]');
+            text = text.replace(/\bAIza[A-Za-z0-9_-]{20,}\b/g, '[API KEY ĐÃ ẨN]');
+            text = text.replace(/\beyJ[A-Za-z0-9_-]{20,}(?:\.[A-Za-z0-9_-]+){1,2}\b/g, '[TOKEN ĐÃ ẨN]');
+            text = text.replace(/file:\/{2,3}[^\s)]+/gi, raw => {
+                const clean = decodeURIComponent(raw).split(/[\\/]/).pop() || 'local-file';
+                return clean.replace(/[?#].*$/, '');
+            });
+            text = text.replace(/https?:\/\/[^\s)]+/gi, raw => {
+                try {
+                    const url = new URL(raw);
+                    return url.origin + url.pathname;
+                } catch (_) {
+                    return raw.replace(/[?#].*$/, '');
+                }
+            });
+            return text.slice(0, limit);
+        }
+
+        function getSystemErrorArea() {
+            const labels = {
+                parts: 'Tra cứu theo dòng xe', quote: 'Tra cứu theo báo giá',
+                teacher: 'Quản lý bài tập', student: 'Bài tập của tôi', ranking: 'Bảng xếp hạng thi đua',
+                users: 'Quản lý người dùng', feedbacks: 'Phản hồi người dùng'
+            };
+            return labels[activeMainLookupTab] || document.getElementById('tiPageContextTitle')?.textContent?.trim() || 'Không xác định';
+        }
+
+        function createSystemErrorReport(error, context = {}) {
+            const rawMessage = typeof error === 'string' ? error : error?.message || context.message || 'Lỗi hệ thống chưa xác định';
+            const message = redactSystemErrorText(rawMessage, 360) || 'Lỗi hệ thống chưa xác định';
+            const stack = redactSystemErrorText(error?.stack || context.stack || '', 520);
+            const source = redactSystemErrorText(context.source || 'Ứng dụng chính', 100);
+            const filename = redactSystemErrorText(context.filename || error?.fileName || '', 150);
+            const line = Number(context.line || error?.lineNumber || 0);
+            const column = Number(context.column || error?.columnNumber || 0);
+            const timestamp = new Date();
+            const signature = [message, source, filename, line, column].join('|');
+            let hash = 0;
+            for (let index = 0; index < signature.length; index += 1) hash = ((hash << 5) - hash + signature.charCodeAt(index)) | 0;
+            const code = 'ERR-' + Math.abs(hash).toString(36).toUpperCase().padStart(6, '0').slice(0, 6);
+            const pageName = location.protocol === 'file:' ? decodeURIComponent(location.pathname.split('/').pop() || 'index.html') : location.origin + location.pathname;
+            const technical = [
+                `Nguồn: ${source}`,
+                `Khu vực: ${getSystemErrorArea()}`,
+                `Trang: ${pageName}`,
+                filename ? `Tệp: ${filename}${line ? `:${line}${column ? `:${column}` : ''}` : ''}` : '',
+                stack ? `Chi tiết: ${stack}` : ''
+            ].filter(Boolean).join('\n');
+            return { code, message, technical, signature, timestamp: timestamp.toLocaleString('vi-VN') };
+        }
+
+        function setFeedbackDialogMode(mode, report = null) {
+            const modal = document.getElementById('modalFeedback');
+            const errorMode = mode === 'error';
+            modal.dataset.mode = errorMode ? 'error' : 'feedback';
+            document.getElementById('feedbackDialogKicker').textContent = errorMode ? 'System Error Report' : 'Feedback Center';
+            document.getElementById('feedbackDialogTitle').textContent = errorMode ? 'Đã xảy ra lỗi hệ thống' : 'Gửi phản hồi hệ thống';
+            document.getElementById('feedbackDialogSubtitle').textContent = errorMode ? 'Gửi thông tin này để Admin kiểm tra và hỗ trợ bạn.' : 'Ý kiến của bạn giúp kho dữ liệu ngày càng chính xác và hữu ích.';
+            document.getElementById('feedbackIntroText').textContent = errorMode ? 'Thông tin kỹ thuật đã được thu thập tự động và đã loại bỏ dữ liệu nhạy cảm.' : 'Mô tả rõ tình huống hoặc đề xuất để đội ngũ quản trị có thể hỗ trợ bạn nhanh hơn.';
+            document.getElementById('feedbackTypeField').classList.toggle('hidden', errorMode);
+            document.getElementById('feedbackErrorContext').classList.toggle('hidden', !errorMode);
+            document.getElementById('feedbackContentLabel').textContent = errorMode ? 'Bạn đang thao tác gì trước khi lỗi xảy ra? (không bắt buộc)' : 'Nội dung chi tiết';
+            document.getElementById('feedbackContent').placeholder = errorMode ? 'Ví dụ: Tôi đang tải báo giá thì màn hình dừng lại...' : 'Mô tả vấn đề, dữ liệu liên quan hoặc đề xuất của bạn...';
+            document.getElementById('feedbackSubmitLabel').textContent = errorMode ? 'Gửi lỗi cho Admin' : 'Gửi phản hồi';
+            const dialogIcon = modal.querySelector('.feedback-icon');
+            if (dialogIcon) dialogIcon.innerHTML = errorMode ? FEEDBACK_ERROR_ICON : FEEDBACK_DEFAULT_ICON;
+            if (errorMode && report) {
+                document.getElementById('feedbackErrorCode').textContent = report.code;
+                document.getElementById('feedbackErrorMessage').textContent = report.message;
+                document.getElementById('feedbackErrorTechnical').textContent = report.technical;
+                window.selectFeedbackType('Báo lỗi (Bug)');
+            }
+        }
+
+        function resetFeedbackComposer() {
+            const content = document.getElementById('feedbackContent');
+            if (content) content.value = '';
             const counter = document.getElementById('feedbackCharCount');
             if (counter) counter.textContent = '0';
+        }
+
+        window.openFeedbackModal = function() {
+            pendingSystemErrorReport = null;
+            resetFeedbackComposer();
+            setFeedbackDialogMode('feedback');
             window.selectFeedbackType('Báo lỗi (Bug)');
             openModal('modalFeedback');
             setTimeout(() => document.getElementById('feedbackContent')?.focus(), 180);
         };
+
+        window.openSystemErrorReport = function(error, context = {}) {
+            if (window.__kgptErrorReportBusy) return;
+            const report = createSystemErrorReport(error, context);
+            const now = Date.now();
+            const modal = document.getElementById('modalFeedback');
+            if (report.signature === lastSystemErrorSignature && now - lastSystemErrorAt < 15000) return;
+            if (!modal.classList.contains('hidden') && modal.dataset.mode === 'error') return;
+            lastSystemErrorSignature = report.signature;
+            lastSystemErrorAt = now;
+            pendingSystemErrorReport = report;
+            resetFeedbackComposer();
+            setFeedbackDialogMode('error', report);
+            openModal('modalFeedback');
+            setTimeout(() => document.getElementById('feedbackContent')?.focus(), 180);
+        };
+
+        function composeSystemErrorFeedback(userNote, report) {
+            const sections = [
+                '[BÁO LỖI TỰ ĐỘNG]',
+                `Mã lỗi: ${report.code}`,
+                `Thời điểm: ${report.timestamp}`,
+                `Thông báo: ${report.message}`,
+                userNote ? `Mô tả người dùng: ${userNote}` : 'Mô tả người dùng: Không bổ sung',
+                report.technical
+            ];
+            return sections.filter(Boolean).join('\n').slice(0, 1000);
+        }
+
+        window.addEventListener('error', event => {
+            if (window.__kgptErrorReportBusy) return;
+            if (event.error || event.message) {
+                window.openSystemErrorReport(event.error || new Error(event.message), {
+                    source: 'Lỗi JavaScript', filename: event.filename, line: event.lineno, column: event.colno
+                });
+                return;
+            }
+            const target = event.target;
+            if (target && ['SCRIPT', 'LINK'].includes(target.tagName)) {
+                const resource = target.src || target.href || 'tài nguyên không xác định';
+                window.openSystemErrorReport(new Error('Không thể tải tài nguyên cần thiết.'), { source: 'Tải tài nguyên', filename: resource });
+            }
+        }, true);
+
+        window.addEventListener('unhandledrejection', event => {
+            if (window.__kgptErrorReportBusy) return;
+            const reason = event.reason instanceof Error ? event.reason : new Error(String(event.reason || 'Promise bị từ chối nhưng không có thông báo.'));
+            window.openSystemErrorReport(reason, { source: 'Tác vụ bất đồng bộ' });
+        });
+
+        function attachEmbeddedErrorReporter(frame) {
+            const frameWindow = frame?.contentWindow;
+            if (!frameWindow || frame.dataset.errorReporterBound === '1') return;
+            frame.dataset.errorReporterBound = '1';
+            const source = 'Trang nhúng: ' + (frame.title || frame.dataset.embeddedKey || 'không xác định');
+            frameWindow.addEventListener('error', event => {
+                window.openSystemErrorReport(event.error || new Error(event.message || 'Lỗi trong trang nhúng.'), {
+                    source, filename: event.filename, line: event.lineno, column: event.colno
+                });
+            });
+            frameWindow.addEventListener('unhandledrejection', event => {
+                const reason = event.reason instanceof Error ? event.reason : new Error(String(event.reason || 'Tác vụ trong trang nhúng bị lỗi.'));
+                window.openSystemErrorReport(reason, { source });
+            });
+        }
+        document.querySelectorAll('iframe[data-embedded-key]').forEach(frame => {
+            frame.addEventListener('load', () => {
+                delete frame.dataset.errorReporterBound;
+                attachEmbeddedErrorReporter(frame);
+            });
+            if (frame.dataset.loaded === '1' && frame.contentDocument?.readyState === 'complete') attachEmbeddedErrorReporter(frame);
+        });
+
         document.getElementById('btnSubmitFeedback').onclick = async () => {
-            const type = document.getElementById('feedbackType').value;
-            const content = document.getElementById('feedbackContent').value.trim();
+            const modal = document.getElementById('modalFeedback');
+            const isErrorReport = modal.dataset.mode === 'error' && pendingSystemErrorReport;
+            const type = isErrorReport ? 'Báo lỗi (Bug)' : document.getElementById('feedbackType').value;
+            const userContent = document.getElementById('feedbackContent').value.trim();
+            const content = isErrorReport ? composeSystemErrorFeedback(userContent, pendingSystemErrorReport) : userContent;
             const btn = document.getElementById('btnSubmitFeedback');
             if (!content) {
                 return customAlert("Vui lòng không để trống nội dung phản hồi!");
@@ -12067,6 +12334,7 @@ ${text}` });
             if (submitLabel) submitLabel.textContent = 'Đang gửi...';
             btn.classList.add('is-loading');
             btn.disabled = true;
+            window.__kgptErrorReportBusy = true;
             try {
                 // Lưu phản hồi trực tiếp vào Firestore collection 'user_feedbacks'
                 await addDoc(collection(db, "user_feedbacks"), {
@@ -12082,18 +12350,20 @@ ${text}` });
                 if (currentUserProfile) {
                     await addDoc(collection(db, "user_logs"), {
                         email: currentUserProfile.email,
-                        action: "Gửi phản hồi",
-                        details: `Gửi phản hồi thể loại: [${type}]`,
+                        action: isErrorReport ? "Gửi báo cáo lỗi" : "Gửi phản hồi",
+                        details: isErrorReport ? `Gửi báo cáo lỗi: [${pendingSystemErrorReport.code}]` : `Gửi phản hồi thể loại: [${type}]`,
                         timestamp: serverTimestamp()
                     });
                 }
                 closeModal('modalFeedback');
-                customAlert("Phản hồi của bạn đã được gửi tới Admin. Cảm ơn sự đóng góp của bạn!", "success");
+                pendingSystemErrorReport = null;
+                customAlert(isErrorReport ? "Báo cáo lỗi đã được gửi tới Admin. Cảm ơn bạn đã hỗ trợ!" : "Phản hồi của bạn đã được gửi tới Admin. Cảm ơn sự đóng góp của bạn!", "success");
             } catch (error) {
                 console.error("Lỗi gửi feedback:", error);
                 customAlert("Không thể gửi phản hồi lúc này: " + error.message);
             } finally {
-                if (submitLabel) submitLabel.textContent = 'Gửi phản hồi';
+                window.__kgptErrorReportBusy = false;
+                if (submitLabel) submitLabel.textContent = isErrorReport ? 'Gửi lỗi cho Admin' : 'Gửi phản hồi';
                 btn.classList.remove('is-loading');
                 btn.disabled = false;
             }
@@ -12727,6 +12997,7 @@ ${text}` });
             );
 
             trainingDatabaseLoaded = true;
+            setTimeout(() => window.renderTrainingLeaderboard?.(), 0);
         })();
         trainingDatabaseLoadPromise = requestPromise;
         try {
@@ -12740,6 +13011,209 @@ ${text}` });
             }
         }
     }
+
+    const escapeCompetitionHtml = value => String(value ?? '').replace(/[&<>"']/g, char => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[char]));
+    const normalizeCompetitionText = value => String(value || '').trim().toLocaleLowerCase('vi-VN').normalize('NFD').replace(/[\u0300-\u036f]/g, '').replace(/đ/g, 'd');
+    const competitionInitials = value => {
+        const words = String(value || 'HV').trim().split(/\s+/).filter(Boolean);
+        return (words.length > 1 ? words.slice(-2) : words).map(word => word.charAt(0)).join('').toLocaleUpperCase('vi-VN') || 'HV';
+    };
+    const getCompetitionTimestamp = item => {
+        const value = item?.completedAt || item?.submittedAt || item?.updatedAt || item?.createdAt || '';
+        if (value && typeof value === 'object') {
+            const seconds = Number(value.seconds ?? value._seconds);
+            if (Number.isFinite(seconds)) return seconds * 1000;
+        }
+        const timestamp = new Date(value).getTime();
+        return Number.isFinite(timestamp) ? timestamp : 0;
+    };
+    const getCompetitionUserKey = item => {
+        const userId = String(item?.userId || item?.studentId || item?.uid || '').trim();
+        const email = String(item?.studentEmail || item?.email || '').trim().toLowerCase();
+        const name = normalizeCompetitionText(item?.studentName || item?.fullName || item?.name || 'Học viên');
+        return userId ? `id:${userId}` : (email ? `email:${email}` : `name:${name}`);
+    };
+
+    function collectCompetitionAttempts() {
+        const assignments = readTrainingLocalValue(TRAINING_ASSIGNMENTS_STORAGE_KEY, []);
+        const currentResults = readTrainingLocalValue(TRAINING_RESULTS_STORAGE_KEY, {});
+        const history = readTrainingLocalValue(TRAINING_RESULT_HISTORY_STORAGE_KEY, []);
+        const attempts = [];
+        const pushAttempt = (item, fallbackTaskId = '') => {
+            if (!item || typeof item !== 'object') return;
+            const taskId = String(item.taskId || item.assignmentId || fallbackTaskId || '').trim();
+            if (!taskId) return;
+            attempts.push({ ...item, taskId, score: Math.max(0, Math.min(10, Number(item.score) || 0)) });
+        };
+        Object.entries(currentResults && typeof currentResults === 'object' && !Array.isArray(currentResults) ? currentResults : {}).forEach(([taskId, value]) => {
+            if (Array.isArray(value)) value.forEach(item => pushAttempt(item, taskId));
+            else if (value && typeof value === 'object' && ('score' in value || 'studentName' in value || 'completedAt' in value)) pushAttempt(value, taskId);
+            else if (value && typeof value === 'object') Object.values(value).forEach(item => pushAttempt(item, taskId));
+        });
+        (Array.isArray(history) ? history : []).forEach(item => pushAttempt(item));
+        const unique = new Map();
+        attempts.forEach(item => {
+            const key = String(item.attemptId || item.id || [item.taskId, getCompetitionUserKey(item), getCompetitionTimestamp(item), item.score].join('|'));
+            if (!unique.has(key) || getCompetitionTimestamp(item) >= getCompetitionTimestamp(unique.get(key))) unique.set(key, item);
+        });
+        return {
+            assignments: Array.isArray(assignments) ? assignments : [],
+            attempts: Array.from(unique.values())
+        };
+    }
+
+    function buildCompetitionRows(attempts) {
+        const grouped = new Map();
+        attempts.forEach(item => {
+            const userKey = getCompetitionUserKey(item);
+            if (!grouped.has(userKey)) grouped.set(userKey, { key: userKey, attempts: [] });
+            grouped.get(userKey).attempts.push(item);
+        });
+        const profile = window.currentUserProfile || {};
+        const profileIds = new Set([
+            profile.uid ? `id:${String(profile.uid)}` : '',
+            profile.email ? `email:${String(profile.email).trim().toLowerCase()}` : '',
+            profile.fullName ? `name:${normalizeCompetitionText(profile.fullName)}` : ''
+        ].filter(Boolean));
+        const rows = Array.from(grouped.values()).map(group => {
+            const bestByTask = new Map();
+            group.attempts.forEach(item => {
+                const current = bestByTask.get(item.taskId);
+                if (!current || item.score > current.score || (item.score === current.score && getCompetitionTimestamp(item) > getCompetitionTimestamp(current))) bestByTask.set(item.taskId, item);
+            });
+            const bestResults = Array.from(bestByTask.values());
+            const newest = [...group.attempts].sort((a, b) => getCompetitionTimestamp(b) - getCompetitionTimestamp(a))[0] || {};
+            const scores = bestResults.map(item => Number(item.score) || 0);
+            const average = scores.length ? scores.reduce((sum, score) => sum + score, 0) / scores.length : 0;
+            const highest = scores.length ? Math.max(...scores) : 0;
+            const passed = scores.filter(score => score >= 7).length;
+            const userKeys = new Set(group.attempts.flatMap(item => {
+                const keys = [getCompetitionUserKey(item)];
+                if (item.userId || item.studentId || item.uid) keys.push(`id:${String(item.userId || item.studentId || item.uid)}`);
+                if (item.studentEmail || item.email) keys.push(`email:${String(item.studentEmail || item.email).trim().toLowerCase()}`);
+                if (item.studentName || item.fullName || item.name) keys.push(`name:${normalizeCompetitionText(item.studentName || item.fullName || item.name)}`);
+                return keys;
+            }));
+            return {
+                key: group.key,
+                name: String(newest.studentName || newest.fullName || newest.name || 'Học viên').trim() || 'Học viên',
+                email: String(newest.studentEmail || newest.email || '').trim(),
+                average,
+                highest,
+                completed: bestResults.length,
+                passed,
+                passRate: bestResults.length ? passed * 100 / bestResults.length : 0,
+                latestAt: Math.max(0, ...group.attempts.map(getCompetitionTimestamp)),
+                isCurrent: Array.from(profileIds).some(key => userKeys.has(key))
+            };
+        });
+        rows.sort((a, b) => b.average - a.average || b.completed - a.completed || b.highest - a.highest || a.latestAt - b.latestAt || a.name.localeCompare(b.name, 'vi'));
+        rows.forEach((row, index) => { row.rank = index + 1; });
+        return rows;
+    }
+
+    function updateCompetitionTaskFilter(assignments) {
+        const select = document.getElementById('competitionTaskFilter');
+        if (!select) return;
+        const previousValue = select.value || 'all';
+        const options = ['<option value="all">Tất cả bài tập</option>'].concat(assignments.map(item => `<option value="${escapeCompetitionHtml(item.id)}">${escapeCompetitionHtml(item.title || item.topic || 'Bài tập')}</option>`));
+        select.innerHTML = options.join('');
+        select.value = Array.from(select.options).some(option => option.value === previousValue) ? previousValue : 'all';
+        window.KGPTPremiumDropdown?.sync?.(select);
+    }
+
+    function renderCompetitionPodium(rows) {
+        const podium = document.getElementById('competitionPodium');
+        if (!podium) return;
+        const top = rows.slice(0, 3);
+        podium.className = `competition-podium count-${top.length}`;
+        if (!top.length) {
+            podium.innerHTML = '<div class="competition-podium-empty"><svg fill="none" stroke="currentColor" stroke-width="1.6" viewBox="0 0 24 24"><path d="M8 4h8v3.5a4 4 0 0 1-8 0V4ZM8 6H5v1.5A3.5 3.5 0 0 0 8.5 11M16 6h3v1.5a3.5 3.5 0 0 1-3.5 3.5M12 12v4m-3 4h6" stroke-linecap="round" stroke-linejoin="round"/></svg><strong>Chưa có dữ liệu thi đua</strong><span>Kết quả sẽ xuất hiện sau khi học viên hoàn thành bài trắc nghiệm.</span></div>';
+            return;
+        }
+        const rankClass = ['first', 'second', 'third'];
+        podium.innerHTML = top.map((row, index) => `<div class="competition-podium-item ${rankClass[index]}"><div class="competition-podium-avatar">${escapeCompetitionHtml(competitionInitials(row.name))}<span class="competition-rank-badge">${index + 1}</span></div><div class="competition-podium-name" title="${escapeCompetitionHtml(row.name)}">${escapeCompetitionHtml(row.name)}</div><div class="competition-podium-score">${row.average.toFixed(1)} điểm</div><div class="competition-podium-base">${row.completed} bài hoàn thành</div></div>`).join('');
+    }
+
+    function updateCompetitionCurrentUser(rows, assignmentCount) {
+        const container = document.getElementById('competitionCurrentUser');
+        const current = rows.find(row => row.isCurrent);
+        if (container) {
+            container.innerHTML = current
+                ? `<div class="competition-current-kicker">Thành tích của bạn</div><div class="competition-current-row"><div class="competition-current-rank">#${current.rank}</div><div class="competition-current-copy"><strong>${escapeCompetitionHtml(current.name)}</strong><span>${current.average.toFixed(1)} điểm · ${current.completed} bài hoàn thành</span></div></div>`
+                : '<div class="competition-current-kicker">Thành tích của bạn</div><div class="competition-current-row"><div class="competition-current-rank">—</div><div class="competition-current-copy"><strong>Chưa có thứ hạng</strong><span>Hãy hoàn thành bài trắc nghiệm đầu tiên</span></div></div>';
+        }
+        const completed = current?.completed || 0;
+        const percent = assignmentCount ? Math.min(100, Math.round(completed * 100 / assignmentCount)) : 0;
+        const progressText = document.getElementById('competitionProgressText');
+        const progressPercent = document.getElementById('competitionProgressPercent');
+        const progressFill = document.getElementById('competitionProgressFill');
+        if (progressText) progressText.textContent = `${completed} / ${assignmentCount} bài`;
+        if (progressPercent) progressPercent.textContent = `${percent}%`;
+        if (progressFill) progressFill.style.width = `${percent}%`;
+    }
+
+    function renderTrainingLeaderboard() {
+        const section = document.getElementById('trainingRankingSection');
+        if (!section) return;
+        const data = collectCompetitionAttempts();
+        updateCompetitionTaskFilter(data.assignments);
+        const taskFilter = document.getElementById('competitionTaskFilter')?.value || 'all';
+        const periodFilter = document.getElementById('competitionPeriodFilter')?.value || 'all';
+        const search = normalizeCompetitionText(document.getElementById('competitionSearchInput')?.value || '');
+        const cutoff = periodFilter === 'all' ? 0 : Date.now() - Number(periodFilter) * 86400000;
+        const filteredAttempts = data.attempts.filter(item => (taskFilter === 'all' || String(item.taskId) === taskFilter) && (!cutoff || getCompetitionTimestamp(item) >= cutoff));
+        const rankedRows = buildCompetitionRows(filteredAttempts);
+        const tableRows = search ? rankedRows.filter(row => normalizeCompetitionText(row.name).includes(search)) : rankedRows;
+        const totalBestResults = rankedRows.reduce((sum, row) => sum + row.completed, 0);
+        const average = rankedRows.length ? rankedRows.reduce((sum, row) => sum + row.average, 0) / rankedRows.length : 0;
+        const passed = rankedRows.reduce((sum, row) => sum + row.passed, 0);
+        const metrics = {
+            competitionParticipantCount: rankedRows.length,
+            competitionAverageScore: average.toFixed(1),
+            competitionPassRate: `${totalBestResults ? Math.round(passed * 100 / totalBestResults) : 0}%`,
+            competitionCompletionCount: totalBestResults
+        };
+        Object.entries(metrics).forEach(([id, value]) => { const element = document.getElementById(id); if (element) element.textContent = value; });
+        renderCompetitionPodium(rankedRows);
+        updateCompetitionCurrentUser(rankedRows, taskFilter === 'all' ? data.assignments.length : 1);
+        const rows = document.getElementById('competitionRankingRows');
+        const empty = document.getElementById('competitionTableEmpty');
+        const table = rows?.closest('table');
+        if (rows) {
+            rows.innerHTML = tableRows.map(row => {
+                const rankClass = row.rank <= 3 ? ` top-${row.rank}` : '';
+                const passedClass = row.passRate >= 70 ? '' : ' low';
+                const updated = row.latestAt ? new Date(row.latestAt).toLocaleDateString('vi-VN') : '—';
+                const identity = row.isCurrent ? 'Bạn · Học viên' : 'Học viên';
+                return `<tr class="${row.isCurrent ? 'is-current' : ''}"><td><div class="competition-rank-cell"><span class="competition-rank-number${rankClass}">${row.rank}</span></div></td><td><div class="competition-person"><div class="competition-person-avatar">${escapeCompetitionHtml(competitionInitials(row.name))}</div><div class="competition-person-copy"><strong>${escapeCompetitionHtml(row.name)}</strong><small>${escapeCompetitionHtml(identity)}</small></div></div></td><td><span class="competition-score">${row.average.toFixed(1)} <small>/ 10</small></span></td><td><span class="competition-complete">${row.completed} bài</span></td><td><b>${row.highest.toFixed(1)}</b> / 10</td><td><span class="competition-pass${passedClass}">${Math.round(row.passRate)}% đạt</span></td><td><span class="competition-updated">${updated}</span></td></tr>`;
+            }).join('');
+        }
+        if (empty) empty.style.display = tableRows.length ? 'none' : 'block';
+        if (table) table.style.display = tableRows.length ? 'table' : 'none';
+        const taskName = taskFilter === 'all' ? 'tất cả bài tập' : (data.assignments.find(item => String(item.id) === taskFilter)?.title || 'bài tập đã chọn');
+        const subtitle = document.getElementById('competitionTableSubtitle');
+        const info = document.getElementById('competitionResultInfo');
+        if (subtitle) subtitle.textContent = `Xếp hạng theo ${taskName} · dùng điểm tốt nhất của mỗi bài`;
+        if (info) info.textContent = tableRows.length ? `Hiển thị ${tableRows.length} / ${rankedRows.length} học viên · Cập nhật ${new Date().toLocaleString('vi-VN')}` : 'Chưa có kết quả phù hợp với bộ lọc hiện tại.';
+    }
+
+    async function refreshTrainingLeaderboard() {
+        const button = document.getElementById('competitionRefreshButton');
+        if (button) { button.disabled = true; button.classList.add('is-loading'); }
+        try {
+            await loadTrainingDataFromDatabase(true);
+            renderTrainingLeaderboard();
+        } catch (error) {
+            console.error('Không cập nhật được bảng xếp hạng:', error);
+            showPremiumTrainingAlert(error.message || 'Không thể cập nhật bảng xếp hạng lúc này.', { title: 'Đồng bộ thất bại' });
+        } finally {
+            if (button) { button.disabled = false; button.classList.remove('is-loading'); }
+        }
+    }
+
+    window.renderTrainingLeaderboard = renderTrainingLeaderboard;
+    window.refreshTrainingLeaderboard = refreshTrainingLeaderboard;
 
     async function saveAssignmentsToDatabase() {
         try {
@@ -13921,6 +14395,14 @@ ${text}` });
                     setTimeout(enforceStudentSingleAttempt, 360);
                 }
             }
+            if (tab === 'ranking') {
+                setTimeout(function() {
+                    renderTrainingLeaderboard();
+                    loadTrainingDataFromDatabase()
+                        .then(renderTrainingLeaderboard)
+                        .catch(error => console.error('Không đồng bộ được bảng xếp hạng:', error));
+                }, 60);
+            }
             return res;
         };
     }
@@ -13995,6 +14477,258 @@ ${text}` });
             new MutationObserver(dispatchUserToFrames).observe(nameEl, { childList: true, subtree: true, characterData: true });
         }
     });
+})();
+</script>
+<script id="kgptUnifiedPremiumDropdowns">
+(function(){
+    const STYLE_ID = 'kgpt-unified-premium-dropdown-style';
+    const SELECTOR = 'select:not(.premium-time-native):not([aria-hidden="true"]):not([tabindex="-1"]):not(.kgpt-select-native)';
+    const styleText = `
+        .kgpt-premium-select{position:relative;display:inline-block;min-width:168px;vertical-align:middle;font-family:'Plus Jakarta Sans','Segoe UI',sans-serif}
+        .kgpt-premium-select.kgpt-select-full{display:block;width:100%;min-width:0}.kgpt-premium-select.kgpt-select-compact{min-width:112px}
+        .kgpt-select-trigger{width:100%;height:44px;padding:0 11px 0 8px;border:1px solid #d6e1ef;border-radius:12px;background:linear-gradient(180deg,rgba(255,255,255,.99),rgba(248,251,255,.97));color:#344258;display:flex;align-items:center;gap:9px;font-family:inherit;font-size:12px;line-height:1.25;font-weight:700;text-align:left;white-space:nowrap;cursor:pointer;outline:none;box-shadow:0 8px 20px -20px rgba(15,23,42,.72),inset 0 1px 0 rgba(255,255,255,.94);transition:border-color .17s ease,box-shadow .17s ease,background .17s ease,transform .17s ease}
+        .kgpt-select-trigger:hover{border-color:#9ab8ec;background:#fff;box-shadow:0 0 0 3px rgba(37,99,235,.055),0 13px 26px -22px rgba(37,99,235,.7)}
+        .kgpt-premium-select.is-open .kgpt-select-trigger,.kgpt-select-trigger:focus-visible{border-color:#79a3ef;background:#fff;box-shadow:0 0 0 3px rgba(37,99,235,.095),0 16px 30px -23px rgba(37,99,235,.75)}
+        .kgpt-select-trigger:disabled{opacity:.58;cursor:not-allowed;background:#f1f5f9}.kgpt-select-leading{width:28px;height:28px;flex:none;border-radius:9px;display:grid;place-items:center;background:linear-gradient(145deg,#edf4ff,#e2edff);color:#3970d4;box-shadow:inset 0 1px 0 #fff}.kgpt-select-leading svg{width:15px;height:15px}.kgpt-select-label{min-width:0;flex:1;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+        .kgpt-select-chevron{width:16px;height:16px;flex:none;color:#7d8fa9;transition:transform .18s ease,color .18s ease}.kgpt-premium-select.is-open .kgpt-select-chevron{color:#2563eb;transform:rotate(180deg)}
+        .kgpt-select-native{position:absolute!important;inset:auto!important;width:1px!important;height:1px!important;margin:0!important;padding:0!important;border:0!important;opacity:0!important;pointer-events:none!important;overflow:hidden!important}
+        .kgpt-select-menu{position:fixed;z-index:2147483200;display:none;min-width:168px;max-width:min(390px,calc(100vw - 24px));max-height:276px;padding:7px;border:1px solid #d8e3f1;border-radius:14px;background:rgba(255,255,255,.985);box-shadow:0 26px 62px -24px rgba(15,23,42,.48),0 12px 27px -20px rgba(37,99,235,.34);overflow:auto;overscroll-behavior:contain;backdrop-filter:blur(18px);opacity:0;visibility:hidden;transform:translateY(-5px) scale(.985);transform-origin:top;transition:opacity .16s ease,visibility .16s ease,transform .16s ease;scrollbar-width:thin;scrollbar-color:#bfd0e8 transparent}
+        .kgpt-select-menu.is-open{display:block;opacity:1;visibility:visible;transform:none}.kgpt-select-menu.opens-up{transform-origin:bottom}
+        .kgpt-select-option{position:relative;width:100%;min-height:41px;padding:9px 37px 9px 11px;border:0;border-radius:10px;background:transparent;color:#475569;display:flex;align-items:center;font-family:inherit;font-size:12px;line-height:1.35;font-weight:650;text-align:left;cursor:pointer;outline:none;transition:background .14s ease,color .14s ease,transform .14s ease}
+        .kgpt-select-option:hover,.kgpt-select-option:focus-visible{background:#f0f5ff;color:#2457bf}.kgpt-select-option.is-selected{background:linear-gradient(135deg,#edf4ff,#f3f7ff);color:#1d4ed8;font-weight:800}.kgpt-select-option:disabled{opacity:.45;cursor:not-allowed}
+        .kgpt-select-check{position:absolute;right:11px;top:50%;width:16px;height:16px;color:#2563eb;opacity:0;transform:translateY(-50%) scale(.72);transition:.15s}.kgpt-select-option.is-selected .kgpt-select-check{opacity:1;transform:translateY(-50%) scale(1)}
+        .kgpt-select-compact .kgpt-select-trigger{height:36px;border-radius:10px;padding-left:11px;font-size:11.5px}.kgpt-select-compact .kgpt-select-leading{display:none}.kgpt-select-compact .kgpt-select-option{min-height:36px;font-size:11.5px}
+        .competition-filters .kgpt-premium-select{min-width:185px}.competition-filters #competitionTaskFilter+.kgpt-select-trigger,.competition-filters .kgpt-premium-select:has(#competitionTaskFilter){min-width:220px}.competition-filters .kgpt-select-trigger{height:48px;border-radius:13px}
+        .competition-filters .kgpt-select-trigger,.competition-search input{font-family:'Plus Jakarta Sans','Segoe UI',sans-serif!important;font-size:13px!important;line-height:1.3!important;font-weight:700!important;letter-spacing:0!important}.competition-search input::placeholder{font-family:'Plus Jakarta Sans','Segoe UI',sans-serif!important;font-size:13px!important;font-weight:700!important;letter-spacing:0!important;color:#718198!important;opacity:1!important}.kgpt-select-menu-competition .kgpt-select-option{font-size:13px!important;line-height:1.35!important;font-weight:650!important}
+        .user-api-field .kgpt-premium-select,.quote-settings-field .kgpt-premium-select,.premium-input-group .kgpt-premium-select{display:block;width:100%;min-width:0}.user-api-field .kgpt-select-trigger{height:46px;border-radius:15px}.quote-settings-field .kgpt-select-trigger{height:52px;border-radius:16px}.kgpt-select-height-48 .kgpt-select-trigger{height:48px}.kgpt-select-height-56 .kgpt-select-trigger{height:56px}.mapping-status-stack .kgpt-premium-select{min-width:112px}
+        html.dark .kgpt-select-trigger{border-color:#334155;background:linear-gradient(180deg,#1c283b,#172235);color:#e2e8f0;box-shadow:inset 0 1px 0 rgba(255,255,255,.025)}html.dark .kgpt-select-trigger:hover,html.dark .kgpt-premium-select.is-open .kgpt-select-trigger{border-color:#5275b3;background:#1b2940;box-shadow:0 0 0 3px rgba(59,130,246,.12)}html.dark .kgpt-select-leading{background:linear-gradient(145deg,#243451,#1f2e48);color:#93c5fd;box-shadow:inset 0 1px 0 rgba(255,255,255,.035)}html.dark .kgpt-select-chevron{color:#93a4bb}html.dark .kgpt-select-menu{border-color:#334155;background:rgba(17,24,39,.985);box-shadow:0 28px 65px -22px rgba(0,0,0,.8)}html.dark .kgpt-select-option{color:#cbd5e1}html.dark .kgpt-select-option:hover,html.dark .kgpt-select-option:focus-visible{background:#1d2b42;color:#bfdbfe}html.dark .kgpt-select-option.is-selected{background:linear-gradient(135deg,#1e3a66,#1b3155);color:#93c5fd}
+        @media(max-width:640px){.competition-filters .kgpt-premium-select{display:block;width:100%;min-width:0}.kgpt-select-menu{max-width:calc(100vw - 20px)}}
+    `;
+
+    function ensureStyle(doc){
+        if(!doc || doc.getElementById(STYLE_ID)) return;
+        const style = doc.createElement('style');
+        style.id = STYLE_ID;
+        style.textContent = styleText;
+        (doc.head || doc.documentElement).appendChild(style);
+    }
+
+    function shouldSkip(select){
+        return !select || select.dataset.premium === '1' || select.dataset.kgptPremiumSelect === '1' || !!select.closest('.premium-dropdown,.premium-time-dropdown,.hidden,[hidden]');
+    }
+
+    function closeAll(doc, except){
+        if(!doc) return;
+        doc.querySelectorAll('.kgpt-premium-select.is-open').forEach(wrapper => {
+            if(wrapper !== except && typeof wrapper.__kgptClose === 'function') wrapper.__kgptClose();
+        });
+    }
+
+    function getLeadingIcon(select){
+        const id = String(select.id || '').toLowerCase();
+        if(id.includes('period')) return '<svg fill="none" stroke="currentColor" stroke-width="1.9" viewBox="0 0 24 24"><path d="M6 3v3M18 3v3M4 8h16M5 5h14a1 1 0 0 1 1 1v14H4V6a1 1 0 0 1 1-1Z" stroke-linecap="round" stroke-linejoin="round"/></svg>';
+        if(id.includes('task')) return '<svg fill="none" stroke="currentColor" stroke-width="1.9" viewBox="0 0 24 24"><path d="M6 3h9l4 4v14H6a1 1 0 0 1-1-1V4a1 1 0 0 1 1-1Z" stroke-linejoin="round"/><path d="M15 3v5h4M9 12h6M9 16h5" stroke-linecap="round"/></svg>';
+        if(id.includes('role')) return '<svg fill="none" stroke="currentColor" stroke-width="1.9" viewBox="0 0 24 24"><path d="M12 3 5 6v5c0 4.8 2.9 7.8 7 9.5 4.1-1.7 7-4.7 7-9.5V6l-7-3Z" stroke-linejoin="round"/><path d="m9 12 2 2 4-4" stroke-linecap="round" stroke-linejoin="round"/></svg>';
+        if(id.includes('lang')) return '<svg fill="none" stroke="currentColor" stroke-width="1.9" viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><path d="M3 12h18M12 3c2.2 2.5 3.3 5.5 3.3 9S14.2 18.5 12 21c-2.2-2.5-3.3-5.5-3.3-9S9.8 5.5 12 3Z" stroke-linecap="round"/></svg>';
+        if(id.includes('engine')) return '<svg fill="none" stroke="currentColor" stroke-width="1.9" viewBox="0 0 24 24"><path d="M4 7h10M18 7h2M4 17h2M10 17h10M14 4v6M7 14v6" stroke-linecap="round"/><circle cx="14" cy="7" r="2"/><circle cx="7" cy="17" r="2"/></svg>';
+        if(id.includes('provider')) return '<svg fill="none" stroke="currentColor" stroke-width="1.9" viewBox="0 0 24 24"><path d="m12 3 1.4 4.2L18 9l-4.6 1.8L12 15l-1.4-4.2L6 9l4.6-1.8L12 3ZM18.5 14l.8 2.2 2.2.8-2.2.8-.8 2.2-.8-2.2-2.2-.8 2.2-.8.8-2.2Z" stroke-linejoin="round"/></svg>';
+        return '<svg fill="none" stroke="currentColor" stroke-width="1.9" viewBox="0 0 24 24"><path d="M5 7h14M5 12h14M5 17h9" stroke-linecap="round"/></svg>';
+    }
+
+    function enhanceSelect(select){
+        if(shouldSkip(select)) return null;
+        const doc = select.ownerDocument;
+        const view = doc.defaultView || window;
+        ensureStyle(doc);
+        select.dataset.kgptPremiumSelect = '1';
+        const wrapper = doc.createElement('span');
+        wrapper.className = 'kgpt-premium-select';
+        if(select.classList.contains('w-full') || select.classList.contains('user-api-select') || select.classList.contains('quote-settings-select') || select.id === 'addUserRole' || select.id === 'editUserRole') wrapper.classList.add('kgpt-select-full');
+        if(select.classList.contains('quote-ocr-status')) wrapper.classList.add('kgpt-select-compact');
+        if(select.classList.contains('h-12')) wrapper.classList.add('kgpt-select-height-48');
+        if(select.classList.contains('h-14')) wrapper.classList.add('kgpt-select-height-56');
+        const trigger = doc.createElement('button');
+        trigger.type = 'button';
+        trigger.className = 'kgpt-select-trigger';
+        trigger.setAttribute('aria-haspopup','listbox');
+        trigger.setAttribute('aria-expanded','false');
+        const leading = doc.createElement('span');
+        leading.className = 'kgpt-select-leading';
+        leading.setAttribute('aria-hidden','true');
+        leading.innerHTML = getLeadingIcon(select);
+        const label = doc.createElement('span');
+        label.className = 'kgpt-select-label';
+        const chevron = doc.createElementNS('http://www.w3.org/2000/svg','svg');
+        chevron.setAttribute('class','kgpt-select-chevron');
+        chevron.setAttribute('viewBox','0 0 24 24');
+        chevron.setAttribute('fill','none');
+        chevron.setAttribute('stroke','currentColor');
+        chevron.setAttribute('stroke-width','2');
+        chevron.innerHTML = '<path d="m7 10 5 5 5-5" stroke-linecap="round" stroke-linejoin="round"/>';
+        trigger.append(leading,label,chevron);
+        const menu = doc.createElement('div');
+        menu.className = 'kgpt-select-menu';
+        if(select.closest('.competition-filters')) menu.classList.add('kgpt-select-menu-competition');
+        menu.setAttribute('role','listbox');
+        select.parentNode.insertBefore(wrapper,select);
+        wrapper.append(select,trigger);
+        doc.body.appendChild(menu);
+        select.classList.add('kgpt-select-native');
+        select.tabIndex = -1;
+
+        function positionMenu(){
+            if(!wrapper.classList.contains('is-open')) return;
+            const rect = trigger.getBoundingClientRect();
+            const viewportWidth = Math.max(320,view.innerWidth || doc.documentElement.clientWidth || 0);
+            const viewportHeight = Math.max(320,view.innerHeight || doc.documentElement.clientHeight || 0);
+            const width = Math.min(Math.max(rect.width,168),viewportWidth - 20);
+            menu.style.width = `${width}px`;
+            menu.style.left = `${Math.max(10,Math.min(rect.left,viewportWidth - width - 10))}px`;
+            const menuHeight = Math.min(menu.scrollHeight || 276,276);
+            const opensUp = rect.bottom + 8 + menuHeight > viewportHeight - 10 && rect.top > menuHeight + 18;
+            menu.classList.toggle('opens-up',opensUp);
+            menu.style.top = `${opensUp ? Math.max(10,rect.top - menuHeight - 8) : Math.min(viewportHeight - menuHeight - 10,rect.bottom + 8)}px`;
+        }
+
+        function sync(){
+            const selected = select.options[select.selectedIndex] || select.options[0];
+            label.textContent = selected?.textContent?.trim() || select.getAttribute('placeholder') || 'Chọn giá trị';
+            trigger.disabled = !!select.disabled;
+            trigger.setAttribute('aria-label',select.getAttribute('aria-label') || label.textContent);
+            menu.innerHTML = '';
+            Array.from(select.options).forEach((nativeOption,index) => {
+                const option = doc.createElement('button');
+                option.type = 'button';
+                option.className = 'kgpt-select-option';
+                option.dataset.value = nativeOption.value;
+                option.setAttribute('role','option');
+                option.setAttribute('aria-selected',String(index === select.selectedIndex));
+                option.disabled = !!nativeOption.disabled;
+                option.classList.toggle('is-selected',index === select.selectedIndex);
+                const optionLabel = doc.createElement('span');
+                optionLabel.textContent = nativeOption.textContent;
+                const check = doc.createElementNS('http://www.w3.org/2000/svg','svg');
+                check.setAttribute('class','kgpt-select-check');
+                check.setAttribute('viewBox','0 0 24 24');
+                check.setAttribute('fill','none');
+                check.setAttribute('stroke','currentColor');
+                check.setAttribute('stroke-width','2.4');
+                check.innerHTML = '<path d="m6 12 4 4 8-9" stroke-linecap="round" stroke-linejoin="round"/>';
+                option.append(optionLabel,check);
+                option.addEventListener('click',event => {
+                    event.stopPropagation();
+                    if(option.disabled) return;
+                    select.value = nativeOption.value;
+                    sync();
+                    close();
+                    select.dispatchEvent(new view.Event('change',{bubbles:true}));
+                    trigger.focus({preventScroll:true});
+                });
+                menu.appendChild(option);
+            });
+            if(wrapper.classList.contains('is-open')) positionMenu();
+        }
+
+        function open(){
+            if(trigger.disabled) return;
+            sync();
+            closeAll(doc,wrapper);
+            wrapper.classList.add('is-open');
+            menu.style.display = 'block';
+            menu.style.visibility = 'hidden';
+            menu.classList.add('is-open');
+            positionMenu();
+            menu.style.visibility = '';
+            trigger.setAttribute('aria-expanded','true');
+            const active = menu.querySelector('.kgpt-select-option.is-selected');
+            active?.scrollIntoView({block:'nearest'});
+        }
+        function close(){
+            wrapper.classList.remove('is-open');
+            menu.classList.remove('is-open','opens-up');
+            menu.style.display = '';
+            menu.style.visibility = '';
+            trigger.setAttribute('aria-expanded','false');
+        }
+        wrapper.__kgptClose = close;
+        wrapper.__kgptSync = sync;
+        wrapper.__kgptMenu = menu;
+        select.__kgptPremiumWrapper = wrapper;
+        trigger.addEventListener('click',event => { event.stopPropagation(); wrapper.classList.contains('is-open') ? close() : open(); });
+        trigger.addEventListener('keydown',event => {
+            if(['ArrowDown','ArrowUp','Home','End'].includes(event.key)){
+                event.preventDefault();
+                if(!wrapper.classList.contains('is-open')) open();
+                const options = Array.from(menu.querySelectorAll('.kgpt-select-option:not(:disabled)'));
+                const focusedIndex = options.indexOf(doc.activeElement);
+                const current = focusedIndex < 0 ? (event.key === 'ArrowUp' ? options.length : -1) : focusedIndex;
+                const next = event.key === 'Home' ? 0 : event.key === 'End' ? options.length - 1 : event.key === 'ArrowUp' ? Math.max(0,current - 1) : Math.min(options.length - 1,current + 1);
+                options[next]?.focus();
+            } else if(event.key === 'Escape') close();
+        });
+        menu.addEventListener('keydown',event => {
+            const options = Array.from(menu.querySelectorAll('.kgpt-select-option:not(:disabled)'));
+            const current = Math.max(0,options.indexOf(doc.activeElement));
+            if(event.key === 'ArrowDown' || event.key === 'ArrowUp'){
+                event.preventDefault();
+                options[event.key === 'ArrowDown' ? Math.min(options.length - 1,current + 1) : Math.max(0,current - 1)]?.focus();
+            } else if(event.key === 'Escape'){ event.preventDefault(); close(); trigger.focus({preventScroll:true}); }
+        });
+        select.addEventListener('change',sync);
+        new view.MutationObserver(sync).observe(select,{childList:true,subtree:true,attributes:true,attributeFilter:['disabled','selected','label']});
+        sync();
+        return wrapper;
+    }
+
+    function enhanceAll(doc=document){
+        if(!doc?.querySelectorAll) return;
+        ensureStyle(doc);
+        doc.querySelectorAll(SELECTOR).forEach(enhanceSelect);
+        if(doc.documentElement.dataset.kgptPremiumDropdownObserver === '1') return;
+        doc.documentElement.dataset.kgptPremiumDropdownObserver = '1';
+        doc.addEventListener('click',event => {
+            const insideMenu = event.target.closest?.('.kgpt-select-menu');
+            const insideTrigger = event.target.closest?.('.kgpt-premium-select');
+            if(!insideMenu && !insideTrigger) closeAll(doc);
+        });
+        doc.addEventListener('keydown',event => { if(event.key === 'Escape') closeAll(doc); });
+        const view = doc.defaultView || window;
+        view.addEventListener('resize',() => closeAll(doc));
+        view.addEventListener('scroll',() => closeAll(doc),true);
+        new view.MutationObserver(mutations => {
+            mutations.forEach(mutation => {
+                mutation.removedNodes.forEach(node => {
+                    if(node.nodeType !== 1) return;
+                    if(node.matches?.('.kgpt-premium-select')) node.__kgptMenu?.remove?.();
+                    node.querySelectorAll?.('.kgpt-premium-select').forEach(wrapper => wrapper.__kgptMenu?.remove?.());
+                });
+                mutation.addedNodes.forEach(node => {
+                    if(node.nodeType !== 1) return;
+                    if(node.matches?.(SELECTOR)) enhanceSelect(node);
+                    node.querySelectorAll?.(SELECTOR).forEach(enhanceSelect);
+                    if(node.matches?.('iframe')){ node.addEventListener('load',() => installFrame(node)); installFrame(node); }
+                    node.querySelectorAll?.('iframe').forEach(frame => { frame.addEventListener('load',() => installFrame(frame)); installFrame(frame); });
+                });
+                const ownerSelect = mutation.target?.closest?.('select');
+                ownerSelect?.__kgptPremiumWrapper?.__kgptSync?.();
+            });
+        }).observe(doc.body,{childList:true,subtree:true});
+    }
+
+    function installFrame(frame){
+        try{ const doc = frame?.contentDocument; if(doc?.body) enhanceAll(doc); }catch(error){ console.warn('Không thể đồng bộ dropdown trong iframe:',error); }
+    }
+    window.KGPTPremiumDropdown = { enhance:enhanceSelect, enhanceAll, sync(select){ select?.__kgptPremiumWrapper?.__kgptSync?.(); }, closeAll:() => closeAll(document) };
+    enhanceAll(document);
+    document.querySelectorAll('iframe').forEach(frame => {
+        frame.addEventListener('load',() => installFrame(frame));
+        installFrame(frame);
+    });
+    [250,800,1800].forEach(delay => setTimeout(() => {
+        enhanceAll(document);
+        document.querySelectorAll('.kgpt-premium-select').forEach(wrapper => wrapper.__kgptSync?.());
+        document.querySelectorAll('iframe').forEach(installFrame);
+    },delay));
 })();
 </script>
 </div></body>
