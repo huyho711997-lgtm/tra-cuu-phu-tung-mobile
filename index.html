@@ -5,6 +5,51 @@
 <meta charset="utf-8"/>
 <meta content="width=device-width, initial-scale=1.0" name="viewport"/>
 <title>KHO GIÁ PHỤ TÙNG - Hệ Thống Tra Cứu Giá Phụ Tùng</title>
+<style id="partsAiSearchStyle">
+.parts-ai-tools{position:relative;z-index:2;display:flex;align-items:center;flex-wrap:wrap;gap:9px;margin-top:18px;padding-top:15px;border-top:1px solid #e5edf7}.parts-ai-button{display:inline-flex;align-items:center;justify-content:center;gap:7px;min-height:39px;padding:9px 15px;border:1px solid #a9c7f6;border-radius:10px;background:linear-gradient(135deg,#eff6ff,#e9f1ff);color:#1d4ed8;font:800 12px 'Plus Jakarta Sans',sans-serif;cursor:pointer}.parts-ai-button svg{width:17px;height:17px}.parts-ai-button:disabled{opacity:.55;cursor:wait}.parts-ai-settings{min-height:36px;padding:7px 10px;border:1px solid #dce5f0;border-radius:9px;background:#fff;color:#526581;font:700 11px 'Plus Jakarta Sans',sans-serif;cursor:pointer}.parts-ai-hint{color:#64748b;font-size:11px;line-height:1.6}.parts-ai-status{width:100%;color:#526581;font-size:12px;line-height:1.65}.parts-ai-status[data-tone="error"]{color:#b45309}.parts-ai-results{position:relative;z-index:2;margin-top:12px;padding:16px;border:1px solid #cddff8;border-radius:13px;background:#f7faff}.parts-ai-results[hidden]{display:none}.parts-ai-heading{margin:0 0 5px;font-size:13px;font-weight:800;color:#1e3a5f}.parts-ai-description{margin:0 0 12px;font-size:11px;line-height:1.65;color:#64748b}.parts-ai-options{display:grid;grid-template-columns:repeat(auto-fit,minmax(250px,1fr));gap:8px}.parts-ai-option{display:flex;flex-direction:column;gap:5px;padding:12px 13px;border:1px solid #d9e4f3;border-radius:10px;background:#fff;text-align:left;cursor:pointer}.parts-ai-option:hover,.parts-ai-option:focus-visible{border-color:#60a5fa;outline:2px solid #dbeafe}.parts-ai-option strong{font:800 12px 'Plus Jakarta Sans',sans-serif;color:#243d63;line-height:1.6}.parts-ai-option small{font-size:10px;color:#64748b;line-height:1.6}.parts-ai-option small[data-review="true"]{color:#a16207}html.dark .parts-ai-tools{border-color:#334155}html.dark .parts-ai-button{border-color:#315a8c;background:#173052;color:#bfdbfe}html.dark .parts-ai-settings,html.dark .parts-ai-option{border-color:#334155;background:#152238;color:#cbd5e1}html.dark .parts-ai-results{border-color:#334b6b;background:#111e32}html.dark .parts-ai-heading,html.dark .parts-ai-option strong{color:#dbeafe}html.dark .parts-ai-hint,html.dark .parts-ai-status,html.dark .parts-ai-description,html.dark .parts-ai-option small{color:#a0b4cf}@media(max-width:600px){.parts-ai-options{grid-template-columns:1fr}.parts-ai-tools{gap:8px}.parts-ai-hint{width:100%}}
+</style>
+<style id="partsAiSettingsStyle">.parts-ai-settings-note{display:none}.parts-ai-mode .quote-ocr-only{display:none}.parts-ai-mode .parts-ai-settings-note{display:block}.parts-ai-mode .quote-provider-grid{grid-template-columns:1fr}</style>
+<style id="partsFilterLayerStyle">
+/* Menus stay above AI suggestions; the open field also covers adjacent filters on narrow screens. */
+#searchPanel.control-panel > .grid{z-index:20}
+#searchPanel > .grid > .field-group:focus-within,
+#searchPanel > .grid > .field-group:has(> :is(#dropdownHang,#dropdownHieu,#dropdownNam,#dropdownType):not(.hidden)){z-index:20}
+</style>
+<style id="partsAiMultiSelectStyle">
+.parts-ai-option{display:grid;grid-template-columns:17px minmax(0,1fr);align-items:start;gap:9px}.parts-ai-option input{width:16px;height:16px;margin:3px 0 0;accent-color:#2563eb;cursor:pointer}.parts-ai-option strong,.parts-ai-option small{display:block}.parts-ai-option small{margin-top:5px}.parts-ai-option.is-selected{border-color:#6ea5f7;background:#eff6ff;box-shadow:0 0 0 1px #bfdbfe}html.dark .parts-ai-option.is-selected{border-color:#60a5fa;background:#193559;box-shadow:0 0 0 1px #315988}
+/* Scope action styles above library button resets, including [type=button]. */
+#partsAiResults .parts-ai-actions{display:grid;grid-template-columns:minmax(0,1fr) auto auto auto;align-items:center;gap:10px;margin-top:15px;padding:12px 13px;border:1px solid #dce7f5;border-radius:13px;background:linear-gradient(120deg,rgba(255,255,255,.98),rgba(241,247,255,.9));box-shadow:inset 0 1px 0 #fff,0 8px 20px -20px rgba(30,64,175,.35)}
+#partsAiResults .parts-ai-selection-count{display:inline-flex;align-items:center;justify-self:start;gap:8px;padding:7px 10px;border:1px solid #dce8fb;border-radius:9px;background:#f0f6ff;color:#365680;font-size:11px;font-weight:800;line-height:1.5}
+#partsAiResults .parts-ai-selection-count:before{content:'';flex:none;width:6px;height:6px;border-radius:50%;background:#3b82f6;box-shadow:0 0 0 3px #dbeafe}
+#partsAiResults :is(.parts-ai-select-action,.parts-ai-apply){position:relative;display:inline-flex;align-items:center;justify-content:center;gap:8px;min-width:0;min-height:42px;margin:0;padding:10px 13px;border:1px solid #d6e2f2;border-radius:11px;font-family:'Plus Jakarta Sans',sans-serif;font-size:11.5px;font-weight:800;line-height:1.4;white-space:nowrap;cursor:pointer;opacity:1;transition:border-color .18s ease,box-shadow .18s ease,transform .18s ease;-webkit-tap-highlight-color:transparent}
+#partsAiResults .parts-ai-select-action{background:linear-gradient(145deg,#fff,#f5f8fd);color:#415878;box-shadow:inset 0 1px 0 #fff,0 5px 12px -10px rgba(30,58,100,.25)}
+#partsAiResults .parts-ai-select-action .parts-ai-action-icon{color:#6684b1}
+#partsAiResults .parts-ai-select-action:not(:disabled):hover{transform:translateY(-1px);border-color:#aac7f2;background:linear-gradient(145deg,#fff,#eaf2ff);color:#1d4ed8;box-shadow:0 7px 16px -12px rgba(37,99,235,.5)}
+#partsAiResults .parts-ai-apply{padding-right:10px;border-color:#1d4ed8;background-color:#2563eb;background-image:linear-gradient(135deg,#2864e8 0%,#1d4ed8 60%,#1e40af 100%);color:#fff;box-shadow:inset 0 1px 0 rgba(255,255,255,.22),0 8px 18px -9px rgba(37,99,235,.55)}
+#partsAiResults .parts-ai-apply:not(:disabled):hover{transform:translateY(-1px);border-color:#1e40af;background-image:linear-gradient(135deg,#2563eb,#1d4ed8 55%,#1e3a8a);box-shadow:inset 0 1px 0 rgba(255,255,255,.24),0 11px 22px -10px rgba(37,99,235,.62)}
+#partsAiResults :is(.parts-ai-select-action,.parts-ai-apply):not(:disabled):active{transform:translateY(0) scale(.98)}
+#partsAiResults :is(.parts-ai-select-action,.parts-ai-apply):focus-visible{outline:3px solid #93c5fd;outline-offset:3px}
+#partsAiResults .parts-ai-action-icon{flex:none;width:16px;height:16px;stroke-width:1.9;pointer-events:none}
+#partsAiResults .parts-ai-action-count{display:inline-flex;flex:none;align-items:center;justify-content:center;min-width:23px;height:23px;padding:0 6px;border:1px solid rgba(255,255,255,.2);border-radius:7px;background:rgba(255,255,255,.15);color:inherit;font-size:10px;font-weight:800}
+#partsAiResults .parts-ai-action-count[hidden],#partsAiResults .parts-ai-action-spinner{display:none}
+#partsAiResults .parts-ai-apply[aria-busy="true"] .parts-ai-action-search{display:none}
+#partsAiResults .parts-ai-apply[aria-busy="true"] .parts-ai-action-spinner{display:block;animation:partsAiActionSpin .85s linear infinite}
+#partsAiResults :is(.parts-ai-select-action,.parts-ai-apply):disabled{border-color:#dce5f0;background:#edf2f8;color:#576983;box-shadow:inset 0 1px 0 rgba(255,255,255,.7);cursor:default;transform:none;opacity:1}
+#partsAiResults .parts-ai-select-action:disabled .parts-ai-action-icon{color:#8190a6}
+#partsAiResults .parts-ai-apply:disabled[aria-busy="true"]{border-color:#2563eb;background:#2563eb;color:#fff;cursor:wait}
+html.dark #partsAiResults .parts-ai-actions{border-color:#304560;background:linear-gradient(120deg,#15253b,#142137);box-shadow:inset 0 1px 0 rgba(255,255,255,.035)}
+html.dark #partsAiResults .parts-ai-selection-count{border-color:#2d486c;background:#1b3353;color:#bfdbfe}
+html.dark #partsAiResults .parts-ai-selection-count:before{background:#60a5fa;box-shadow:0 0 0 3px #244872}
+html.dark #partsAiResults .parts-ai-select-action{border-color:#344d70;background:linear-gradient(145deg,#20344f,#192b43);color:#d3e4fc;box-shadow:inset 0 1px 0 rgba(255,255,255,.05)}
+html.dark #partsAiResults .parts-ai-select-action .parts-ai-action-icon{color:#93b9eb}
+html.dark #partsAiResults .parts-ai-select-action:not(:disabled):hover{border-color:#5b85bd;background:#244365;color:#eff6ff}
+html.dark #partsAiResults :is(.parts-ai-select-action,.parts-ai-apply):disabled{border-color:#33485f;background:#21334b;color:#a2b3cc;box-shadow:none}
+html.dark #partsAiResults .parts-ai-apply:disabled[aria-busy="true"]{border-color:#3b82f6;background:#2563eb;color:#fff}
+@keyframes partsAiActionSpin{to{transform:rotate(360deg)}}
+@media(max-width:900px){#partsAiResults .parts-ai-actions{grid-template-columns:repeat(2,minmax(0,1fr));gap:9px;padding:11px}#partsAiResults .parts-ai-selection-count{grid-column:1/-1}#partsAiResults .parts-ai-apply{grid-column:1/-1}#partsAiResults :is(.parts-ai-select-action,.parts-ai-apply){min-height:44px;padding:10px 12px;font-size:11px}}
+@media(max-width:360px){#partsAiResults .parts-ai-select-action .parts-ai-action-icon,#partsAiResults .parts-ai-action-count{display:none}}
+@media(prefers-reduced-motion:reduce){#partsAiResults :is(.parts-ai-select-action,.parts-ai-apply){transition:none}#partsAiResults .parts-ai-action-spinner{animation:none!important}}
+</style>
 <link href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Cdefs%3E%3ClinearGradient id='g' x1='8' y1='6' x2='56' y2='58' gradientUnits='userSpaceOnUse'%3E%3Cstop stop-color='%2360a5fa'/%3E%3Cstop offset='.5' stop-color='%232563eb'/%3E%3Cstop offset='1' stop-color='%231e40af'/%3E%3C/linearGradient%3E%3C/defs%3E%3Crect x='4' y='4' width='54' height='54' rx='16' fill='url(%23g)'/%3E%3Crect x='6' y='6' width='50' height='50' rx='14' fill='none' stroke='%2393c5fd' stroke-opacity='.7'/%3E%3Cpath d='M27.7 15.5h7.1l.8 3a15 15 0 0 1 2.5 1.5l3-.9 3.6 6.2-2.3 2.2a11 11 0 0 1 0 2.7l2.3 2.2-3.6 6.2-3-.9a15 15 0 0 1-2.5 1.5l-.8 3h-7.1l-.8-3a15 15 0 0 1-2.5-1.5l-3 .9-3.6-6.2 2.3-2.2a11 11 0 0 1 0-2.7l-2.3-2.2 3.6-6.2 3 .9a15 15 0 0 1 2.5-1.5l.8-3Z' fill='none' stroke='white' stroke-width='2.8' stroke-linecap='round' stroke-linejoin='round'/%3E%3Ccircle cx='31.25' cy='28.85' r='5.2' fill='%23dbeafe' fill-opacity='.2' stroke='white' stroke-width='2.8'/%3E%3Ccircle cx='52' cy='51' r='8' fill='white'/%3E%3Ccircle cx='52' cy='51' r='5.4' fill='%2310b981'/%3E%3C/svg%3E" rel="icon" sizes="any" type="image/svg+xml"/>
 <link href="https://cdnjs.cloudflare.com/ajax/libs/flowbite/2.3.0/flowbite.min.css" rel="stylesheet"/>
 <script src="https://cdn.tailwindcss.com"></script>
@@ -3686,7 +3731,7 @@ html.dark #quotePriceSection #quoteResultBody .premium-empty-orbit::before,html.
 <div class="flex gap-2">
 <div class="relative w-full">
 <svg class="w-4 h-4 part-input-icon" fill="none" stroke="currentColor" viewbox="0 0 24 24"><path d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5"></path></svg>
-<input class="pro-input pr-10" id="searchInput" autocomplete="off" name="search_query" oninput="toggleClearBtn()" onkeydown="if(event.key==='Enter') { event.preventDefault(); searchData(); }" placeholder="Tìm tên." type="text"/>
+<input class="pro-input pr-10" id="searchInput" autocomplete="off" name="search_query" oninput="toggleClearBtn(); resetPartsAiSearch()" onkeydown="if(event.key==='Enter') { event.preventDefault(); searchData(); }" placeholder="Nhập tên phụ tùng..." type="text"/>
 <button class="hidden absolute right-3 top-1/2 -translate-y-1/2 w-5 h-5 bg-slate-200 hover:bg-slate-300 dark:bg-slate-800 dark:hover:bg-slate-700 text-slate-500 dark:text-slate-400 rounded-full flex items-center justify-center transition-all cursor-pointer z-10" id="clearSearchBtn" onclick="clearSearchInput()" title="Xóa từ khóa">
 <svg class="w-3 h-3" fill="none" stroke="currentColor" viewbox="0 0 24 24"><path d="M6 18L18 6M6 6l12 12" stroke-linecap="round" stroke-linejoin="round" stroke-width="3"></path></svg>
 </button>
@@ -3710,6 +3755,13 @@ html.dark #quotePriceSection #quoteResultBody .premium-empty-orbit::before,html.
 </button>
 </div>
 </div>
+<div class="parts-ai-tools">
+<button class="parts-ai-button" id="btnPartsAiSearch" type="button" onclick="runPartsAiSearch()"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true"><path d="m12 3 2.4 6.6L21 12l-6.6 2.4L12 21l-2.4-6.6L3 12l6.6-2.4L12 3Z" stroke-linejoin="round"/></svg><span>Tìm bằng AI</span></button>
+<button class="parts-ai-settings" type="button" onclick="openQuoteGeminiSettings('parts')">Cài đặt Gemini</button>
+<span class="parts-ai-hint">Hiểu cách gọi khác nhau, gợi ý tên có trong kho của xe đã chọn.</span>
+<div class="parts-ai-status" id="partsAiStatus" role="status" aria-live="polite"></div>
+</div>
+<div class="parts-ai-results" id="partsAiResults" hidden aria-label="Gợi ý tên phụ tùng từ kho"></div>
 </div>
 
 <div class="control-panel quote-price-panel exec-quote" id="quotePriceSection">
@@ -4846,14 +4898,15 @@ html.dark #modalFeedback .feedback-error-context{border-color:#7f1d1d;background
 <div class="quote-settings-card">
 <div class="quote-settings-head">
 <div>
-<div class="quote-settings-kicker">Cấu hình OCR báo giá</div>
-<div class="quote-settings-title">AI OCR Provider</div>
-<div class="quote-settings-desc">Chọn engine xử lý báo giá. Gemini đọc trực tiếp ảnh/PDF và bóc JSON. OCR.Space dùng API OCR miễn phí để lấy text, sau đó hệ thống tự tách bảng báo giá thành dòng phụ tùng để bạn kiểm tra/chỉnh lại trước khi tra kho. API key được lưu riêng theo từng tài khoản trong Firestore collection user_api_keys, không dùng chung giữa các user.</div>
-<div class="quote-api-owner-hint" id="quoteApiOwnerHint">Đang đọc cấu hình từ Firestore theo tài khoản hiện tại.</div>
+<div class="quote-settings-kicker">Cấu hình AI của tài khoản</div>
+<div class="quote-settings-title">Gemini & OCR</div>
+<div class="quote-settings-desc">Chọn công cụ đọc báo giá. API key được lưu riêng theo từng tài khoản.</div>
+<div class="quote-api-owner-hint" id="quoteApiOwnerHint">Đang đọc cấu hình của tài khoản hiện tại.</div>
+<div class="parts-ai-description parts-ai-settings-note">Tìm bằng AI sử dụng Gemini 3.5 Flash-Lite. Dùng API key của dự án Free Tier chưa bật thanh toán; hạn mức miễn phí do Google quy định. Nhập key rồi bấm Lưu cấu hình.</div>
 </div>
 <button class="quote-settings-close" onclick="closeQuoteGeminiSettings()" title="Đóng" type="button">×</button>
 </div>
-<label class="quote-settings-field">
+<label class="quote-settings-field quote-ocr-only">
 <span>Engine xử lý báo giá</span>
 <select class="quote-settings-select" id="quoteAiProviderSelect" onchange="saveQuoteAiProvider(); updateQuoteAiProviderUI()">
 <option value="gemini">Gemini 2.5 Flash — OCR + bóc JSON</option>
@@ -4865,12 +4918,12 @@ html.dark #modalFeedback .feedback-error-context{border-color:#7f1d1d;background
 <span>Gemini API Key của tài khoản này</span>
 <input autocomplete="off" id="quoteGeminiKeyInput" oninput="saveQuoteGeminiKey()" placeholder="Dán Gemini API Key riêng của user — có thể nhập nhiều key, mỗi dòng một key" type="password" value=""/>
 </label>
-<label class="quote-settings-field">
+<label class="quote-settings-field quote-ocr-only">
 <span>OCR.Space API Key của tài khoản này</span>
 <input autocomplete="off" id="quoteOcrSpaceKeyInput" oninput="saveQuoteOcrSpaceKey()" placeholder="Dán OCR.Space API Key riêng của user" type="password" value=""/>
 </label>
 </div>
-<div class="quote-provider-grid">
+<div class="quote-provider-grid quote-ocr-only">
 <label class="quote-settings-field">
 <span>Ngôn ngữ OCR.Space</span>
 <select class="quote-settings-select" id="quoteOcrSpaceLangSelect" onchange="saveQuoteOcrSpaceLanguage()">
@@ -4888,7 +4941,7 @@ html.dark #modalFeedback .feedback-error-context{border-color:#7f1d1d;background
 </select>
 </label>
 </div>
-<div class="quote-ai-provider-hint" id="quoteAiProviderHint"></div>
+<div class="quote-ai-provider-hint quote-ocr-only" id="quoteAiProviderHint"></div>
 <div class="quote-settings-actions">
 <button class="quote-settings-secondary" onclick="closeQuoteGeminiSettings()" type="button">Đóng</button>
 <button class="quote-settings-primary" onclick="saveQuoteGeminiSettings()" type="button">Lưu cấu hình</button>
@@ -6407,6 +6460,7 @@ html.dark #modalFeedback .feedback-error-context{border-color:#7f1d1d;background
             document.dispatchEvent(new CustomEvent('kgpt:auth-ready', { detail: { uid, role } }));
         }
         function hideApp() {
+            window.resetPartsAiSearch?.();
             updateView('login');
             clearQuoteApiInputsForPrivacy?.();
             const feedbackAdminNav = document.getElementById('tiSidebarAdmin');
@@ -7766,8 +7820,9 @@ Năm SX: ${nextMeta.nam_sx_all?.length || 0}`, 'success');
         function updateQuoteApiOwnerHint() {
             const hint = document.getElementById('quoteApiOwnerHint');
             if (!hint) return;
-            const source = QUOTE_API_SETTINGS_LOADED_FOR_UID === getQuoteApiOwnerId() ? 'Firestore user_api_keys' : 'bộ nhớ tạm/localStorage';
-            hint.textContent = `Đang dùng API key riêng cho: ${getQuoteApiOwnerLabel()} • Nguồn: ${source}`;
+            const status = QUOTE_API_SETTINGS_DIRTY ? 'Có thay đổi chưa lưu — bấm Lưu cấu hình.'
+                : QUOTE_API_SETTINGS_LOADED_FOR_UID === getQuoteApiOwnerId() ? 'Đã đồng bộ theo tài khoản.' : 'Đang lưu tạm trên trình duyệt — bấm Lưu cấu hình để dùng tìm bằng AI.';
+            hint.textContent = `API key riêng cho: ${getQuoteApiOwnerLabel()} • ${status}`;
         }
         function clearQuoteApiInputsForPrivacy() {
             ['quoteGeminiKeyInput', 'quoteOcrSpaceKeyInput'].forEach(id => {
@@ -7872,6 +7927,7 @@ Năm SX: ${nextMeta.nam_sx_all?.length || 0}`, 'success');
         window.saveQuoteGeminiKey = function() {
             const key = document.getElementById('quoteGeminiKeyInput')?.value?.trim() || '';
             setQuoteUserSetting(QUOTE_AI_STORAGE_KEYS.geminiKey, key);
+            updateQuoteApiOwnerHint();
         };
         window.saveQuoteOcrSpaceKey = function() {
             const key = document.getElementById('quoteOcrSpaceKeyInput')?.value?.trim() || '';
@@ -7885,13 +7941,22 @@ Năm SX: ${nextMeta.nam_sx_all?.length || 0}`, 'success');
             const engine = document.getElementById('quoteOcrSpaceEngineSelect')?.value || OCRSPACE_DEFAULT_ENGINE;
             setQuoteUserSetting(QUOTE_AI_STORAGE_KEYS.ocrSpaceEngine, engine);
         };
-        window.openQuoteGeminiSettings = async function() {
+        window.openQuoteGeminiSettings = async function(source = 'quote') {
             const modal = document.getElementById('quoteGeminiSettingsModal');
+            const isParts = source === 'parts';
+            modal?.classList.toggle('parts-ai-mode',isParts);
+            const title = modal?.querySelector('.quote-settings-title');
+            const description = modal?.querySelector('.quote-settings-desc');
+            if (title) title.textContent = isParts ? 'Gemini cho tra cứu dòng xe' : 'Gemini & OCR';
+            if (description) description.textContent = isParts
+                ? 'Dùng key đã lưu của tài khoản để tìm tên phụ tùng. Hãng, dòng xe và năm sản xuất được lọc riêng trong kho.'
+                : 'Chọn công cụ đọc báo giá. API key được lưu riêng theo từng tài khoản.';
             const providerSelect = document.getElementById('quoteAiProviderSelect');
             const geminiInput = document.getElementById('quoteGeminiKeyInput');
             const ocrInput = document.getElementById('quoteOcrSpaceKeyInput');
             const langSelect = document.getElementById('quoteOcrSpaceLangSelect');
             const engineSelect = document.getElementById('quoteOcrSpaceEngineSelect');
+            if (geminiInput) geminiInput.placeholder = isParts ? 'Dán Gemini API key Free Tier' : 'Dán Gemini API Key riêng — có thể nhập nhiều key, mỗi dòng một key';
             await loadQuoteApiSettingsForCurrentUser(true);
             if (providerSelect) providerSelect.value = getQuoteAiProvider();
             if (geminiInput) geminiInput.value = getQuoteUserSetting(QUOTE_AI_STORAGE_KEYS.geminiKey, '');
@@ -7900,7 +7965,7 @@ Năm SX: ${nextMeta.nam_sx_all?.length || 0}`, 'success');
             if (engineSelect) engineSelect.value = getQuoteUserSetting(QUOTE_AI_STORAGE_KEYS.ocrSpaceEngine, OCRSPACE_DEFAULT_ENGINE) || OCRSPACE_DEFAULT_ENGINE;
             updateQuoteAiProviderUI();
             if (modal) modal.classList.remove('hidden');
-            setTimeout(() => (providerSelect || geminiInput)?.focus(), 50);
+            setTimeout(() => (isParts ? geminiInput : providerSelect || geminiInput)?.focus(), 50);
         };
         window.closeQuoteGeminiSettings = function() {
             document.getElementById('quoteGeminiSettingsModal')?.classList.add('hidden');
@@ -7918,10 +7983,10 @@ Năm SX: ${nextMeta.nam_sx_all?.length || 0}`, 'success');
                 QUOTE_API_SETTINGS_DIRTY = false;
                 updateQuoteAiProviderUI();
                 closeQuoteGeminiSettings();
-                customAlert(`Đã lưu cấu hình AI OCR riêng cho ${getQuoteApiOwnerLabel()} vào Firestore.`, 'success');
+                customAlert(`Đã lưu cấu hình AI cho ${getQuoteApiOwnerLabel()}.`, 'success');
             } catch (error) {
                 console.error('Không lưu được API key vào Firestore:', error);
-                customAlert('Không lưu được API key vào Firestore: ' + error.message + '\n\nHệ thống vẫn giữ tạm trên trình duyệt hiện tại.', 'error');
+                customAlert('Không lưu được API key cho tài khoản: ' + error.message + '\n\nHệ thống vẫn giữ tạm trên trình duyệt hiện tại.', 'error');
             }
         };
         async function initQuoteAiSettings() {
@@ -7952,6 +8017,7 @@ Năm SX: ${nextMeta.nam_sx_all?.length || 0}`, 'success');
             const input = document.getElementById('exactPartName');
             const btn = document.getElementById('btnExactPartName');
             if (!input || !btn) return;
+            window.resetPartsAiSearch?.();
             const isActive = input.value === '1';
             input.value = isActive ? '0' : '1';
             if (input.value === '1') btn.classList.add('active');
@@ -7966,6 +8032,7 @@ Năm SX: ${nextMeta.nam_sx_all?.length || 0}`, 'success');
             else btn.classList.add('hidden');
         };
         window.clearSearchInput = function() {
+            window.resetPartsAiSearch?.();
             const input = document.getElementById('searchInput');
             input.value = '';
             EXACT_SOURCE_CONTEXT = null;
@@ -8129,6 +8196,7 @@ Năm SX: ${nextMeta.nam_sx_all?.length || 0}`, 'success');
             closeAllQuoteDropdowns();
         });
         window.clearFilters = function() {
+            window.resetPartsAiSearch?.();
             selectHang(''); clearAllNam(); selectType('all');
             document.getElementById('searchInput').value = '';
             document.getElementById('exactPartName').value = '0';
@@ -8171,14 +8239,212 @@ Năm SX: ${nextMeta.nam_sx_all?.length || 0}`, 'success');
             return new Date(raw).getTime() || 0;
         }
 
+        // PARTS_AI_SEARCH_BEGIN
+        let PARTS_AI_REVISION = 0;
+        let PARTS_AI_STATE = null;
+        let PARTS_AI_SELECTED = null;
+        function getPartsAiCriteria() {
+            return {
+                query: String(document.getElementById('searchInput')?.value || '').trim(),
+                brand: String(document.getElementById('filterHang')?.value || '').trim(),
+                models: Array.from(document.querySelectorAll('input[name="hieu_xe"]:checked')).map(cb => cb.value).sort(),
+                years: Array.from(document.querySelectorAll('input[name="nam_sx"]:checked')).map(cb => Number(cb.value)).sort((a,b) => a-b),
+                kind: document.getElementById('filterType')?.value || 'all'
+            };
+        }
+        function partsAiScopeKey(criteria = getPartsAiCriteria()) {
+            return JSON.stringify({ uid: auth.currentUser?.uid || '', brand: criteria.brand, models: criteria.models, years: criteria.years, kind: criteria.kind });
+        }
+        function setPartsAiStatus(message = '', tone = '') {
+            const node = document.getElementById('partsAiStatus');
+            if (node) { node.textContent = message; node.dataset.tone = tone; }
+        }
+        function setPartsAiBusy(busy) {
+            const button = document.getElementById('btnPartsAiSearch');
+            if (!button) return;
+            button.disabled = busy;
+            button.setAttribute('aria-busy',String(busy));
+            const label = button.querySelector('span');
+            if (label) label.textContent = busy ? 'Đang tìm bằng AI...' : 'Tìm bằng AI';
+        }
+        window.resetPartsAiSearch = function() {
+            ++PARTS_AI_REVISION;
+            PARTS_AI_STATE = null;
+            PARTS_AI_SELECTED = null;
+            const panel = document.getElementById('partsAiResults');
+            if (panel) { panel.replaceChildren(); panel.hidden = true; }
+            setPartsAiBusy(false);
+            setPartsAiStatus('');
+        };
+        function getSelectedPartsAiNames() {
+            const selected = PARTS_AI_SELECTED;
+            if (!selected) return [];
+            const criteria = getPartsAiCriteria();
+            return criteria.query === selected.query && partsAiScopeKey(criteria) === selected.scope ? [...selected.names] : [];
+        }
+        function currentPartsAiState(ticket) {
+            const state = PARTS_AI_STATE;
+            if (!state || ticket !== PARTS_AI_REVISION || state.scope !== partsAiScopeKey() || state.criteria.query !== getPartsAiCriteria().query) {
+                resetPartsAiSearch(); setPartsAiStatus('Tên tìm hoặc bộ lọc đã thay đổi. Bấm Tìm bằng AI để nhận gợi ý mới.','error'); return null;
+            }
+            if (!auth.currentUser?.uid || !canCurrentUserAccessPage('parts','view')) {
+                setPartsAiStatus('Tài khoản không có quyền tra cứu theo dòng xe.','error'); return null;
+            }
+            return state;
+        }
+        function createPartsAiActionIcon(kind) {
+            const paths = {
+                all: 'M9 12l2 2 4-4M7 3h10a2 2 0 0 1 2 2v12a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2ZM2 8v12a2 2 0 0 0 2 2h10',
+                clear: 'M9 9l6 6m0-6-6 6M7 3h10a2 2 0 0 1 2 2v12a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2Z',
+                search: 'm21 21-4.5-4.5M19 10.5a8.5 8.5 0 1 1-17 0 8.5 8.5 0 0 1 17 0Z',
+                spinner: 'M12 3a9 9 0 1 1-9 9'
+            };
+            const icon = document.createElementNS('http://www.w3.org/2000/svg','svg');
+            icon.setAttribute('class','parts-ai-action-icon parts-ai-action-' + kind);
+            icon.setAttribute('viewBox','0 0 24 24'); icon.setAttribute('fill','none'); icon.setAttribute('stroke','currentColor');
+            icon.setAttribute('stroke-linecap','round'); icon.setAttribute('stroke-linejoin','round'); icon.setAttribute('aria-hidden','true');
+            const path = document.createElementNS('http://www.w3.org/2000/svg','path'); path.setAttribute('d',paths[kind]); icon.appendChild(path);
+            return icon;
+        }
+        function updatePartsAiSelectionUI() {
+            const state = PARTS_AI_STATE;
+            if (!state?.controls) return;
+            const { counter, apply, applyLabel, applyCount, all, clear, inputs } = state.controls;
+            counter.textContent = `${state.draft.size}/${state.candidates.length} tên đã chọn`;
+            apply.disabled = !state.draft.size || !!state.loading;
+            applyLabel.textContent = state.loading ? 'Đang tải giá...' : 'Xem kết quả đã chọn';
+            applyCount.textContent = String(state.draft.size);
+            applyCount.hidden = !state.draft.size || !!state.loading;
+            all.disabled = !!state.loading || state.draft.size === state.candidates.length;
+            clear.disabled = !!state.loading || !state.draft.size;
+            apply.setAttribute('aria-busy',String(!!state.loading));
+            inputs.forEach(({ input, card },index) => {
+                input.checked = state.draft.has(index);
+                card.classList.toggle('is-selected',input.checked);
+            });
+        }
+        window.togglePartsAiCandidate = function(index,ticket,checked) {
+            const state = currentPartsAiState(ticket);
+            if (!state || !state.candidates[index]) return;
+            if (checked) state.draft.add(index); else state.draft.delete(index);
+            updatePartsAiSelectionUI();
+            setPartsAiStatus(`Đã chọn ${state.draft.size} tên. Bấm Xem kết quả đã chọn để áp dụng.`);
+        };
+        window.selectAllPartsAiCandidates = function(ticket,checked) {
+            const state = currentPartsAiState(ticket);
+            if (!state) return;
+            state.draft = new Set(checked ? state.candidates.map((_,index) => index) : []);
+            updatePartsAiSelectionUI();
+            setPartsAiStatus(`Đã chọn ${state.draft.size} tên. Bấm Xem kết quả đã chọn để áp dụng.`);
+        };
+        window.applyPartsAiSelection = async function(ticket) {
+            const state = currentPartsAiState(ticket);
+            if (!state || state.loading) return;
+            const names = [...new Set(state.candidates.filter((_,index) => state.draft.has(index)).map(c => c.name))];
+            if (!names.length) { setPartsAiStatus('Chọn ít nhất một tên phụ tùng trước khi xem kết quả.','error'); return; }
+            document.getElementById('exactPartName').value = '1';
+            document.getElementById('btnExactPartName')?.classList.add('active');
+            EXACT_SOURCE_CONTEXT = null;
+            PARTS_AI_SELECTED = { names, query: state.criteria.query, scope: state.scope };
+            state.loading = true;
+            updatePartsAiSelectionUI();
+            setPartsAiStatus(`Đang tải các bản ghi giá của ${names.length} tên đã chọn...`);
+            try {
+                const loaded = await searchData();
+                if (ticket === PARTS_AI_REVISION && state.scope === partsAiScopeKey() && state.criteria.query === getPartsAiCriteria().query) {
+                    setPartsAiStatus(loaded === false ? 'Chưa tải được kết quả. Hãy kiểm tra bộ lọc và thử lại.' : `Đang hiển thị kết quả của ${names.length} tên đã áp dụng.`, loaded === false ? 'error' : '');
+                }
+            } finally {
+                state.loading = false;
+                if (ticket === PARTS_AI_REVISION) updatePartsAiSelectionUI();
+            }
+        };
+        function renderPartsAiCandidates(data, ticket) {
+            const panel = document.getElementById('partsAiResults');
+            if (!panel) return;
+            panel.replaceChildren(); panel.hidden = false;
+            const heading = document.createElement('p'); heading.className = 'parts-ai-heading';
+            heading.textContent = 'AI hiểu: ' + (data.normalized_name || PARTS_AI_STATE.criteria.query);
+            panel.appendChild(heading);
+            const note = document.createElement('p'); note.className = 'parts-ai-description';
+            note.textContent = (data.clarification ? data.clarification + ' ' : '') + 'Có thể chọn nhiều tên rồi bấm Xem kết quả đã chọn. Kiểm tra vị trí và loại chi tiết trước khi chọn.';
+            panel.appendChild(note);
+            const list = document.createElement('div'); list.className = 'parts-ai-options';
+            const inputs = [];
+            PARTS_AI_STATE.candidates.forEach((candidate,index) => {
+                const card = document.createElement('label'); card.className = 'parts-ai-option';
+                const input = document.createElement('input'); input.type = 'checkbox'; input.setAttribute('aria-label',candidate.name);
+                input.addEventListener('change',() => togglePartsAiCandidate(index,ticket,input.checked));
+                const text = document.createElement('div');
+                const name = document.createElement('strong'); name.textContent = candidate.name;
+                const meta = document.createElement('small');
+                const reviews = Array.isArray(candidate.review_reasons) ? candidate.review_reasons : [];
+                meta.textContent = `${Number(candidate.record_count || 0)} bản ghi trong bộ lọc đã chọn` + (reviews.length ? ' · Cần xác nhận: ' + reviews.join('; ') : '');
+                meta.dataset.review = String(reviews.length > 0);
+                text.append(name,meta); card.append(input,text); list.appendChild(card); inputs.push({ input, card });
+            });
+            panel.appendChild(list);
+            const actions = document.createElement('div'); actions.className = 'parts-ai-actions';
+            actions.setAttribute('role','group'); actions.setAttribute('aria-label','Thao tác với các tên phụ tùng');
+            const counter = document.createElement('span'); counter.className = 'parts-ai-selection-count'; counter.setAttribute('role','status');
+            const all = document.createElement('button'); all.type = 'button'; all.className = 'parts-ai-select-action';
+            const allLabel = document.createElement('span'); allLabel.textContent = 'Chọn tất cả'; all.append(createPartsAiActionIcon('all'),allLabel);
+            all.addEventListener('click',() => selectAllPartsAiCandidates(ticket,true));
+            const clear = document.createElement('button'); clear.type = 'button'; clear.className = 'parts-ai-select-action';
+            const clearLabel = document.createElement('span'); clearLabel.textContent = 'Bỏ chọn'; clear.append(createPartsAiActionIcon('clear'),clearLabel);
+            clear.addEventListener('click',() => selectAllPartsAiCandidates(ticket,false));
+            const apply = document.createElement('button'); apply.type = 'button'; apply.className = 'parts-ai-apply'; apply.addEventListener('click',() => applyPartsAiSelection(ticket));
+            const applyLabel = document.createElement('span'); applyLabel.className = 'parts-ai-action-label';
+            const applyCount = document.createElement('span'); applyCount.className = 'parts-ai-action-count'; applyCount.setAttribute('aria-hidden','true');
+            apply.append(createPartsAiActionIcon('search'),createPartsAiActionIcon('spinner'),applyLabel,applyCount);
+            actions.append(counter,all,clear,apply); panel.appendChild(actions);
+            PARTS_AI_STATE.controls = { counter, apply, applyLabel, applyCount, all, clear, inputs };
+            updatePartsAiSelectionUI();
+        }
+        window.runPartsAiSearch = async function() {
+            if (!auth.currentUser?.uid || !canCurrentUserAccessPage('parts','view')) {
+                setPartsAiStatus('Vui lòng đăng nhập bằng tài khoản được cấp quyền tra cứu theo dòng xe.','error'); return;
+            }
+            const criteria = getPartsAiCriteria();
+            if (criteria.query.length < 2) { setPartsAiStatus('Nhập tên hoặc mô tả phụ tùng cần tìm.','error'); document.getElementById('searchInput')?.focus(); return; }
+            if (!criteria.brand || !criteria.models.length) { setPartsAiStatus('Chọn hãng và ít nhất một dòng xe trước khi tìm bằng AI.','error'); return; }
+            resetPartsAiSearch();
+            const ticket = PARTS_AI_REVISION, scope = partsAiScopeKey(criteria);
+            PARTS_AI_STATE = { criteria, scope, candidates: [], draft: new Set(), loading: false };
+            const isCurrent = () => ticket === PARTS_AI_REVISION && scope === partsAiScopeKey() && criteria.query === getPartsAiCriteria().query;
+            setPartsAiBusy(true); setPartsAiStatus('Đang hiểu tên phụ tùng và đối chiếu với kho của xe đã chọn...');
+            try {
+                const { data, error } = await supabase.functions.invoke('kgpt-ai-part-search',{ body: criteria });
+                if (!isCurrent()) { if (ticket === PARTS_AI_REVISION) resetPartsAiSearch(); return; }
+                if (error) {
+                    let details; try { details = await error.context?.json(); } catch (_) {}
+                    throw new Error(details?.error || 'Chưa tìm được bằng AI. Bạn có thể thử lại hoặc dùng tìm kiếm thường.');
+                }
+                PARTS_AI_STATE.candidates = Array.isArray(data?.candidates) ? data.candidates.filter(c => typeof c?.name === 'string' && c.name.trim()).slice(0,12) : [];
+                renderPartsAiCandidates(data || {},ticket);
+                setPartsAiStatus(PARTS_AI_STATE.candidates.length
+                    ? `Tìm thấy ${PARTS_AI_STATE.candidates.length} tên trong kho. Đánh dấu một hoặc nhiều tên cần tra.`
+                    : 'Kho chưa có tên phù hợp trong bộ lọc này. Hãy mô tả rõ hơn hoặc kiểm tra dòng xe/năm sản xuất.');
+            } catch (error) {
+                if (isCurrent()) setPartsAiStatus(error.message || 'Không kết nối được Gemini. Hãy thử lại sau.','error');
+            } finally { if (ticket === PARTS_AI_REVISION) setPartsAiBusy(false); }
+        };
+        // PARTS_AI_SEARCH_END
+
         // THỰC THI TRA CỨU PHỤ TÙNG DATA
+        let PARTS_DATA_SEARCH_REVISION = 0;
         window.searchData = async function(options = {}) {
+            const searchRevision = ++PARTS_DATA_SEARCH_REVISION;
             const hang = document.getElementById('filterHang').value;
             const hieus = Array.from(document.querySelectorAll('input[name="hieu_xe"]:checked')).map(cb => cb.value);
             const nams = Array.from(document.querySelectorAll('input[name="nam_sx"]:checked')).map(cb => cb.value);
             const type = document.getElementById('filterType').value;
             const search = document.getElementById('searchInput').value.toLowerCase().trim();
             const exactPartName = document.getElementById('exactPartName')?.value === '1';
+            const aiWarehouseNames = exactPartName ? getSelectedPartsAiNames() : [];
+            const aiNameSet = new Set(aiWarehouseNames);
+            const aiSearchScope = aiWarehouseNames.length ? partsAiScopeKey() : '';
+            const searchDescription = aiWarehouseNames.length ? aiWarehouseNames.join(' | ') : search;
             const loading = document.getElementById('loadingIndicator');
             const silent = !!options?.silent;
             const skipLog = !!options?.skipLog;
@@ -8187,19 +8453,23 @@ Năm SX: ${nextMeta.nam_sx_all?.length || 0}`, 'success');
             if (hang) constraints.push(where("hang_xe", "==", hang));
             if (hieus.length > 0) constraints.push(where("hieu_xe", "in", hieus.slice(0, 30)));
             
-            // Firestore only allows one 'in' clause. If hieus has 'in', we can't use 'in' for nams.
+            // PostgreSQL áp dụng đồng thời bộ lọc dòng xe và năm trước khi giới hạn kết quả.
             if (nams.length === 1) {
                 constraints.push(where("nam_sx", "==", parseInt(nams[0])));
-            } else if (nams.length > 1 && hieus.length === 0) {
+            } else if (nams.length > 1) {
                 constraints.push(where("nam_sx", "in", nams.map(n => parseInt(n)).slice(0, 30)));
             }
             if (type === 'genuine') constraints.push(where("chinh_hang", "==", "Chính hãng"));
+            if (aiWarehouseNames.length) constraints.push(where('ten_phu_tung','in',aiWarehouseNames));
+            if (aiWarehouseNames.length && type === 'aftermarket') constraints.push(where('chinh_hang','in',['Thay thế','Hàng ngoài']));
             // if (type === 'aftermarket') constraints.push(where("chinh_hang", "==", "Thay thế")); // Bỏ filter DB vì giá trị aftermarket có thể là Thay thế hoặc Hàng ngoài
 
             const queryLimit = exactPartName && search ? 1500 : 500;
             constraints.push(limit(queryLimit));
             try {
                 const snap = await getDocs(query(collection(db, "LichSuBaoGia"), ...constraints));
+                if (searchRevision !== PARTS_DATA_SEARCH_REVISION) return false;
+                if (aiWarehouseNames.length && (aiSearchScope !== partsAiScopeKey() || document.getElementById('exactPartName')?.value !== '1' || JSON.stringify(aiWarehouseNames) !== JSON.stringify(getSelectedPartsAiNames()))) return false;
                 MASTER_DATA = [];
                 snap.forEach(docSnap => {
                     const item = docSnap.data(); item.id = docSnap.id;
@@ -8208,6 +8478,10 @@ Năm SX: ${nextMeta.nam_sx_all?.length || 0}`, 'success');
                     const tenPhuTung = (item.ten_phu_tung || '').toLowerCase().trim();
                     if (type === 'genuine' && !isGenuinePartType(item.chinh_hang)) return;
                     if (type === 'aftermarket' && !isAftermarketPartType(item.chinh_hang)) return;
+                    if (aiNameSet.size) {
+                        if (aiNameSet.has(String(item.ten_phu_tung || ''))) MASTER_DATA.push(item);
+                        return;
+                    }
                     if (!search) {
                         MASTER_DATA.push(item);
                         return;
@@ -8227,7 +8501,8 @@ Năm SX: ${nextMeta.nam_sx_all?.length || 0}`, 'success');
                 // Save search to recent activities
                 window.saveRecentActivity?.({
                     type: 'search',
-                    search: search,
+                    search: searchDescription,
+                    selectedPartNames: aiWarehouseNames,
                     hang: hang,
                     hieus: hieus,
                     nam: nams[0] || '',
@@ -8247,8 +8522,8 @@ Năm SX: ${nextMeta.nam_sx_all?.length || 0}`, 'success');
                         await addDoc(collection(db, "user_logs"), {
                             email: currentUserProfile.email,
                             action: "Tra cứu",
-                            details: `Từ khóa: "${search || 'Trống'}" — Chế độ: ${exactPartName ? 'Khớp chính xác' : 'Tìm gần đúng'}${EXACT_SOURCE_CONTEXT?.so_hsbt ? ' — Nguồn chọn HSBT: ' + EXACT_SOURCE_CONTEXT.so_hsbt : ''} — Hãng: ${hang || 'Tất cả'}, ${hieus.length ? hieus.length + ' dòng' : 'Tất cả dòng'} — Kết quả: ${MASTER_DATA.length}`,
-                            searchKeyword: search || '',
+                            details: `Từ khóa: "${searchDescription || 'Trống'}" — Chế độ: ${aiWarehouseNames.length ? 'Khớp ' + aiWarehouseNames.length + ' tên đã chọn' : exactPartName ? 'Khớp chính xác' : 'Tìm gần đúng'}${EXACT_SOURCE_CONTEXT?.so_hsbt ? ' — Nguồn chọn HSBT: ' + EXACT_SOURCE_CONTEXT.so_hsbt : ''} — Hãng: ${hang || 'Tất cả'}, ${hieus.length ? hieus.length + ' dòng' : 'Tất cả dòng'} — Kết quả: ${MASTER_DATA.length}`,
+                            searchKeyword: searchDescription || '',
                             resultCount: MASTER_DATA.length,
                             exactPartName: exactPartName,
                             hangXe: hang || '',
@@ -8259,11 +8534,13 @@ Năm SX: ${nextMeta.nam_sx_all?.length || 0}`, 'success');
                         });
                     } catch (logErr) { console.warn("Lỗi ghi log nghiệp vụ tra cứu:", logErr); }
                 }
+                return true;
             } catch (e) {
                 console.error(e);
                 if (!silent) customAlert("Lỗi máy chủ khi tải dữ liệu phụ tùng: " + e.message);
+                return false;
             } finally {
-                if (loading) loading.classList.add('hidden');
+                if (loading && searchRevision === PARTS_DATA_SEARCH_REVISION) loading.classList.add('hidden');
             }
         };
         function parsePriceValue(value) {
@@ -8490,11 +8767,14 @@ Năm SX: ${nextMeta.nam_sx_all?.length || 0}`, 'success');
                 return;
             }
             banner.classList.remove('hidden');
-            nameEl.innerText = partName;
+            const aiNames = getSelectedPartsAiNames();
+            nameEl.innerText = aiNames.length ? aiNames.join(' · ') : partName;
+            nameEl.title = nameEl.innerText;
             const source = EXACT_SOURCE_CONTEXT?.so_hsbt ? ` • Bao gồm hồ sơ đang chọn: ${EXACT_SOURCE_CONTEXT.so_hsbt}` : '';
-            metaEl.innerText = `${MASTER_DATA.length} kết quả khớp chính xác${source}`;
+            metaEl.innerText = `${MASTER_DATA.length} kết quả khớp chính xác${aiNames.length > 1 ? ' với ' + aiNames.length + ' tên đã chọn' : ''}${source}`;
         }
         window.clearExactPartFilter = function() {
+            window.resetPartsAiSearch?.();
             const input = document.getElementById('searchInput');
             const exactInput = document.getElementById('exactPartName');
             if (input) input.value = '';
@@ -8508,6 +8788,7 @@ Năm SX: ${nextMeta.nam_sx_all?.length || 0}`, 'success');
         window.searchExactPartFromResult = function(id) {
             const item = MASTER_DATA.find(i => i.id === id);
             if (!item || !item.ten_phu_tung) return;
+            window.resetPartsAiSearch?.();
             const partName = String(item.ten_phu_tung || '').trim();
             const input = document.getElementById('searchInput');
             const exactInput = document.getElementById('exactPartName');
@@ -11149,6 +11430,7 @@ ${text}` });
             }
         };
         window.applyQuotePartToMainSearch = function(encodedName) {
+            window.resetPartsAiSearch?.();
             const name = decodeURIComponent(encodedName || '');
             const input = document.getElementById('searchInput');
             const exactInput = document.getElementById('exactPartName');
